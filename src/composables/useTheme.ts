@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { generate_tag_colors } from '@/utils/colorContrast'
 
 // 主题配置
 export interface ThemeConfig {
@@ -11,6 +12,8 @@ export interface ThemeConfig {
         primaryBg: string
         border: string
         secondary: string
+        tagBg: string
+        tagText: string
     }
 }
 
@@ -26,6 +29,7 @@ export const themes: ThemeConfig[] = [
             primaryBg: '#ffe4e6',
             border: '#fecdd3',
             secondary: '#2dd4bf',
+            ...generate_tag_colors('#fb7185', 4.5),
         }
     },
     {
@@ -38,6 +42,7 @@ export const themes: ThemeConfig[] = [
             primaryBg: '#cffafe',
             border: '#e2e8f0',
             secondary: '#2dd4bf',
+            ...generate_tag_colors('#22d3ee', 4.5),
         }
     }
 ]
@@ -64,6 +69,8 @@ function apply_theme(theme: ThemeConfig) {
     root.style.setProperty('--c-primary-bg', theme.colors.primaryBg)
     root.style.setProperty('--c-border', theme.colors.border)
     root.style.setProperty('--c-secondary', theme.colors.secondary)
+    root.style.setProperty('--c-tag-bg', theme.colors.tagBg)
+    root.style.setProperty('--c-tag-text', theme.colors.tagText)
     localStorage.setItem('theme', theme.name)
 }
 

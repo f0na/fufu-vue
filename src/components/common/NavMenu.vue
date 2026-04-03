@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useTheme } from '@/composables/useTheme'
+
+const router = useRouter()
 
 const is_expanded = ref(false)
 const show_more_menu = ref(false)
@@ -10,18 +13,18 @@ const close_timer = ref<ReturnType<typeof setTimeout> | null>(null)
 const { next_theme } = useTheme()
 
 const menu_items = [
-    { label: '归档', key: 'archive', icon: 'i-lucide-archive' },
-    { label: '链接', key: 'links', icon: 'i-lucide-link' },
-    { label: '追番', key: 'anime', icon: 'i-simple-icons-bilibili' },
-    { label: '相册', key: 'gallery', icon: 'i-lucide-image' },
-    { label: '友人帐', key: 'friends', icon: 'i-lucide-users' }
+    { label: '归档', key: 'archive', icon: 'i-lucide-archive', route: '/archive' },
+    { label: '链接', key: 'links', icon: 'i-lucide-link', route: '/links' },
+    { label: '追番', key: 'anime', icon: 'i-simple-icons-bilibili', route: '/anime' },
+    { label: '相册', key: 'gallery', icon: 'i-lucide-image', route: '/home/gallery' },
+    { label: '友人帐', key: 'friends', icon: 'i-lucide-users', route: '/friends' }
 ]
 
 const more_items = [
-    { label: '文章', key: 'articles', icon: 'i-lucide-file-text' },
-    { label: '关于', key: 'about', icon: 'i-lucide-info' },
-    { label: '小工具', key: 'tools', icon: 'i-lucide-wrench' },
-    { label: '网站状态', key: 'status', icon: 'i-lucide-activity' }
+    { label: '文章', key: 'articles', icon: 'i-lucide-file-text', route: '/articles' },
+    { label: '关于', key: 'about', icon: 'i-lucide-info', route: '/about' },
+    { label: '小工具', key: 'tools', icon: 'i-lucide-wrench', route: '/tools' },
+    { label: '网站状态', key: 'status', icon: 'i-lucide-activity', route: '/status' }
 ]
 
 const dropdown_position = computed(() => {
@@ -34,13 +37,18 @@ const dropdown_position = computed(() => {
 })
 
 function handle_menu_click(key: string) {
-    // TODO: 实现路由跳转
-    console.log('菜单点击:', key)
+    const item = menu_items.find(m => m.key === key)
+    if (item?.route) {
+        router.push(item.route)
+    }
 }
 
 function handle_more_click(key: string) {
     show_more_menu.value = false
-    handle_menu_click(key)
+    const item = more_items.find(m => m.key === key)
+    if (item?.route) {
+        router.push(item.route)
+    }
 }
 
 function handle_mouse_enter() {

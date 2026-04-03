@@ -4,7 +4,6 @@ import NavMenu from '@/components/common/NavMenu.vue'
 import HeaderBanner from '@/components/home/HeaderBanner.vue'
 import ProfileWidget from '@/components/home/ProfileWidget.vue'
 import AnnouncementWidget from '@/components/home/AnnouncementWidget.vue'
-import WelcomeSection from '@/components/home/WelcomeSection.vue'
 import FooterSection from '@/components/home/FooterSection.vue'
 import MascotArea from '@/components/home/MascotArea.vue'
 
@@ -91,7 +90,7 @@ onUnmounted(() => {
 
                 <!-- 中间内容区 -->
                 <div class="flex-1 min-w-0">
-                    <welcome-section />
+                    <router-view />
                 </div>
 
                 <!-- 右侧看板娘 -->
