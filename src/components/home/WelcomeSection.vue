@@ -2,7 +2,7 @@
 const welcome_content = {
     title: '欢迎来到 fufu 的二次元小窝',
     subtitle: 'Ciallo～(∠・ω< )⌒★',
-    description: '这里是我的个人空间，记录生活、分享创作。希望你能在这里找到喜欢的内容。'
+    description: '这里是我的小窝，记录生活、分享创作。希望你能在这里找到喜欢的内容。'
 }
 </script>
 
