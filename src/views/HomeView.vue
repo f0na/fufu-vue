@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import NavMenu from '@/components/common/NavMenu.vue'
 import HeaderBanner from '@/components/home/HeaderBanner.vue'
 import ProfileWidget from '@/components/home/ProfileWidget.vue'
 import AnnouncementWidget from '@/components/home/AnnouncementWidget.vue'
@@ -73,6 +74,9 @@ onUnmounted(() => {
 
 <template>
     <div class="min-h-screen flex flex-col bg-slate-50">
+        <!-- 导航菜单 -->
+        <nav-menu />
+
         <!-- 顶部横幅 -->
         <header-banner :height="header_height" />
 
