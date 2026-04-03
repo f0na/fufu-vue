@@ -13,16 +13,16 @@ const footer_config = {
 <template>
     <footer class="py-6 px-4 text-center">
         <!-- 版权信息 -->
-        <p class="text-sm text-gray-500 mb-2">
+        <p class="text-sm text-slate-500 mb-2">
             {{ footer_config.copyright }}
         </p>
 
         <!-- 链接 -->
-        <div class="flex items-center justify-center gap-4 text-xs text-gray-400">
+        <div class="flex items-center justify-center gap-4 text-xs text-[var(--c-primary-light)]">
             <span>{{ footer_config.icp }}</span>
             <span>|</span>
             <a v-for="link in footer_config.links" :key="link.name" :href="link.url"
-                class="hover:text-cyan-500 transition-colors">
+                class="hover:text-[var(--c-primary)] transition-colors">
                 {{ link.name }}
             </a>
         </div>

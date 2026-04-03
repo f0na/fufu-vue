@@ -34,7 +34,7 @@ onUnmounted(() => {
 
 <template>
     <div
-        class="flex flex-col items-center gap-1 p-3 rounded-xl backdrop-blur-md bg-white/10 border border-white/20 w-32 shrink-0"
+        class="flex flex-col items-center gap-1 p-3 rounded-xl backdrop-blur-md bg-white/10 border border-rose-200/30 w-32 shrink-0"
     >
         <!-- 时间 -->
         <div class="text-2xl font-mono font-bold text-white tracking-wider">
@@ -42,7 +42,7 @@ onUnmounted(() => {
         </div>
 
         <!-- 日期 -->
-        <div class="text-xs text-white/70">
+        <div class="text-xs text-rose-100/80">
             {{ current_date }}
         </div>
     </div>

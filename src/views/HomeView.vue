@@ -73,7 +73,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="min-h-screen flex flex-col bg-slate-50">
+    <div class="min-h-screen flex flex-col bg-[var(--c-bg)]">
         <!-- 导航菜单 -->
         <nav-menu />
 

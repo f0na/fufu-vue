@@ -22,7 +22,7 @@ onMounted(() => {
 
 <template>
     <div
-        class="relative w-40 h-28 rounded-xl overflow-hidden backdrop-blur-md bg-white/10 border border-white/20 cursor-pointer group shrink-0"
+        class="relative w-40 h-28 rounded-xl overflow-hidden backdrop-blur-md bg-white/10 border border-rose-200/30 cursor-pointer group shrink-0"
         @click="refresh_image"
     >
         <!-- 图片 -->
@@ -35,13 +35,13 @@ onMounted(() => {
 
         <!-- 刷新按钮遮罩 -->
         <div
-            class="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity"
+            class="absolute inset-0 flex items-center justify-center bg-rose-900/30 opacity-0 group-hover:opacity-100 transition-opacity"
         >
             <div class="i-lucide-refresh-cw w-6 h-6 text-white" />
         </div>
 
         <!-- 标签 -->
-        <div class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-black/50 text-xs text-white">
+        <div class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-rose-500/50 text-xs text-white">
             随机相册
         </div>
     </div>

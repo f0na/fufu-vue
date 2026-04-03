@@ -44,7 +44,7 @@ const editor = useEditor({
     ],
     editorProps: {
         attributes: {
-            class: 'w-full min-h-[120px] max-h-[200px] px-4 py-2 text-base rounded-lg border border-gray-300 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all overflow-y-auto bg-white max-w-none'
+            class: 'w-full min-h-[120px] max-h-[200px] px-4 py-2 text-base rounded-lg border border-gray-300 focus:border-rose-400 focus:ring-2 focus:ring-rose-400/20 focus:outline-none transition-all overflow-y-auto bg-white max-w-none'
         }
     }
 })
@@ -169,7 +169,7 @@ function handle_send() {
                 v-model="email_subject"
                 type="text"
                 placeholder="邮件主题"
-                class="w-full px-4 py-3 text-base rounded-lg border border-gray-300 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all"
+                class="w-full px-4 py-3 text-base rounded-lg border border-gray-300 focus:border-[var(--c-primary)] focus:ring-2 focus:ring-[var(--c-primary)]/20 focus:outline-none transition-all"
             />
 
             <!-- 富文本工具栏 -->
@@ -177,7 +177,7 @@ function handle_send() {
                 <button
                     @click="editor?.chain().focus().toggleBold().run()"
                     class="w-9 h-9 flex items-center justify-center rounded transition-colors"
-                    :class="is_active('bold') ? 'bg-cyan-100 text-cyan-600' : 'hover:bg-gray-200 text-gray-700'"
+                    :class="is_active('bold') ? 'bg-[var(--c-primary-bg)] text-[var(--c-primary)]' : 'hover:bg-gray-200 text-gray-700'"
                     title="加粗"
                 >
                     <div class="i-lucide-bold w-5 h-5" />
@@ -185,7 +185,7 @@ function handle_send() {
                 <button
                     @click="editor?.chain().focus().toggleItalic().run()"
                     class="w-9 h-9 flex items-center justify-center rounded transition-colors"
-                    :class="is_active('italic') ? 'bg-cyan-100 text-cyan-600' : 'hover:bg-gray-200 text-gray-700'"
+                    :class="is_active('italic') ? 'bg-[var(--c-primary-bg)] text-[var(--c-primary)]' : 'hover:bg-gray-200 text-gray-700'"
                     title="斜体"
                 >
                     <div class="i-lucide-italic w-5 h-5" />
@@ -193,7 +193,7 @@ function handle_send() {
                 <button
                     @click="editor?.chain().focus().toggleUnderline().run()"
                     class="w-9 h-9 flex items-center justify-center rounded transition-colors"
-                    :class="is_active('underline') ? 'bg-cyan-100 text-cyan-600' : 'hover:bg-gray-200 text-gray-700'"
+                    :class="is_active('underline') ? 'bg-[var(--c-primary-bg)] text-[var(--c-primary)]' : 'hover:bg-gray-200 text-gray-700'"
                     title="下划线"
                 >
                     <div class="i-lucide-underline w-5 h-5" />
@@ -201,7 +201,7 @@ function handle_send() {
                 <button
                     @click="editor?.chain().focus().toggleStrike().run()"
                     class="w-9 h-9 flex items-center justify-center rounded transition-colors"
-                    :class="is_active('strike') ? 'bg-cyan-100 text-cyan-600' : 'hover:bg-gray-200 text-gray-700'"
+                    :class="is_active('strike') ? 'bg-[var(--c-primary-bg)] text-[var(--c-primary)]' : 'hover:bg-gray-200 text-gray-700'"
                     title="删除线"
                 >
                     <div class="i-lucide-strikethrough w-5 h-5" />
@@ -210,7 +210,7 @@ function handle_send() {
                 <button
                     @click="insert_link"
                     class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200 transition-colors text-gray-700"
-                    :class="is_active('link') ? 'bg-cyan-100 text-cyan-600' : ''"
+                    :class="is_active('link') ? 'bg-[var(--c-primary-bg)] text-[var(--c-primary)]' : ''"
                     title="插入链接"
                 >
                     <div class="i-lucide-link w-5 h-5" />
@@ -239,7 +239,7 @@ function handle_send() {
                 <button
                     @click="editor?.chain().focus().setTextAlign('left').run()"
                     class="w-9 h-9 flex items-center justify-center rounded transition-colors"
-                    :class="is_text_align('left') ? 'bg-cyan-100 text-cyan-600' : 'hover:bg-gray-200 text-gray-700'"
+                    :class="is_text_align('left') ? 'bg-[var(--c-primary-bg)] text-[var(--c-primary)]' : 'hover:bg-gray-200 text-gray-700'"
                     title="左对齐"
                 >
                     <div class="i-lucide-align-left w-5 h-5" />
@@ -247,7 +247,7 @@ function handle_send() {
                 <button
                     @click="editor?.chain().focus().setTextAlign('center').run()"
                     class="w-9 h-9 flex items-center justify-center rounded transition-colors"
-                    :class="is_text_align('center') ? 'bg-cyan-100 text-cyan-600' : 'hover:bg-gray-200 text-gray-700'"
+                    :class="is_text_align('center') ? 'bg-[var(--c-primary-bg)] text-[var(--c-primary)]' : 'hover:bg-gray-200 text-gray-700'"
                     title="居中"
                 >
                     <div class="i-lucide-align-center w-5 h-5" />
@@ -255,7 +255,7 @@ function handle_send() {
                 <button
                     @click="editor?.chain().focus().setTextAlign('right').run()"
                     class="w-9 h-9 flex items-center justify-center rounded transition-colors"
-                    :class="is_text_align('right') ? 'bg-cyan-100 text-cyan-600' : 'hover:bg-gray-200 text-gray-700'"
+                    :class="is_text_align('right') ? 'bg-[var(--c-primary-bg)] text-[var(--c-primary)]' : 'hover:bg-gray-200 text-gray-700'"
                     title="右对齐"
                 >
                     <div class="i-lucide-align-right w-5 h-5" />
@@ -264,7 +264,7 @@ function handle_send() {
                 <button
                     @click="editor?.chain().focus().toggleBulletList().run()"
                     class="w-9 h-9 flex items-center justify-center rounded transition-colors"
-                    :class="is_active('bulletList') ? 'bg-cyan-100 text-cyan-600' : 'hover:bg-gray-200 text-gray-700'"
+                    :class="is_active('bulletList') ? 'bg-[var(--c-primary-bg)] text-[var(--c-primary)]' : 'hover:bg-gray-200 text-gray-700'"
                     title="无序列表"
                 >
                     <div class="i-lucide-list w-5 h-5" />
@@ -272,7 +272,7 @@ function handle_send() {
                 <button
                     @click="editor?.chain().focus().toggleOrderedList().run()"
                     class="w-9 h-9 flex items-center justify-center rounded transition-colors"
-                    :class="is_active('orderedList') ? 'bg-cyan-100 text-cyan-600' : 'hover:bg-gray-200 text-gray-700'"
+                    :class="is_active('orderedList') ? 'bg-[var(--c-primary-bg)] text-[var(--c-primary)]' : 'hover:bg-gray-200 text-gray-700'"
                     title="有序列表"
                 >
                     <div class="i-lucide-list-ordered w-5 h-5" />
@@ -305,7 +305,7 @@ function handle_send() {
                     <span class="text-sm text-gray-600">添加附件</span>
                     <input type="file" multiple class="hidden" @change="handle_attach" />
                 </label>
-                <button @click="handle_send" class="flex-1 px-5 py-2.5 rounded-lg bg-gradient-to-r from-cyan-400 to-teal-400 text-white font-medium hover:from-cyan-500 hover:to-teal-500 transition-all hover:shadow-lg hover:shadow-cyan-400/20">
+                <button @click="handle_send" class="flex-1 px-5 py-2.5 rounded-lg bg-gradient-to-r from-[var(--c-primary)] to-[var(--c-secondary)] text-white font-medium transition-all hover:shadow-lg hover:shadow-[var(--c-primary)]/20">
                     发送邮件
                 </button>
             </div>

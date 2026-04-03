@@ -7,14 +7,14 @@ const welcome_content = {
 </script>
 
 <template>
-    <div class="p-6 rounded-xl bg-white border border-gray-200 shadow-sm">
-        <h1 class="text-2xl font-bold text-gray-800 mb-2">
+    <div class="p-6 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
+        <h1 class="text-2xl font-bold text-slate-700 mb-2">
             {{ welcome_content.title }}
         </h1>
-        <p class="text-cyan-500 font-medium mb-4">
+        <p class="text-[var(--c-primary)] font-medium mb-4">
             {{ welcome_content.subtitle }}
         </p>
-        <p class="text-gray-600 leading-relaxed">
+        <p class="text-slate-600 leading-relaxed">
             {{ welcome_content.description }}
         </p>
     </div>

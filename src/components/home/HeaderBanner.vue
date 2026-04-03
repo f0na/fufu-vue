@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useTheme } from '@/composables/useTheme'
 
 const props = defineProps<{
     height: number
 }>()
+
+const { current_theme } = useTheme()
 
 const image_list = [
     { key: 'moez', url: 'https://t.alcy.cc/moez', label: '萌娘' },
@@ -13,6 +16,9 @@ const image_list = [
 ]
 
 const current_image = ref('')
+
+// 波浪颜色根据主题变化
+const wave_color = computed(() => current_theme.value.colors.bg)
 
 function get_random_image(): string {
     const random_index = Math.floor(Math.random() * image_list.length)
@@ -43,8 +49,7 @@ onMounted(() => {
         <div class="absolute bottom-0 left-0 right-0 h-16 overflow-hidden">
             <svg class="absolute bottom-0 w-full h-20" viewBox="0 0 1440 120" preserveAspectRatio="none">
                 <path
-                    fill="currentColor"
-                    class="text-slate-50 dark:text-slate-900"
+                    :fill="wave_color"
                     d="M0,64 C480,150 960,0 1440,64 L1440,120 L0,120 Z"
                 >
                     <animate

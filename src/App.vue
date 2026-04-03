@@ -1,10 +1,19 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router';
-
+import { RouterView } from 'vue-router'
 </script>
 
 <template>
     <RouterView />
 </template>
 
-<style scoped></style>
+<style>
+/* 主题变量由 JS 动态设置，这里只定义默认值 */
+:root {
+    --c-bg: #fff1f2;
+    --c-primary: #fb7185;
+    --c-primary-light: #fda4af;
+    --c-primary-bg: #ffe4e6;
+    --c-border: #fecdd3;
+    --c-secondary: #2dd4bf;
+}
+</style>
