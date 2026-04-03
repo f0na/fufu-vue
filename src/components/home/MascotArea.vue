@@ -23,7 +23,7 @@ onMounted(async () => {
 
     // 创建 PIXI 应用
     app.value = new PIXI.Application({
-        width: 150,
+        width: 160,
         height: 200,
         backgroundAlpha: 0,
         resolution: window.devicePixelRatio || 1,
@@ -38,7 +38,7 @@ onMounted(async () => {
 
     // 设置模型位置和大小
     model.anchor.set(0.5, 0.5)
-    model.x = 75
+    model.x = 80
     model.y = 100
     model.scale.set(0.02)
 
@@ -58,7 +58,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="sticky top-4">
+    <div>
         <div ref="canvas_container" class="w-full h-[200px]" />
     </div>
 </template>

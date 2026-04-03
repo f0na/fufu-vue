@@ -6,6 +6,7 @@ import ProfileWidget from '@/components/home/ProfileWidget.vue'
 import AnnouncementWidget from '@/components/home/AnnouncementWidget.vue'
 import FooterSection from '@/components/home/FooterSection.vue'
 import MascotArea from '@/components/home/MascotArea.vue'
+import SearchBox from '@/components/home/SearchBox.vue'
 
 const header_height = ref(40) // vh 单位
 const base_height = 40
@@ -93,8 +94,9 @@ onUnmounted(() => {
                     <router-view />
                 </div>
 
-                <!-- 右侧看板娘 -->
-                <aside class="hidden md:block w-32 shrink-0">
+                <!-- 右侧搜索和看板娘 -->
+                <aside class="hidden md:flex flex-col gap-4 w-40 shrink-0">
+                    <search-box />
                     <mascot-area />
                 </aside>
             </div>
