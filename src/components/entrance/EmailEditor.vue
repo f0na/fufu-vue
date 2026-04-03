@@ -144,11 +144,11 @@ function remove_attachment(index: number) {
 function handle_send() {
     const content = editor.value?.getHTML() || ''
     // TODO: 实现发送邮件逻辑
-    console.log('发送邮件:', {
+    const _email_data = {
         subject: email_subject.value,
         content,
         attachments: attachments.value
-    })
+    }
     emit('close')
 }
 </script>

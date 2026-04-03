@@ -81,8 +81,8 @@ onUnmounted(() => {
         <header-banner :height="header_height" />
 
         <!-- 主内容区 -->
-        <main class="flex-1 flex justify-center px-4 py-8 md:px-8">
-            <div class="w-full max-w-[60%] flex gap-6">
+        <main class="flex-1 flex justify-center px-4 py-8 pb-16 md:pb-8 md:px-8">
+            <div class="w-full md:max-w-[60%] flex gap-6">
                 <!-- 左侧小组件区 -->
                 <aside class="hidden md:flex flex-col gap-4 w-48 shrink-0">
                     <profile-widget />

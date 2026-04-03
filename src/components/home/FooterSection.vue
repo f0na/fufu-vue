@@ -11,7 +11,7 @@ const footer_config = {
 </script>
 
 <template>
-    <footer class="py-6 px-4 text-center">
+    <footer class="py-6 px-4 pb-16 md:pb-6 text-center">
         <!-- 版权信息 -->
         <p class="text-sm text-slate-500 mb-2">
             {{ footer_config.copyright }}

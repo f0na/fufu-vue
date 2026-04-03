@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onUnmounted, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTheme } from '@/composables/useTheme'
 
@@ -9,10 +9,12 @@ const is_expanded = ref(false)
 const show_more_menu = ref(false)
 const more_button_ref = ref<HTMLElement | null>(null)
 const close_timer = ref<ReturnType<typeof setTimeout> | null>(null)
+const is_mobile = ref(false)
 
 const { next_theme } = useTheme()
 
-const menu_items = [
+// 桌面端主菜单项（5个）
+const desktop_menu_items = [
     { label: '归档', key: 'archive', icon: 'i-lucide-archive', route: '/archive' },
     { label: '链接', key: 'links', icon: 'i-lucide-link', route: '/links' },
     { label: '追番', key: 'anime', icon: 'i-simple-icons-bilibili', route: '/anime' },
@@ -20,38 +22,75 @@ const menu_items = [
     { label: '友人帐', key: 'friends', icon: 'i-lucide-users', route: '/friends' }
 ]
 
-const more_items = [
+// 移动端主菜单项（4个）
+const mobile_menu_items = [
+    { label: '归档', key: 'archive', icon: 'i-lucide-archive', route: '/archive' },
+    { label: '链接', key: 'links', icon: 'i-lucide-link', route: '/links' },
+    { label: '追番', key: 'anime', icon: 'i-simple-icons-bilibili', route: '/anime' },
+    { label: '友人帐', key: 'friends', icon: 'i-lucide-users', route: '/friends' }
+]
+
+// 更多菜单项（桌面端4个，移动端多加相册）
+const desktop_more_items = [
     { label: '文章', key: 'articles', icon: 'i-lucide-file-text', route: '/articles' },
     { label: '关于', key: 'about', icon: 'i-lucide-info', route: '/about' },
     { label: '小工具', key: 'tools', icon: 'i-lucide-wrench', route: '/tools' },
     { label: '网站状态', key: 'status', icon: 'i-lucide-activity', route: '/status' }
 ]
 
+const mobile_more_items = [
+    { label: '相册', key: 'gallery', icon: 'i-lucide-image', route: '/home/gallery' },
+    { label: '文章', key: 'articles', icon: 'i-lucide-file-text', route: '/articles' },
+    { label: '关于', key: 'about', icon: 'i-lucide-info', route: '/about' },
+    { label: '小工具', key: 'tools', icon: 'i-lucide-wrench', route: '/tools' },
+    { label: '网站状态', key: 'status', icon: 'i-lucide-activity', route: '/status' }
+]
+
+const menu_items = computed(() => is_mobile.value ? mobile_menu_items : desktop_menu_items)
+const more_items = computed(() => is_mobile.value ? mobile_more_items : desktop_more_items)
+
 const dropdown_position = computed(() => {
     if (!more_button_ref.value) return { top: 0, left: 0 }
     const rect = more_button_ref.value.getBoundingClientRect()
+    if (is_mobile.value) {
+        return {
+            top: rect.top - 200,
+            left: rect.left
+        }
+    }
     return {
         top: rect.bottom + 13,
         left: rect.right - 128
     }
 })
 
+function check_mobile() {
+    is_mobile.value = window.innerWidth < 768
+}
+
 function handle_menu_click(key: string) {
-    const item = menu_items.find(m => m.key === key)
+    const item = menu_items.value.find(m => m.key === key)
     if (item?.route) {
         router.push(item.route)
     }
+    show_more_menu.value = false
 }
 
 function handle_more_click(key: string) {
     show_more_menu.value = false
-    const item = more_items.find(m => m.key === key)
+    const item = more_items.value.find(m => m.key === key)
     if (item?.route) {
         router.push(item.route)
     }
 }
 
+function handle_theme_switch() {
+    next_theme()
+    show_more_menu.value = false
+}
+
 function handle_mouse_enter() {
+    if (is_mobile.value) return
     if (close_timer.value) {
         clearTimeout(close_timer.value)
         close_timer.value = null
@@ -60,50 +99,53 @@ function handle_mouse_enter() {
 }
 
 function handle_mouse_leave() {
+    if (is_mobile.value) return
     close_timer.value = setTimeout(() => {
         is_expanded.value = false
         show_more_menu.value = false
     }, 150)
 }
 
+onMounted(() => {
+    check_mobile()
+    window.addEventListener('resize', check_mobile)
+})
+
 onUnmounted(() => {
     if (close_timer.value) {
         clearTimeout(close_timer.value)
     }
+    window.removeEventListener('resize', check_mobile)
 })
 </script>
 
 <template>
-    <!-- 外层容器：负责裁剪圆角 -->
-    <div class="fixed top-0 left-1/2 -translate-x-1/2 z-50 overflow-visible transition-all duration-200 ease-out"
+    <!-- 桌面端：顶部悬浮导航 -->
+    <div v-if="!is_mobile" class="fixed top-0 left-1/2 -translate-x-1/2 z-50 overflow-visible transition-all duration-200 ease-out"
         @mouseenter="handle_mouse_enter" @mouseleave="handle_mouse_leave">
 
-        <!-- 收起状态：检测区域覆盖导航栏高度 -->
+        <!-- 收起状态：检测区域 -->
         <div v-if="!is_expanded" class="absolute top-0 left-1/2 -translate-x-1/2 w-[420px] h-12" />
 
-        <!-- 菜单容器：圆角裁剪 -->
+        <!-- 菜单容器 -->
         <div class="rounded-b-xl mx-auto relative"
             :class="is_expanded ? 'h-auto overflow-visible' : 'h-2 overflow-hidden w-[420px]'">
 
-            <!-- 内层容器：负责背景模糊 -->
+            <!-- 内层：背景模糊 -->
             <div class="backdrop-blur-md bg-white/10 border border-white/20 shadow-sm"
                 :class="is_expanded ? 'py-3 px-4 rounded-b-xl' : 'h-full'">
-                <!-- 收起状态：只显示小边缘 -->
                 <div v-if="!is_expanded" class="h-full bg-white/20 rounded-b-xl" />
 
                 <!-- 展开状态：完整菜单 -->
                 <div v-else class="flex items-center gap-1 justify-center">
-                    <!-- 主菜单项 -->
                     <button v-for="item in menu_items" :key="item.key" @click="handle_menu_click(item.key)"
                         class="px-3 py-1.5 text-sm text-white/90 hover:text-white hover:bg-white/20 rounded-lg transition-colors flex items-center gap-1.5">
                         <div :class="item.icon" class="w-4 h-4" />
                         {{ item.label }}
                     </button>
 
-                    <!-- 分隔线 -->
                     <div class="w-px h-5 bg-white/30 mx-1" />
 
-                    <!-- 更多下拉 -->
                     <div class="relative">
                         <button ref="more_button_ref" @click="show_more_menu = !show_more_menu"
                             class="px-3 py-1.5 text-sm text-white/90 hover:text-white hover:bg-white/20 rounded-lg transition-colors flex items-center gap-1">
@@ -117,9 +159,37 @@ onUnmounted(() => {
         </div>
     </div>
 
-    <!-- 下拉菜单 - Teleport 到 body -->
+    <!-- 移动端：底部固定导航 -->
+    <div v-else class="fixed bottom-0 left-0 right-0 z-50">
+        <div class="bg-white border-t border-[var(--c-border)] shadow-sm">
+            <div class="flex items-center justify-around py-2">
+                <!-- 首页 -->
+                <button @click="router.push('/home')" class="flex flex-col items-center gap-0.5 px-3 py-1">
+                    <div class="i-lucide-home w-5 h-5 text-[var(--c-primary)]" />
+                    <span class="text-xs text-[var(--c-primary)]">首页</span>
+                </button>
+
+                <!-- 主菜单项 -->
+                <button v-for="item in menu_items" :key="item.key" @click="handle_menu_click(item.key)"
+                    class="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-600">
+                    <div :class="item.icon" class="w-5 h-5" />
+                    <span class="text-xs">{{ item.label }}</span>
+                </button>
+
+                <!-- 更多按钮 -->
+                <button ref="more_button_ref" @click="show_more_menu = !show_more_menu"
+                    class="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-600">
+                    <div class="i-lucide-menu w-5 h-5" />
+                    <span class="text-xs">更多</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 下拉菜单 -->
     <Teleport to="body">
-        <div v-if="show_more_menu"
+        <!-- 桌面端下拉 -->
+        <div v-if="!is_mobile && show_more_menu"
             class="fixed z-[60] rounded-xl shadow-xl min-w-32 backdrop-blur-xl bg-white/10 border border-white/30"
             :style="{ top: `${dropdown_position.top}px`, left: `${dropdown_position.left}px` }"
             @mouseenter="handle_mouse_enter" @mouseleave="handle_mouse_leave">
@@ -128,12 +198,57 @@ onUnmounted(() => {
                 <div :class="item.icon" class="w-4 h-4" />
                 {{ item.label }}
             </button>
-            <!-- 主题切换 -->
             <button @click="next_theme"
                 class="w-full px-4 py-2 text-left text-sm text-white/90 hover:text-white hover:bg-white/20 transition-colors flex items-center gap-2 rounded-b-xl border-t border-white/10">
                 <div class="i-lucide-palette w-4 h-4" />
                 切换主题
             </button>
         </div>
+
+        <!-- 移动端下拉 -->
+        <Transition v-if="is_mobile" name="fade">
+            <div v-if="show_more_menu" class="fixed inset-0 z-[60] bg-black/20" @click="show_more_menu = false">
+                <Transition name="slide-up">
+                    <div v-if="show_more_menu"
+                        class="absolute bottom-14 left-2 right-2 bg-white rounded-xl shadow-lg border border-[var(--c-border)] p-3"
+                        @click.stop>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button v-for="item in more_items" :key="item.key" @click="handle_more_click(item.key)"
+                                class="flex flex-col items-center gap-1 p-2 rounded-lg bg-[var(--c-primary-bg)] hover:bg-[var(--c-primary-light)]/30 transition-colors">
+                                <div :class="item.icon" class="w-5 h-5 text-[var(--c-primary)]" />
+                                <span class="text-xs text-slate-700">{{ item.label }}</span>
+                            </button>
+                            <button @click="handle_theme_switch"
+                                class="flex flex-col items-center gap-1 p-2 rounded-lg bg-[var(--c-primary-bg)] hover:bg-[var(--c-primary-light)]/30 transition-colors">
+                                <div class="i-lucide-palette w-5 h-5 text-[var(--c-primary)]" />
+                                <span class="text-xs text-slate-700">主题</span>
+                            </button>
+                        </div>
+                    </div>
+                </Transition>
+            </div>
+        </Transition>
     </Teleport>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+    transition: transform 0.2s ease;
+}
+
+.slide-up-enter-from,
+.slide-up-leave-to {
+    transform: translateY(20px);
+}
+</style>

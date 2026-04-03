@@ -6,8 +6,7 @@ const is_focused = ref(false)
 
 function handle_search() {
     if (search_query.value.trim()) {
-        // TODO: 实现搜索功能
-        console.log('搜索:', search_query.value)
+        // TODO: 实现搜索功能，跳转到搜索结果页
     }
 }
 
