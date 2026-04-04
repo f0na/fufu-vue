@@ -1,0 +1,437 @@
+/**
+ * API 类型定义
+ * 基于后端 API 接口文档 v1
+ */
+
+// ========== 通用响应格式 ==========
+
+// API 响应格式
+export interface ApiResponse<T> {
+    code: number
+    message: string
+    data: T
+}
+
+// 分页响应
+export interface PaginatedData<T> {
+    items: T[]
+    pagination: {
+        page: number
+        per_page: number
+        total: number
+        total_pages: number
+    }
+}
+
+// ========== 业务错误码 ==========
+
+export const ErrorCodes = {
+    // 成功
+    SUCCESS: 0,
+    // 资源错误
+    RESOURCE_NOT_FOUND: 10001,
+    RESOURCE_ALREADY_EXISTS: 10002,
+    RESOURCE_DELETED: 10003,
+    EMAIL_ALREADY_REGISTERED: 10004,
+    USERNAME_ALREADY_USED: 10005,
+    // 认证错误
+    NOT_LOGGED_IN: 10101,
+    TOKEN_INVALID: 10102,
+    TOKEN_EXPIRED: 10103,
+    PASSWORD_ERROR: 10104,
+    ACCOUNT_DISABLED: 10105,
+    TWO_FACTOR_FAILED: 10106,
+    TWO_FACTOR_REQUIRED: 10111, // 需要两步验证
+    RESET_TOKEN_INVALID: 10107,
+    RESET_TOKEN_EXPIRED: 10108,
+    TWO_FACTOR_NOT_SETUP: 10109,
+    TWO_FACTOR_ALREADY_ENABLED: 10110,
+    // GitHub相关错误
+    GITHUB_AUTH_FAILED: 10112,
+    GITHUB_NO_PUBLIC_EMAIL: 10113,
+    GITHUB_STATE_MISMATCH: 10114,
+    GITHUB_ALREADY_BOUND: 10115,
+    GITHUB_BOUND_BY_OTHER: 10116,
+    GITHUB_NOT_BOUND: 10117,
+    GITHUB_CANNOT_UNBIND: 10118,
+    // 权限错误
+    NO_ACCESS_PERMISSION: 10201,
+    NO_OPERATION_PERMISSION: 10202,
+    ALREADY_ADMIN: 10203,           // 已是管理员
+    PENDING_APPLICATION_EXISTS: 10204, // 已有待处理的申请
+    APPLICATION_ALREADY_PROCESSED: 10205, // 申请已处理
+    FIRST_ADMIN_CANNOT_BE_REVOKED: 10206, // 首位管理员权限不可撤销
+    USER_NOT_ADMIN: 10207,          // 用户不是管理员
+    CANNOT_REVOKE_SELF: 10208,      // 不能撤销自己的权限
+    // 文件错误
+    FILE_TOO_LARGE: 10301,
+    FILE_TYPE_NOT_ALLOWED: 10302,
+    UPLOAD_FAILED: 10303,
+    // 参数错误
+    PARAM_MISSING: 10401,
+    PARAM_FORMAT_ERROR: 10402,
+    BUSINESS_VALIDATION_FAILED: 10403,
+    NEW_PASSWORD_FORMAT_ERROR: 10404,
+    // 服务器错误
+    INTERNAL_ERROR: 10501,
+    SERVICE_UNAVAILABLE: 10502,
+    RATE_LIMITED: 10503,
+} as const
+
+// ========== 用户相关 ==========
+
+export interface UserProfile {
+    id: string
+    name: string
+    avatar: string | null
+    greeting: string | null
+    social_links: SocialLink[]
+}
+
+export interface SocialLink {
+    id: string
+    name: string
+    url: string
+    icon: string
+    link_type: 'link' | 'email'
+    sort_order: number
+}
+
+export interface UserSettings {
+    theme: string
+    language: string
+}
+
+// ========== 相册相关 ==========
+
+export interface Gallery {
+    id: string
+    title: string
+    cover: string | null
+    photo_count: number
+    tags: string[]
+    visible: boolean
+    created_at: string
+    updated_at: string
+}
+
+export interface Photo {
+    id: string
+    gallery_id: string
+    src: string
+    x: number
+    y: number
+    rotation: number
+    width: number
+    height: number
+    z_index: number
+    original_filename?: string
+    file_size?: number
+}
+
+export interface GalleryWithPhotos extends Gallery {
+    photos: Photo[]
+}
+
+export interface PhotoUpdate {
+    id: string
+    x?: number
+    y?: number
+    rotation?: number
+    z_index?: number
+}
+
+// ========== 公告相关 ==========
+
+export interface Announcement {
+    id: string
+    content: string
+    date: string
+    priority: number
+    visible: boolean
+}
+
+// ========== 菜单相关 ==========
+
+export interface MenuItem {
+    id: string
+    label: string
+    key: string
+    icon: string | null
+    route: string
+    visible: boolean
+    sort_order: number
+}
+
+// ========== 认证相关 ==========
+
+export interface LoginRequest {
+    username: string
+    password: string
+}
+
+export interface RegisterRequest {
+    email: string
+    username: string
+    password: string
+    display_name?: string
+}
+
+export interface LoginResponse {
+    token: string
+    refresh_token: string
+    expires_in: number
+    user: User
+    permissions: UserPermission
+}
+
+export interface RegisterResponse {
+    token: string
+    refresh_token: string
+    expires_in: number
+    user: User
+    permissions: UserPermission  // 用户权限
+    is_first_user: boolean       // 是否为首位用户（自动成为管理员）
+}
+
+export interface User {
+    id: string
+    email: string
+    username: string
+    display_name: string | null
+    avatar: string | null
+    bio: string | null
+    role: 'user' | 'admin'
+    github_id: string | null       // GitHub 用户ID
+    github_username: string | null // GitHub 用户名
+    two_factor_enabled: boolean
+    active: boolean
+    last_login_at: string | null
+    last_login_ip: string | null
+}
+
+export interface UserPermission {
+    can_add: boolean
+    can_edit: boolean
+    can_delete: boolean
+    can_toggle_visibility: boolean
+}
+
+// 兼容旧类型名
+export type AdminUser = User
+export type AdminPermission = UserPermission
+
+// 管理员申请
+export interface AdminApplication {
+    id: string
+    user_id: string
+    username: string
+    email?: string            // 仅管理员可见
+    reason: string
+    status: 'pending' | 'approved' | 'rejected'
+    created_at: string
+    reviewed_at: string | null
+    reviewed_by: string | null
+    review_note: string | null
+}
+
+// 管理员信息
+export interface Manager {
+    id: string
+    username: string
+    email: string
+    display_name: string | null
+    avatar: string | null
+    created_at: string        // 成为管理员时间
+    is_first_admin: boolean   // 是否为首位管理员
+}
+
+// 申请成为管理员请求
+export interface AdminApplyRequest {
+    reason: string            // 申请理由，10-500字
+}
+
+// 审批申请请求
+export interface ReviewApplicationRequest {
+    action: 'approve' | 'reject'
+    note?: string             // 审批备注，最多200字
+}
+
+export interface RefreshTokenRequest {
+    refresh_token: string
+}
+
+export interface RefreshTokenResponse {
+    token: string
+    refresh_token: string
+    expires_in: number
+}
+
+export interface ChangePasswordRequest {
+    current_password: string
+    new_password: string
+}
+
+// ========== 文件上传相关 ==========
+
+export interface UploadResponse {
+    url: string
+    key: string
+}
+
+export interface FileInfo {
+    name: string
+    size: number
+    type: string
+    data: string
+}
+
+// ========== 邮件相关 ==========
+
+export interface EmailData {
+    subject: string
+    content: string
+    recipient: string
+    attachments: FileInfo[]
+}
+
+// ========== 管理接口请求类型 ==========
+
+export interface CreateGalleryRequest {
+    title: string
+    cover?: string
+    tags?: string[]
+}
+
+export interface UpdateGalleryRequest {
+    title?: string
+    cover?: string
+    tags?: string[]
+}
+
+export interface CreateAnnouncementRequest {
+    content: string
+    date: string
+    priority?: number
+}
+
+export interface UpdateAnnouncementRequest {
+    content?: string
+    date?: string
+    priority?: number
+}
+
+export interface CreateMenuItemRequest {
+    label: string
+    key: string
+    icon?: string
+    route: string
+    visible?: boolean
+    sort_order?: number
+}
+
+export interface UpdateMenuItemRequest {
+    label?: string
+    icon?: string
+    route?: string
+    visible?: boolean
+    sort_order?: number
+}
+
+export interface CreateSocialLinkRequest {
+    name: string
+    url: string
+    icon: string
+    link_type: 'link' | 'email'
+    sort_order?: number
+}
+
+export interface UpdateSocialLinkRequest {
+    name?: string
+    url?: string
+    icon?: string
+    sort_order?: number
+}
+
+// ========== 两步验证 (2FA) 相关 ==========
+
+export interface TwoFactorSetupResponse {
+    secret: string
+    otpauth_url: string
+}
+
+export interface TwoFactorCodeRequest {
+    code: string
+}
+
+// 两步验证登录请求（第二步）
+export interface TwoFactorVerifyRequest {
+    temp_token: string // 登录第一步返回的临时令牌
+    code: string // 6位验证码
+}
+
+// 两步验证登录响应（含临时令牌）
+export interface TwoFactorRequiredResponse {
+    temp_token: string
+    github_login?: boolean
+}
+
+// ========== 密码重置相关 ==========
+
+export interface ResetPasswordRequest {
+    username: string
+}
+
+export interface ResetPasswordConfirmRequest {
+    token: string
+    new_password: string
+}
+
+export interface ResetPassword2FARequest {
+    code: string
+    new_password: string
+}
+
+// ========== GitHub OAuth 相关 ==========
+
+// GitHub授权URL响应
+export interface GitHubAuthUrlResponse {
+    url: string
+    state: string
+}
+
+// GitHub登录回调请求
+export interface GitHubCallbackRequest {
+    code: string
+    state: string
+}
+
+// GitHub登录响应
+export interface GitHubLoginResponse {
+    token: string
+    refresh_token: string
+    expires_in: number
+    user: User
+    permissions: UserPermission    // 用户权限
+    is_new_user: boolean           // 是否为新注册用户
+    is_first_user: boolean         // 是否为首位用户
+}
+
+// GitHub绑定请求
+export interface GitHubBindRequest {
+    code: string
+    state: string
+}
+
+// GitHub绑定响应
+export interface GitHubBindResponse {
+    github_id: string
+    github_username: string
+    avatar: string
+}
+
+// 2FA所需的GitHub登录响应（code 10111）
+export interface TwoFactorRequiredGitHubResponse {
+    temp_token: string
+    github_login: boolean
+}

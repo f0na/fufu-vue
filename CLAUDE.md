@@ -27,6 +27,7 @@ vue3 + unocss + bun
 - fix: 修复bug
 - docs: 文档更新
 - refactor: 重构
+- perf: 优化
 - style: 代码格式调整
 
 ## 命名规范

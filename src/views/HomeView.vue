@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import NavMenu from '@/components/common/NavMenu.vue'
 import HeaderBanner from '@/components/home/HeaderBanner.vue'
 import ProfileWidget from '@/components/home/ProfileWidget.vue'
@@ -7,6 +8,21 @@ import AnnouncementWidget from '@/components/home/AnnouncementWidget.vue'
 import FooterSection from '@/components/home/FooterSection.vue'
 import MascotArea from '@/components/home/MascotArea.vue'
 import SearchBox from '@/components/home/SearchBox.vue'
+import AdminCard from '@/components/admin/AdminCard.vue'
+import { useAuth } from '@/composables/useAuth'
+
+const router = useRouter()
+const { is_logged_in, is_admin } = useAuth()
+
+// 看板娘秘密点击处理
+function handle_secret_click() {
+    console.log('Secret click received! is_logged_in:', is_logged_in.value)
+    if (!is_logged_in.value) {
+        // 未登录，跳转到登录页面
+        router.push('/home/login')
+    }
+    // 已登录时不做任何操作
+}
 
 const header_height = ref(40) // vh 单位
 const base_height = 40
@@ -82,11 +98,13 @@ onUnmounted(() => {
 
         <!-- 主内容区 -->
         <main class="flex-1 flex justify-center px-4 py-8 pb-16 md:pb-8 md:px-8">
-            <div class="w-full md:max-w-[60%] flex gap-6">
+            <div class="w-full md:max-w-[60%] flex gap-6 relative">
                 <!-- 左侧小组件区 -->
                 <aside class="hidden md:flex flex-col gap-4 w-48 shrink-0">
                     <profile-widget />
                     <announcement-widget />
+                    <!-- 管理员卡片 - 管理员登录后显示 -->
+                    <admin-card v-if="is_logged_in && is_admin" />
                 </aside>
 
                 <!-- 中间内容区 -->
@@ -94,11 +112,15 @@ onUnmounted(() => {
                     <router-view />
                 </div>
 
-                <!-- 右侧搜索和看板娘 -->
+                <!-- 右侧搜索 -->
                 <aside class="hidden md:flex flex-col gap-4 w-40 shrink-0">
                     <search-box />
-                    <mascot-area />
                 </aside>
+
+                <!-- 看板娘 - 相对主内容区右侧 -->
+                <div class="hidden md:block absolute -right-48 top-0">
+                    <mascot-area @secret-click="handle_secret_click" />
+                </div>
             </div>
         </main>
 

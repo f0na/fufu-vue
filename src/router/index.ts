@@ -11,6 +11,11 @@ const router = createRouter({
             children: [
                 { path: '', name: 'home-content', component: () => import('@/components/home/WelcomeSection.vue') },
                 { path: 'gallery', name: 'gallery-list', component: () => import('@/components/home/GallerySection.vue') },
+                { path: 'login', name: 'login', component: () => import('@/components/admin/LoginPage.vue') },
+                { path: 'register', name: 'register', component: () => import('@/components/admin/RegisterPage.vue') },
+                { path: 'github-callback', name: 'github-callback', component: () => import('@/components/admin/GitHubCallbackPage.vue') },
+                { path: '2fa', name: '2fa', component: () => import('@/components/admin/TwoFactorPage.vue') },
+                { path: 'reset-password', name: 'reset-password', component: () => import('@/components/admin/ResetPasswordPage.vue') },
             ],
         },
         { path: '/gallery/:id', name: 'gallery', component: () => import('@/views/GalleryView.vue') },

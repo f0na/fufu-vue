@@ -132,23 +132,23 @@ onUnmounted(() => {
             :class="is_expanded ? 'h-auto overflow-visible' : 'h-2 overflow-hidden w-[420px]'">
 
             <!-- 内层：背景模糊 -->
-            <div class="backdrop-blur-md bg-white/10 border border-white/20 shadow-sm"
+            <div class="backdrop-blur-md bg-[var(--c-bg)]/80 border border-[var(--c-border)] shadow-sm"
                 :class="is_expanded ? 'py-3 px-4 rounded-b-xl' : 'h-full'">
-                <div v-if="!is_expanded" class="h-full bg-white/20 rounded-b-xl" />
+                <div v-if="!is_expanded" class="h-full bg-[var(--c-primary-bg)] rounded-b-xl" />
 
                 <!-- 展开状态：完整菜单 -->
                 <div v-else class="flex items-center gap-1 justify-center">
                     <button v-for="item in menu_items" :key="item.key" @click="handle_menu_click(item.key)"
-                        class="px-3 py-1.5 text-sm text-white/90 hover:text-white hover:bg-white/20 rounded-lg transition-colors flex items-center gap-1.5">
+                        class="px-3 py-1.5 text-sm text-slate-600 hover:text-[var(--c-primary)] hover:bg-[var(--c-primary-bg)] rounded-lg transition-colors flex items-center gap-1.5">
                         <div :class="item.icon" class="w-4 h-4" />
                         {{ item.label }}
                     </button>
 
-                    <div class="w-px h-5 bg-white/30 mx-1" />
+                    <div class="w-px h-5 bg-[var(--c-border)] mx-1" />
 
                     <div class="relative">
                         <button ref="more_button_ref" @click="show_more_menu = !show_more_menu"
-                            class="px-3 py-1.5 text-sm text-white/90 hover:text-white hover:bg-white/20 rounded-lg transition-colors flex items-center gap-1">
+                            class="px-3 py-1.5 text-sm text-slate-600 hover:text-[var(--c-primary)] hover:bg-[var(--c-primary-bg)] rounded-lg transition-colors flex items-center gap-1">
                             更多
                             <div class="i-lucide-chevron-down w-3 h-3 transition-transform"
                                 :class="show_more_menu ? 'rotate-180' : ''" />
@@ -190,16 +190,16 @@ onUnmounted(() => {
     <Teleport to="body">
         <!-- 桌面端下拉 -->
         <div v-if="!is_mobile && show_more_menu"
-            class="fixed z-[60] rounded-xl shadow-xl min-w-32 backdrop-blur-xl bg-white/10 border border-white/30"
+            class="fixed z-[60] rounded-xl shadow-xl min-w-32 backdrop-blur-xl bg-[var(--c-bg)]/90 border border-[var(--c-border)]"
             :style="{ top: `${dropdown_position.top}px`, left: `${dropdown_position.left}px` }"
             @mouseenter="handle_mouse_enter" @mouseleave="handle_mouse_leave">
             <button v-for="item in more_items" :key="item.key" @click="handle_more_click(item.key)"
-                class="w-full px-4 py-2 text-left text-sm text-white/90 hover:text-white hover:bg-white/20 transition-colors flex items-center gap-2 first:rounded-t-xl last:rounded-b-xl">
+                class="w-full px-4 py-2 text-left text-sm text-slate-600 hover:text-[var(--c-primary)] hover:bg-[var(--c-primary-bg)] transition-colors flex items-center gap-2 first:rounded-t-xl last:rounded-b-xl">
                 <div :class="item.icon" class="w-4 h-4" />
                 {{ item.label }}
             </button>
             <button @click="next_theme"
-                class="w-full px-4 py-2 text-left text-sm text-white/90 hover:text-white hover:bg-white/20 transition-colors flex items-center gap-2 rounded-b-xl border-t border-white/10">
+                class="w-full px-4 py-2 text-left text-sm text-slate-600 hover:text-[var(--c-primary)] hover:bg-[var(--c-primary-bg)] transition-colors flex items-center gap-2 rounded-b-xl border-t border-[var(--c-border)]">
                 <div class="i-lucide-palette w-4 h-4" />
                 切换主题
             </button>

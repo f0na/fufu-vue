@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import EmailEditor from './EmailEditor.vue'
+import type { SocialLink } from '@/api/types'
 
 // 个人信息配置
 const profile_config = {
@@ -8,17 +7,15 @@ const profile_config = {
     avatar: 'https://www.loliapi.com/acg/pp/',
     greeting: 'Ciallo～(∠・ω< )⌒★',
     social_links: [
-        { name: 'B站', url: 'https://space.bilibili.com/1018561538', icon: 'i-simple-icons-bilibili' },
-        { name: 'GitHub', url: 'https://github.com/f0na', icon: 'i-simple-icons-github' },
-        { name: 'Email', url: '', icon: 'i-lucide-mail' }
-    ]
+        { id: '1', name: 'B站', url: 'https://space.bilibili.com/1018561538', icon: 'i-simple-icons-bilibili', link_type: 'link' as const, sort_order: 0 },
+        { id: '2', name: 'GitHub', url: 'https://github.com/f0na', icon: 'i-simple-icons-github', link_type: 'link' as const, sort_order: 1 },
+        { id: '3', name: 'Email', url: 'example@email.com', icon: 'i-lucide-mail', link_type: 'email' as const, sort_order: 2 }
+    ] as SocialLink[]
 }
 
-const show_email_editor = ref(false)
-
-function handle_link_click(link: { name: string; url: string }) {
-    if (link.name === 'Email') {
-        show_email_editor.value = true
+function handle_link_click(link: SocialLink) {
+    if (link.link_type === 'email') {
+        window.location.href = `mailto:${link.url}`
     } else if (link.url) {
         window.open(link.url, '_blank', 'noopener,noreferrer')
     }
@@ -44,16 +41,11 @@ function handle_link_click(link: { name: string; url: string }) {
 
         <!-- 社交链接 -->
         <div class="flex gap-2">
-            <button v-for="link in profile_config.social_links" :key="link.name" @click="handle_link_click(link)"
+            <button v-for="link in profile_config.social_links" :key="link.id" @click="handle_link_click(link)"
                 class="w-9 h-9 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors cursor-pointer"
                 :title="link.name">
                 <div :class="link.icon" class="w-4 h-4 text-white" />
             </button>
         </div>
-
-        <!-- 邮件编辑器弹窗 - 使用Teleport传送到body -->
-        <teleport to="body">
-            <email-editor v-if="show_email_editor" @close="show_email_editor = false" />
-        </teleport>
     </div>
 </template>
