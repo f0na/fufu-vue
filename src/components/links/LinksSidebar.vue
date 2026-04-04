@@ -1,24 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useBangumiFilter } from '@/composables/useBangumiStats'
+import { useLinksFilter } from '@/composables/useLinksFilter'
 
 // 使用共享筛选状态
-const { bangumi_filter, set_bangumi_filter } = useBangumiFilter()
+const { links_filter, all_tags, set_links_filter } = useLinksFilter()
 
-// 搜索模式：番剧搜索 或 全站搜索
-const search_mode = ref<'bangumi' | 'global'>('bangumi')
+// 搜索模式：链接搜索 或 全站搜索
+const search_mode = ref<'links' | 'global'>('links')
 const search_query = ref('')
 
-// 状态标签
-const status_tags = [
-    { key: 'watching', label: '在看' },
-    { key: 'want_to_watch', label: '想看' },
-    { key: 'watched', label: '看过' },
-    { key: 'dropped', label: '抛弃' },
-] as const
-
 function toggle_search_mode() {
-    search_mode.value = search_mode.value === 'bangumi' ? 'global' : 'bangumi'
+    search_mode.value = search_mode.value === 'links' ? 'global' : 'links'
 }
 
 function handle_search() {
@@ -27,11 +19,11 @@ function handle_search() {
     }
 }
 
-function toggle_filter(status: typeof bangumi_filter.value) {
-    if (bangumi_filter.value === status) {
-        set_bangumi_filter('all')
+function toggle_filter(tag: string) {
+    if (links_filter.value === tag) {
+        set_links_filter('all')
     } else {
-        set_bangumi_filter(status)
+        set_links_filter(tag)
     }
 }
 </script>
@@ -45,11 +37,11 @@ function toggle_filter(status: typeof bangumi_filter.value) {
                 <button
                     @click="toggle_search_mode"
                     class="flex-1 px-1 py-1 text-xs rounded transition-colors"
-                    :class="search_mode === 'bangumi'
+                    :class="search_mode === 'links'
                         ? 'bg-[var(--c-primary)] text-white'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
                 >
-                    番剧
+                    链接
                 </button>
                 <button
                     @click="toggle_search_mode"
@@ -70,26 +62,26 @@ function toggle_filter(status: typeof bangumi_filter.value) {
                 <input
                     v-model="search_query"
                     type="text"
-                    :placeholder="search_mode === 'bangumi' ? '搜索番剧...' : '搜索...'"
+                    :placeholder="search_mode === 'links' ? '搜索链接...' : '搜索...'"
                     class="w-full pl-7 pr-2 py-2 text-sm bg-transparent outline-none text-slate-700 placeholder:text-slate-400"
                     @keyup.enter="handle_search"
                 />
             </div>
         </div>
 
-        <!-- 状态标签筛选 -->
-        <div class="p-3 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
+        <!-- 标签筛选 -->
+        <div v-if="all_tags.length > 0" class="p-3 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
             <div class="flex flex-wrap justify-center gap-2">
                 <button
-                    v-for="tag in status_tags"
-                    :key="tag.key"
-                    @click="toggle_filter(tag.key)"
-                    class="px-4 py-2 text-xs rounded-lg transition-all text-center border-2 whitespace-nowrap"
-                    :class="bangumi_filter === tag.key
+                    v-for="tag in all_tags"
+                    :key="tag"
+                    @click="toggle_filter(tag)"
+                    class="px-4 py-2 text-xs rounded-lg transition-all border-2 whitespace-nowrap"
+                    :class="links_filter === tag
                         ? 'border-[var(--c-primary)] ring-2 ring-[var(--c-primary)]/30 bg-[var(--c-primary-bg)] text-slate-700'
                         : 'border-transparent bg-[var(--c-primary-bg)] text-slate-600 hover:bg-[var(--c-primary-bg)]/70'"
                 >
-                    {{ tag.label }}
+                    {{ tag }}
                 </button>
             </div>
         </div>

@@ -9,6 +9,7 @@ import FooterSection from '@/components/home/FooterSection.vue'
 import MascotArea from '@/components/home/MascotArea.vue'
 import SearchBox from '@/components/home/SearchBox.vue'
 import BangumiSidebar from '@/components/bangumi/BangumiSidebar.vue'
+import LinksSidebar from '@/components/links/LinksSidebar.vue'
 import AdminCard from '@/components/admin/AdminCard.vue'
 import { useAuth } from '@/composables/useAuth'
 
@@ -28,6 +29,9 @@ function handle_secret_click() {
 
 // 是否是番剧页
 const is_bangumi_page = computed(() => route.name === 'bangumi')
+
+// 是否是链接页
+const is_links_page = computed(() => route.name === 'links')
 
 const header_height = ref(40) // vh 单位
 const base_height = 40
@@ -122,6 +126,10 @@ onUnmounted(() => {
                     <!-- 番剧页显示筛选侧边栏 -->
                     <template v-if="is_bangumi_page">
                         <bangumi-sidebar />
+                    </template>
+                    <!-- 链接页显示筛选侧边栏 -->
+                    <template v-else-if="is_links_page">
+                        <links-sidebar />
                     </template>
                     <!-- 其他页面显示搜索框 -->
                     <template v-else>

@@ -12,6 +12,7 @@ const router = createRouter({
                 { path: '', name: 'home-content', component: () => import('@/components/home/WelcomeSection.vue') },
                 { path: 'gallery', name: 'gallery-list', component: () => import('@/components/home/GallerySection.vue') },
                 { path: 'bangumi', name: 'bangumi', component: () => import('@/components/bangumi/BangumiSection.vue') },
+                    { path: 'links', name: 'links', component: () => import('@/components/links/LinksSection.vue') },
                 { path: 'login', name: 'login', component: () => import('@/components/admin/LoginPage.vue') },
                 { path: 'register', name: 'register', component: () => import('@/components/admin/RegisterPage.vue') },
                 { path: 'github-callback', name: 'github-callback', component: () => import('@/components/admin/GitHubCallbackPage.vue') },

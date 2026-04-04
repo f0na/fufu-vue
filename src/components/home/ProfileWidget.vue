@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import EmailEditor from '@/components/entrance/EmailEditor.vue'
+import { useToast } from '@/composables/useToast'
+
+const { success } = useToast()
 
 const profile_config = {
     name: 'fufu',
     avatar: 'https://www.loliapi.com/acg/pp/',
     greeting: 'Ciallo～(∠・ω< )⌒★',
+    email: 'fufu@example.com',
     social_links: [
         { name: 'B站', url: 'https://space.bilibili.com/1018561538', icon: 'i-simple-icons-bilibili' },
         { name: 'GitHub', url: 'https://github.com/f0na', icon: 'i-simple-icons-github' },
@@ -13,11 +15,14 @@ const profile_config = {
     ]
 }
 
-const show_email_editor = ref(false)
-
-function handle_link_click(link: { name: string; url: string }) {
+async function handle_link_click(link: { name: string; url: string }) {
     if (link.name === 'Email') {
-        show_email_editor.value = true
+        try {
+            await navigator.clipboard.writeText(profile_config.email)
+            success('已复制邮箱')
+        } catch {
+            console.error('复制失败')
+        }
     } else if (link.url) {
         window.open(link.url, '_blank', 'noopener,noreferrer')
     }
@@ -26,7 +31,7 @@ function handle_link_click(link: { name: string; url: string }) {
 
 <template>
     <div class="flex flex-col items-center gap-1 p-3 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
-        <!-- 头像 - 方形，占卡片高度60% -->
+        <!-- 头像 -->
         <img :src="profile_config.avatar" :alt="profile_config.name"
             class="w-full aspect-square rounded-lg object-cover" />
 
@@ -48,10 +53,5 @@ function handle_link_click(link: { name: string; url: string }) {
                 <div :class="link.icon" class="w-3.5 h-3.5 text-slate-500" />
             </button>
         </div>
-
-        <!-- 邮件编辑器弹窗 -->
-        <teleport to="body">
-            <email-editor v-if="show_email_editor" @close="show_email_editor = false" />
-        </teleport>
     </div>
 </template>

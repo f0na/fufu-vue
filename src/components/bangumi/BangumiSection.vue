@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useBangumiFilter } from '@/composables/useBangumiStats'
 
 // 使用共享筛选状态
@@ -7,10 +7,10 @@ const { bangumi_filter } = useBangumiFilter()
 
 // 状态显示文本和样式
 const status_map = {
-    watching: { label: '在看', class: 'bg-emerald-100 text-emerald-700' },
-    want_to_watch: { label: '想看', class: 'bg-sky-100 text-sky-700' },
-    watched: { label: '看过', class: 'bg-amber-100 text-amber-700' },
-    dropped: { label: '抛弃', class: 'bg-rose-100 text-rose-700' },
+    watching: { label: '在看', class: 'bg-[var(--c-primary-bg)] text-slate-700' },
+    want_to_watch: { label: '想看', class: 'bg-[var(--c-primary-bg)] text-slate-700' },
+    watched: { label: '看过', class: 'bg-[var(--c-primary-bg)] text-slate-700' },
+    dropped: { label: '抛弃', class: 'bg-[var(--c-primary-bg)] text-slate-700' },
 }
 
 // 每次加载数量
@@ -77,6 +77,18 @@ async function load_more() {
     loading.value = false
 }
 
+// 检查是否需要加载更多（用于筛选变化后）
+async function check_and_load() {
+    await nextTick()
+    if (has_more.value && bottom_trigger.value) {
+        const rect = bottom_trigger.value.getBoundingClientRect()
+        // 如果触发器在视口内，加载更多
+        if (rect.top < window.innerHeight) {
+            load_more()
+        }
+    }
+}
+
 // 设置 Intersection Observer
 onMounted(() => {
     observer = new IntersectionObserver(
@@ -97,9 +109,10 @@ onUnmounted(() => {
     observer?.disconnect()
 })
 
-// 筛选变化时重置
+// 筛选变化时重置并检查是否需要加载更多
 watch(bangumi_filter, () => {
     display_count.value = load_count
+    check_and_load()
 })
 </script>
 

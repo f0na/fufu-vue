@@ -16,7 +16,7 @@ const { next_theme } = useTheme()
 // 桌面端主菜单项（5个）
 const desktop_menu_items = [
     { label: '归档', key: 'archive', icon: 'i-lucide-archive', route: '/archive' },
-    { label: '链接', key: 'links', icon: 'i-lucide-link', route: '/links' },
+    { label: '链接', key: 'links', icon: 'i-lucide-link', route: '/home/links' },
     { label: '追番', key: 'bangumi', icon: 'i-simple-icons-bilibili', route: '/home/bangumi' },
     { label: '相册', key: 'gallery', icon: 'i-lucide-image', route: '/home/gallery' },
     { label: '友人帐', key: 'friends', icon: 'i-lucide-users', route: '/friends' }
@@ -25,7 +25,7 @@ const desktop_menu_items = [
 // 移动端主菜单项（4个）
 const mobile_menu_items = [
     { label: '归档', key: 'archive', icon: 'i-lucide-archive', route: '/archive' },
-    { label: '链接', key: 'links', icon: 'i-lucide-link', route: '/links' },
+    { label: '链接', key: 'links', icon: 'i-lucide-link', route: '/home/links' },
     { label: '追番', key: 'bangumi', icon: 'i-simple-icons-bilibili', route: '/home/bangumi' },
     { label: '友人帐', key: 'friends', icon: 'i-lucide-users', route: '/friends' }
 ]
