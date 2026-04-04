@@ -1,11 +1,26 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useLinksFilter } from '@/composables/useLinksFilter'
 import { useToast } from '@/composables/useToast'
 
 // 使用共享筛选状态
 const { links_filter, set_all_tags } = useLinksFilter()
 const { success } = useToast()
+
+// 每次加载的分组数量
+const load_count = 3
+
+// 当前显示的分组数量
+const display_group_count = ref(load_count)
+
+// 加载状态
+const loading = ref(false)
+
+// 底部观察元素引用
+const bottom_trigger = ref<HTMLElement | null>(null)
+
+// Intersection Observer
+let observer: IntersectionObserver | null = null
 
 // 模拟链接列表数据（实际应从 API 获取）
 const all_links = [
@@ -24,6 +39,9 @@ const all_links = [
     { id: '13', title: '知乎', url: 'https://zhihu.com', description: '中文问答社区', tags: ['社区'] },
     { id: '14', title: '豆瓣', url: 'https://douban.com', description: '书影音评分网站', tags: ['娱乐'] },
     { id: '15', title: '微博', url: 'https://weibo.com', description: '中文社交媒体', tags: ['社交'] },
+    { id: '16', title: 'YouTube', url: 'https://youtube.com', description: '全球最大视频平台', tags: ['视频'] },
+    { id: '17', title: 'Spotify', url: 'https://spotify.com', description: '音乐流媒体服务', tags: ['音乐'] },
+    { id: '18', title: 'Netflix', url: 'https://netflix.com', description: '流媒体影视平台', tags: ['视频', '娱乐'] },
 ]
 
 // 所有标签
@@ -40,8 +58,8 @@ onMounted(() => {
     set_all_tags(all_tags.value)
 })
 
-// 按标签分组的链接
-const grouped_links = computed(() => {
+// 按标签分组的全部链接
+const all_grouped_links = computed(() => {
     // 如果有筛选，只显示筛选的标签组
     if (links_filter.value !== 'all') {
         const filtered = all_links.filter(l => l.tags.includes(links_filter.value))
@@ -68,6 +86,36 @@ const grouped_links = computed(() => {
         .sort((a, b) => a.tag.localeCompare(b.tag, 'zh-CN'))
 })
 
+// 当前显示的分组链接
+const grouped_links = computed(() => {
+    return all_grouped_links.value.slice(0, display_group_count.value)
+})
+
+// 是否还有更多
+const has_more = computed(() => display_group_count.value < all_grouped_links.value.length)
+
+// 加载更多
+async function load_more() {
+    if (loading.value || !has_more.value) return
+
+    loading.value = true
+    await new Promise(resolve => setTimeout(resolve, 300))
+    display_group_count.value += load_count
+    loading.value = false
+}
+
+// 检查是否需要加载更多（用于筛选变化后）
+async function check_and_load() {
+    await nextTick()
+    if (has_more.value && bottom_trigger.value) {
+        const rect = bottom_trigger.value.getBoundingClientRect()
+        // 如果触发器在视口内，加载更多
+        if (rect.top < window.innerHeight) {
+            load_more()
+        }
+    }
+}
+
 // 获取网站图标 URL（使用国内友好的服务）
 function get_favicon_url(url: string): string {
     try {
@@ -93,6 +141,32 @@ async function copy_link(url: string, title: string) {
         console.error('复制失败')
     }
 }
+
+// 设置 Intersection Observer
+onMounted(() => {
+    observer = new IntersectionObserver(
+        (entries) => {
+            if (entries[0]?.isIntersecting && has_more.value) {
+                load_more()
+            }
+        },
+        { threshold: 0.1 }
+    )
+
+    if (bottom_trigger.value) {
+        observer.observe(bottom_trigger.value)
+    }
+})
+
+onUnmounted(() => {
+    observer?.disconnect()
+})
+
+// 筛选变化时重置并检查是否需要加载更多
+watch(links_filter, () => {
+    display_group_count.value = load_count
+    check_and_load()
+})
 </script>
 
 <template>
@@ -100,9 +174,13 @@ async function copy_link(url: string, title: string) {
         <!-- 标签分组 -->
         <div v-for="group in grouped_links" :key="group.tag" class="flex flex-col gap-3">
             <!-- 标签标题 -->
-            <h2 class="text-sm font-medium text-slate-600 px-1">
-                {{ group.tag }}
-            </h2>
+            <div class="flex items-center gap-2">
+                <div class="w-1 h-4 rounded-full bg-[var(--c-primary)]" />
+                <h2 class="text-sm font-medium text-slate-700">
+                    {{ group.tag }}
+                </h2>
+                <span class="text-xs text-slate-400">{{ group.links.length }}</span>
+            </div>
 
             <!-- 链接列表 -->
             <div class="flex flex-col gap-2">
@@ -157,6 +235,23 @@ async function copy_link(url: string, title: string) {
                         </button>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- 底部加载触发器 -->
+        <div ref="bottom_trigger" class="py-6 flex justify-center">
+            <!-- 加载中 -->
+            <div v-if="loading" class="flex items-center gap-2 text-slate-400">
+                <div class="i-lucide-loader-2 w-5 h-5 animate-spin" />
+                <span class="text-sm">加载中...</span>
+            </div>
+            <!-- 没有更多 -->
+            <div v-else-if="!has_more && grouped_links.length > 0" class="text-slate-400 text-sm">
+                已经到底了 ~
+            </div>
+            <!-- 加载更多提示 -->
+            <div v-else-if="has_more" class="text-slate-400 text-sm">
+                下拉加载更多
             </div>
         </div>
 

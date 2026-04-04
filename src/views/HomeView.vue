@@ -107,9 +107,9 @@ onUnmounted(() => {
 
         <!-- 主内容区 -->
         <main class="flex-1 flex justify-center px-4 py-8 pb-16 md:pb-8 md:px-8">
-            <div class="w-full md:max-w-[60%] flex gap-6 relative">
+            <div class="w-full md:w-[65%] flex gap-4 md:gap-6 relative">
                 <!-- 左侧小组件区 -->
-                <aside class="hidden md:flex flex-col gap-4 w-48 shrink-0">
+                <aside class="hidden md:flex flex-col gap-4 w-[18%] shrink-0">
                     <profile-widget />
                     <announcement-widget />
                     <!-- 管理员卡片 - 管理员登录后显示 -->
@@ -117,12 +117,12 @@ onUnmounted(() => {
                 </aside>
 
                 <!-- 中间内容区 -->
-                <div class="flex-1 min-w-0">
+                <div class="w-[67%] min-w-0 shrink-0">
                     <router-view />
                 </div>
 
                 <!-- 右侧边栏 -->
-                <aside class="hidden md:flex flex-col gap-4 w-40 shrink-0">
+                <aside class="hidden md:flex flex-col gap-4 w-[15%] shrink-0">
                     <!-- 番剧页显示筛选侧边栏 -->
                     <template v-if="is_bangumi_page">
                         <bangumi-sidebar />
