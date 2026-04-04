@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import NavMenu from '@/components/common/NavMenu.vue'
 import HeaderBanner from '@/components/home/HeaderBanner.vue'
 import ProfileWidget from '@/components/home/ProfileWidget.vue'
@@ -8,10 +8,12 @@ import AnnouncementWidget from '@/components/home/AnnouncementWidget.vue'
 import FooterSection from '@/components/home/FooterSection.vue'
 import MascotArea from '@/components/home/MascotArea.vue'
 import SearchBox from '@/components/home/SearchBox.vue'
+import BangumiSidebar from '@/components/bangumi/BangumiSidebar.vue'
 import AdminCard from '@/components/admin/AdminCard.vue'
 import { useAuth } from '@/composables/useAuth'
 
 const router = useRouter()
+const route = useRoute()
 const { is_logged_in, is_admin } = useAuth()
 
 // 看板娘秘密点击处理
@@ -23,6 +25,9 @@ function handle_secret_click() {
     }
     // 已登录时不做任何操作
 }
+
+// 是否是番剧页
+const is_bangumi_page = computed(() => route.name === 'bangumi')
 
 const header_height = ref(40) // vh 单位
 const base_height = 40
@@ -112,9 +117,16 @@ onUnmounted(() => {
                     <router-view />
                 </div>
 
-                <!-- 右侧搜索 -->
+                <!-- 右侧边栏 -->
                 <aside class="hidden md:flex flex-col gap-4 w-40 shrink-0">
-                    <search-box />
+                    <!-- 番剧页显示筛选侧边栏 -->
+                    <template v-if="is_bangumi_page">
+                        <bangumi-sidebar />
+                    </template>
+                    <!-- 其他页面显示搜索框 -->
+                    <template v-else>
+                        <search-box />
+                    </template>
                 </aside>
 
                 <!-- 看板娘 - 相对主内容区右侧 -->
