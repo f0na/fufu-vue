@@ -278,8 +278,8 @@ function handle_rotate_touch_end() {
 
 <template>
     <div
-        class="absolute cursor-grab shadow-lg select-none transition-shadow"
-        :class="is_dragging ? 'cursor-grabbing shadow-xl' : ''"
+        class="photo-card absolute shadow-lg select-none transition-shadow"
+        :class="is_dragging ? 'shadow-xl' : ''"
         :style="photo_style"
         @mousedown="handle_mouse_down"
         @touchstart="handle_touch_start"

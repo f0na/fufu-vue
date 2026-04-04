@@ -27,6 +27,13 @@ const canvas_scale = ref(1)
 const canvas_offset_x = ref(0)
 const canvas_offset_y = ref(0)
 
+// 画布拖动状态
+const is_dragging_canvas = ref(false)
+let drag_start_x = 0
+let drag_start_y = 0
+let drag_start_offset_x = 0
+let drag_start_offset_y = 0
+
 // 触摸缩放状态
 let initial_pinch_distance = 0
 let initial_scale = 1
@@ -194,6 +201,47 @@ function go_back() {
     router.push('/home/gallery')
 }
 
+// ========== 画布拖动 ==========
+
+function start_canvas_drag(client_x: number, client_y: number) {
+    is_dragging_canvas.value = true
+    drag_start_x = client_x
+    drag_start_y = client_y
+    drag_start_offset_x = canvas_offset_x.value
+    drag_start_offset_y = canvas_offset_y.value
+}
+
+function move_canvas_drag(client_x: number, client_y: number) {
+    if (!is_dragging_canvas.value) return
+
+    const dx = client_x - drag_start_x
+    const dy = client_y - drag_start_y
+
+    canvas_offset_x.value = drag_start_offset_x + dx
+    canvas_offset_y.value = drag_start_offset_y + dy
+}
+
+function end_canvas_drag() {
+    is_dragging_canvas.value = false
+}
+
+// 鼠标拖动画布
+function handle_window_mousedown(e: MouseEvent) {
+    // 只在左键按下且不是在照片上时开始拖动
+    if (e.button !== 0) return
+    if ((e.target as HTMLElement).closest('.photo-card')) return
+
+    start_canvas_drag(e.clientX, e.clientY)
+}
+
+function handle_window_mousemove(e: MouseEvent) {
+    move_canvas_drag(e.clientX, e.clientY)
+}
+
+function handle_window_mouseup() {
+    end_canvas_drag()
+}
+
 // ========== 移动端画布缩放 ==========
 
 function get_pinch_distance(touches: TouchList): number {
@@ -226,6 +274,11 @@ function handle_touch_start(e: TouchEvent) {
         const center = get_pinch_center(e.touches)
         pinch_center_x = center.x
         pinch_center_y = center.y
+    } else if (e.touches.length === 1) {
+        // 单指按下，开始拖动（检查是否在照片上）
+        if (!(e.target as HTMLElement).closest('.photo-card')) {
+            start_canvas_drag(e.touches[0]!.clientX, e.touches[0]!.clientY)
+        }
     }
 }
 
@@ -246,12 +299,16 @@ function handle_touch_move(e: TouchEvent) {
             canvas_offset_x.value = pinch_center_x - (pinch_center_x - initial_offset_x) * scale_ratio
             canvas_offset_y.value = pinch_center_y - (pinch_center_y - initial_offset_y) * scale_ratio
         }
+    } else if (e.touches.length === 1 && is_dragging_canvas.value) {
+        // 单指拖动画布
+        move_canvas_drag(e.touches[0]!.clientX, e.touches[0]!.clientY)
     }
 }
 
 function handle_touch_end() {
     if (!is_mobile.value) return
     initial_pinch_distance = 0
+    end_canvas_drag()
 }
 
 // 重置画布缩放
@@ -259,6 +316,24 @@ function reset_canvas_scale() {
     canvas_scale.value = 1
     canvas_offset_x.value = 0
     canvas_offset_y.value = 0
+}
+
+// 滚轮缩放（桌面端）
+function handle_wheel(e: WheelEvent) {
+    if (is_mobile.value) return
+
+    e.preventDefault()
+
+    const delta = e.deltaY > 0 ? 0.9 : 1.1
+    const new_scale = canvas_scale.value * delta
+    canvas_scale.value = Math.min(3, Math.max(0.3, new_scale))
+
+    // 以屏幕中心为缩放中心
+    const screen_center_x = window.innerWidth / 2
+    const screen_center_y = window.innerHeight / 2
+
+    canvas_offset_x.value = screen_center_x - (screen_center_x - canvas_offset_x.value) * delta
+    canvas_offset_y.value = screen_center_y - (screen_center_y - canvas_offset_y.value) * delta
 }
 
 const canvas_style = computed(() => ({
@@ -269,10 +344,18 @@ const canvas_style = computed(() => ({
 onMounted(() => {
     init_photos()
     window.addEventListener('resize', check_mobile)
+    window.addEventListener('wheel', handle_wheel, { passive: false })
+    window.addEventListener('mousedown', handle_window_mousedown)
+    window.addEventListener('mousemove', handle_window_mousemove)
+    window.addEventListener('mouseup', handle_window_mouseup)
 })
 
 onUnmounted(() => {
     window.removeEventListener('resize', check_mobile)
+    window.removeEventListener('wheel', handle_wheel)
+    window.removeEventListener('mousedown', handle_window_mousedown)
+    window.removeEventListener('mousemove', handle_window_mousemove)
+    window.removeEventListener('mouseup', handle_window_mouseup)
 })
 </script>
 
@@ -287,10 +370,11 @@ onUnmounted(() => {
             <div class="i-lucide-arrow-left w-5 h-5 text-slate-600" />
         </button>
 
-        <!-- 重置缩放按钮（移动端缩放后显示） -->
+        <!-- 重置缩放按钮（画布缩放或偏移后显示） -->
         <button
-            v-if="is_mobile && canvas_scale !== 1"
-            class="fixed top-4 left-4 z-50 w-10 h-10 flex items-center justify-center bg-white/80 hover:bg-white shadow-md rounded-full transition-colors"
+            v-if="canvas_scale !== 1 || canvas_offset_x !== 0 || canvas_offset_y !== 0"
+            class="fixed z-50 w-10 h-10 flex items-center justify-center bg-white/80 hover:bg-white shadow-md rounded-full transition-colors"
+            :class="is_mobile ? 'top-4 left-4' : 'top-4 left-16'"
             @click="reset_canvas_scale"
         >
             <div class="i-lucide-maximize-2 w-5 h-5 text-slate-600" />
@@ -300,7 +384,7 @@ onUnmounted(() => {
         <div
             class="relative w-full h-screen"
             :class="is_mobile ? 'pb-14' : ''"
-            :style="is_mobile ? canvas_style : {}"
+            :style="canvas_style"
             @touchstart="handle_touch_start"
             @touchmove="handle_touch_move"
             @touchend="handle_touch_end"
