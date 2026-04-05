@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
-import { computed } from 'vue'
+import AdminPanel from './AdminPanel.vue'
 
 const router = useRouter()
 const { logout, loading, can_add, can_edit, can_delete, can_toggle_visibility, user, is_admin } = useAuth()
+
+// 显示管理面板
+const show_panel = ref(false)
 
 // 角色显示文本
 const role_text = computed(() => {
@@ -17,7 +21,7 @@ async function handle_logout() {
 }
 
 function handle_panel() {
-    // TODO: 跳转到管理面板
+    show_panel.value = true
 }
 
 function handle_add() {
@@ -151,4 +155,9 @@ function go_to_profile() {
             </button>
         </div>
     </div>
+
+    <!-- 管理面板 -->
+    <teleport to="body">
+        <AdminPanel v-if="show_panel" @close="show_panel = false" />
+    </teleport>
 </template>

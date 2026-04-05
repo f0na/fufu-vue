@@ -3,8 +3,17 @@ import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useLinksFilter } from '@/composables/useLinksFilter'
 import { useToast } from '@/composables/useToast'
 
+// 链接数据类型
+interface LinkItem {
+    id: string
+    title: string
+    url: string
+    description: string
+    tags: string[]
+}
+
 // 使用共享筛选状态
-const { links_filter, set_all_tags } = useLinksFilter()
+const { links_filter, search_query, set_all_tags } = useLinksFilter()
 const { success } = useToast()
 
 // 每次加载的分组数量
@@ -23,7 +32,7 @@ const bottom_trigger = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | null = null
 
 // 模拟链接列表数据（实际应从 API 获取）
-const all_links = [
+const all_links: LinkItem[] = [
     { id: '1', title: 'GitHub', url: 'https://github.com', description: '全球最大的代码托管平台', tags: ['开发'] },
     { id: '2', title: 'Vue.js', url: 'https://vuejs.org', description: '渐进式 JavaScript 框架', tags: ['开发', '前端'] },
     { id: '3', title: 'Bilibili', url: 'https://bilibili.com', description: '国内知名视频弹幕网站', tags: ['视频'] },
@@ -60,15 +69,26 @@ onMounted(() => {
 
 // 按标签分组的全部链接
 const all_grouped_links = computed(() => {
-    // 如果有筛选，只显示筛选的标签组
+    // 先按搜索关键词筛选
+    let filtered_by_search = all_links
+    if (search_query.value.trim()) {
+        const query = search_query.value.toLowerCase()
+        filtered_by_search = all_links.filter(l =>
+            l.title.toLowerCase().includes(query) ||
+            l.description.toLowerCase().includes(query) ||
+            l.tags.some(tag => tag.toLowerCase().includes(query))
+        )
+    }
+
+    // 如果有标签筛选，只显示筛选的标签组
     if (links_filter.value !== 'all') {
-        const filtered = all_links.filter(l => l.tags.includes(links_filter.value))
+        const filtered = filtered_by_search.filter(l => l.tags.includes(links_filter.value))
         return [{ tag: links_filter.value, links: filtered }]
     }
 
     // 否则按标签分组
-    const groups: Record<string, typeof all_links> = {}
-    all_links.forEach(link => {
+    const groups: Record<string, LinkItem[]> = {}
+    filtered_by_search.forEach(link => {
         link.tags.forEach(tag => {
             if (!groups[tag]) {
                 groups[tag] = []

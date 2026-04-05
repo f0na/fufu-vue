@@ -1,10 +1,10 @@
 /**
- * 链接筛选状态管理
+ * 相册筛选状态管理
  */
 import { ref } from 'vue'
 
 // 当前筛选标签
-const links_filter = ref<string>('all')
+const gallery_filter = ref<string>('all')
 
 // 所有可用标签
 const all_tags = ref<string[]>([])
@@ -13,8 +13,8 @@ const all_tags = ref<string[]>([])
 const search_query = ref('')
 
 // 设置筛选
-function set_links_filter(filter: string) {
-    links_filter.value = filter
+function set_gallery_filter(filter: string) {
+    gallery_filter.value = filter
 }
 
 // 设置所有标签
@@ -27,12 +27,12 @@ function set_search_query(query: string) {
     search_query.value = query
 }
 
-export function useLinksFilter() {
+export function useGalleryFilter() {
     return {
-        links_filter,
+        gallery_filter,
         all_tags,
         search_query,
-        set_links_filter,
+        set_gallery_filter,
         set_all_tags,
         set_search_query,
     }

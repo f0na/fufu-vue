@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import PhotoCard from '@/components/gallery/PhotoCard.vue'
 import PhotoViewer from '@/components/gallery/PhotoViewer.vue'
 import NavMenu from '@/components/common/NavMenu.vue'
+import CommentSection from '@/components/comment/CommentSection.vue'
 
 interface PhotoState {
     id: number
@@ -57,6 +58,9 @@ const photos = ref<PhotoState[]>([])
 
 // 当前查看的照片
 const viewing_photo = ref<PhotoState | null>(null)
+
+// 是否显示评论
+const show_comments = ref(false)
 
 // 全局最高 z-index
 let global_max_z_index = 1
@@ -227,6 +231,8 @@ function end_canvas_drag() {
 
 // 鼠标拖动画布
 function handle_window_mousedown(e: MouseEvent) {
+    // 评论区打开时不响应
+    if (show_comments.value) return
     // 只在左键按下且不是在照片上时开始拖动
     if (e.button !== 0) return
     if ((e.target as HTMLElement).closest('.photo-card')) return
@@ -235,6 +241,7 @@ function handle_window_mousedown(e: MouseEvent) {
 }
 
 function handle_window_mousemove(e: MouseEvent) {
+    if (show_comments.value) return
     move_canvas_drag(e.clientX, e.clientY)
 }
 
@@ -264,6 +271,8 @@ function get_pinch_center(touches: TouchList): { x: number; y: number } {
 
 function handle_touch_start(e: TouchEvent) {
     if (!is_mobile.value) return
+    // 评论区打开时不响应
+    if (show_comments.value) return
 
     if (e.touches.length === 2) {
         // 双指按下，开始缩放
@@ -284,6 +293,7 @@ function handle_touch_start(e: TouchEvent) {
 
 function handle_touch_move(e: TouchEvent) {
     if (!is_mobile.value) return
+    if (show_comments.value) return
 
     if (e.touches.length === 2) {
         e.preventDefault()
@@ -321,6 +331,8 @@ function reset_canvas_scale() {
 // 滚轮缩放（桌面端）
 function handle_wheel(e: WheelEvent) {
     if (is_mobile.value) return
+    // 评论区打开时不响应
+    if (show_comments.value) return
 
     e.preventDefault()
 
@@ -380,6 +392,15 @@ onUnmounted(() => {
             <div class="i-lucide-maximize-2 w-5 h-5 text-slate-600" />
         </button>
 
+        <!-- 评论按钮 -->
+        <button
+            class="fixed z-50 w-10 h-10 flex items-center justify-center bg-white/80 hover:bg-white shadow-md rounded-full transition-colors"
+            :class="is_mobile ? 'top-4 right-4' : 'top-4 right-4'"
+            @click="show_comments = !show_comments"
+        >
+            <div class="i-lucide-message-circle w-5 h-5 text-slate-600" />
+        </button>
+
         <!-- 照片画布 -->
         <div
             class="relative w-full h-screen"
@@ -408,6 +429,32 @@ onUnmounted(() => {
             :photo="viewing_photo"
             @close="handle_viewer_close"
         />
+
+        <!-- 评论抽屉 -->
+        <teleport to="body">
+            <div v-if="show_comments" class="fixed inset-0 z-[100]">
+                <!-- 遮罩 -->
+                <div class="absolute inset-0 bg-black/30" @click="show_comments = false" />
+                <!-- 抽屉 -->
+                <div class="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl overflow-y-auto">
+                    <div class="sticky top-0 bg-white border-b border-[var(--c-border)] p-4 flex items-center justify-between">
+                        <h2 class="text-lg font-medium text-slate-700">评论区</h2>
+                        <button
+                            @click="show_comments = false"
+                            class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
+                        >
+                            <div class="i-lucide-x w-5 h-5 text-slate-500" />
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <CommentSection
+                            target_type="gallery"
+                            :target_id="gallery_id"
+                        />
+                    </div>
+                </div>
+            </div>
+        </teleport>
 
         <!-- 导航栏 -->
         <nav-menu />

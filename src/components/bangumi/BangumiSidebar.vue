@@ -1,13 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useBangumiFilter } from '@/composables/useBangumiStats'
 
 // 使用共享筛选状态
-const { bangumi_filter, set_bangumi_filter } = useBangumiFilter()
-
-// 搜索模式：番剧搜索 或 全站搜索
-const search_mode = ref<'bangumi' | 'global'>('bangumi')
-const search_query = ref('')
+const { bangumi_filter, set_bangumi_filter, search_query } = useBangumiFilter()
 
 // 状态标签
 const status_tags = [
@@ -16,16 +11,6 @@ const status_tags = [
     { key: 'watched', label: '看过' },
     { key: 'dropped', label: '抛弃' },
 ] as const
-
-function toggle_search_mode() {
-    search_mode.value = search_mode.value === 'bangumi' ? 'global' : 'bangumi'
-}
-
-function handle_search() {
-    if (search_query.value.trim()) {
-        console.log('搜索:', search_query.value, '模式:', search_mode.value)
-    }
-}
 
 function toggle_filter(status: typeof bangumi_filter.value) {
     if (bangumi_filter.value === status) {
@@ -40,28 +25,6 @@ function toggle_filter(status: typeof bangumi_filter.value) {
     <div class="flex flex-col gap-4">
         <!-- 搜索框 -->
         <div class="rounded-xl bg-white/80 backdrop-blur-sm border border-[var(--c-border)] shadow-sm overflow-hidden">
-            <!-- 搜索模式切换 -->
-            <div class="flex items-center gap-1 p-2 border-b border-[var(--c-border)]">
-                <button
-                    @click="toggle_search_mode"
-                    class="flex-1 px-1 py-1 text-xs rounded transition-colors"
-                    :class="search_mode === 'bangumi'
-                        ? 'bg-[var(--c-primary)] text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
-                >
-                    番剧
-                </button>
-                <button
-                    @click="toggle_search_mode"
-                    class="flex-1 px-1 py-1 text-xs rounded transition-colors"
-                    :class="search_mode === 'global'
-                        ? 'bg-[var(--c-primary)] text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
-                >
-                    全站
-                </button>
-            </div>
-
             <!-- 输入框 -->
             <div class="relative">
                 <div class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400">
@@ -70,9 +33,8 @@ function toggle_filter(status: typeof bangumi_filter.value) {
                 <input
                     v-model="search_query"
                     type="text"
-                    :placeholder="search_mode === 'bangumi' ? '搜索番剧...' : '搜索...'"
+                    placeholder="搜索番剧..."
                     class="w-full pl-7 pr-2 py-2 text-sm bg-transparent outline-none text-slate-700 placeholder:text-slate-400"
-                    @keyup.enter="handle_search"
                 />
             </div>
         </div>

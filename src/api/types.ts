@@ -435,3 +435,70 @@ export interface TwoFactorRequiredGitHubResponse {
     temp_token: string
     github_login: boolean
 }
+
+// ========== 评论相关 ==========
+
+// 评论目标类型
+export type CommentTarget = 'gallery' | 'bangumi'
+
+// 评论状态
+export type CommentStatus = 'normal' | 'hidden'
+
+// 评论者信息
+export interface CommentAuthor {
+    user_id: string | null
+    name: string              // 用户名或游客名称
+    avatar: string | null     // 头像URL
+    is_admin: boolean         // 是否管理员
+}
+
+// 评论项（包含回复）
+export interface Comment {
+    id: string
+    target_type: CommentTarget
+    target_id: string
+    parent_id: string | null      // 父评论ID，null表示一级评论
+
+    // 评论者
+    author: CommentAuthor
+
+    // 回复目标
+    reply_to_name: string | null  // 回复的用户名
+
+    content: string
+    is_markdown: boolean          // 是否为 Markdown 格式
+    status: CommentStatus
+
+    // 回复列表（仅一级评论有）
+    replies: Comment[]
+    reply_count: number
+
+    created_at: string
+    updated_at: string
+}
+
+// 发布评论请求（登录用户）
+export interface CreateCommentRequest {
+    target_type: CommentTarget
+    target_id: string
+    parent_id?: string | null
+    reply_to_user_id?: string | null
+    reply_to_guest_name?: string | null
+    content: string
+    is_markdown?: boolean         // 是否为 Markdown 格式，默认 false
+}
+
+// 发布评论请求（游客）
+export interface CreateGuestCommentRequest extends CreateCommentRequest {
+    guest_name: string
+    guest_email?: string
+    guest_avatar?: string
+}
+
+// 敏感词
+export interface SensitiveWord {
+    id: string
+    word: string
+    level: 'filter' | 'hide'
+    created_at: string
+}

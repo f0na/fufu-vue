@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { useLinksFilter } from '@/composables/useLinksFilter'
+import { useGalleryFilter } from '@/composables/useGalleryFilter'
 
 // 使用共享筛选状态
-const { links_filter, all_tags, set_links_filter, search_query } = useLinksFilter()
+const { gallery_filter, all_tags, set_gallery_filter, search_query } = useGalleryFilter()
 
 function toggle_filter(tag: string) {
-    if (links_filter.value === tag) {
-        set_links_filter('all')
+    if (gallery_filter.value === tag) {
+        set_gallery_filter('all')
     } else {
-        set_links_filter(tag)
+        set_gallery_filter(tag)
     }
 }
 </script>
@@ -25,7 +25,7 @@ function toggle_filter(tag: string) {
                 <input
                     v-model="search_query"
                     type="text"
-                    placeholder="搜索链接..."
+                    placeholder="搜索相册..."
                     class="w-full pl-7 pr-2 py-2 text-sm bg-transparent outline-none text-slate-700 placeholder:text-slate-400"
                 />
             </div>
@@ -39,7 +39,7 @@ function toggle_filter(tag: string) {
                     :key="tag"
                     @click="toggle_filter(tag)"
                     class="px-4 py-2 text-xs rounded-lg transition-all border-2 whitespace-nowrap"
-                    :class="links_filter === tag
+                    :class="gallery_filter === tag
                         ? 'border-[var(--c-primary)] ring-2 ring-[var(--c-primary)]/30 bg-[var(--c-primary-bg)] text-slate-700'
                         : 'border-transparent bg-[var(--c-primary-bg)] text-slate-600 hover:bg-[var(--c-primary-bg)]/70'"
                 >

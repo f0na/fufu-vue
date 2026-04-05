@@ -3,7 +3,7 @@ import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useBangumiFilter } from '@/composables/useBangumiStats'
 
 // 使用共享筛选状态
-const { bangumi_filter } = useBangumiFilter()
+const { bangumi_filter, search_query } = useBangumiFilter()
 
 // 状态显示文本和样式
 const status_map = {
@@ -52,10 +52,20 @@ const all_bangumi = ref([
 
 // 筛选后的番剧列表
 const filtered_bangumi = computed(() => {
-    if (bangumi_filter.value === 'all') {
-        return all_bangumi.value
+    let result = all_bangumi.value
+
+    // 按状态筛选
+    if (bangumi_filter.value !== 'all') {
+        result = result.filter(b => b.status === bangumi_filter.value)
     }
-    return all_bangumi.value.filter(b => b.status === bangumi_filter.value)
+
+    // 按搜索关键词筛选
+    if (search_query.value.trim()) {
+        const query = search_query.value.toLowerCase()
+        result = result.filter(b => b.title.toLowerCase().includes(query))
+    }
+
+    return result
 })
 
 // 当前显示的番剧

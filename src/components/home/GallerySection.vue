@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useGalleryFilter } from '@/composables/useGalleryFilter'
 
 const router = useRouter()
+
+// 使用共享筛选状态
+const { gallery_filter, search_query, set_all_tags } = useGalleryFilter()
 
 // 每次加载数量
 const load_count = 4
@@ -31,13 +35,48 @@ const all_galleries = ref([
     { id: 8, title: '夜景集锦', cover: 'https://www.loliapi.com/acg/', count: 14, tags: ['夜景', '城市'] },
 ])
 
+// 所有标签
+const all_tags = computed(() => {
+    const tags = new Set<string>()
+    all_galleries.value.forEach(g => {
+        g.tags.forEach(tag => tags.add(tag))
+    })
+    return Array.from(tags)
+})
+
+// 组件挂载时设置标签
+onMounted(() => {
+    set_all_tags(all_tags.value)
+})
+
+// 筛选后的相册列表
+const filtered_galleries = computed(() => {
+    let result = all_galleries.value
+
+    // 按标签筛选
+    if (gallery_filter.value !== 'all') {
+        result = result.filter(g => g.tags.includes(gallery_filter.value))
+    }
+
+    // 按搜索关键词筛选
+    if (search_query.value.trim()) {
+        const query = search_query.value.toLowerCase()
+        result = result.filter(g =>
+            g.title.toLowerCase().includes(query) ||
+            g.tags.some(tag => tag.toLowerCase().includes(query))
+        )
+    }
+
+    return result
+})
+
 // 当前显示的相册
 const galleries = computed(() => {
-    return all_galleries.value.slice(0, display_count.value)
+    return filtered_galleries.value.slice(0, display_count.value)
 })
 
 // 是否还有更多
-const has_more = computed(() => display_count.value < all_galleries.value.length)
+const has_more = computed(() => display_count.value < filtered_galleries.value.length)
 
 // 加载更多
 async function load_more() {
