@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import MarkdownRender from 'markstream-vue'
 import type { Comment } from '@/api/types'
+import { preprocess_markdown_image_size } from '@/utils/markdown'
 
 const props = defineProps<{
     comment: Comment
@@ -36,6 +38,14 @@ function format_time(date_str: string): string {
 function handle_reply() {
     emit('reply', props.comment)
 }
+
+// 预处理后的 Markdown 内容
+const processed_content = computed(() => {
+    if (props.comment.markdown) {
+        return preprocess_markdown_image_size(props.comment.content)
+    }
+    return props.comment.content
+})
 </script>
 
 <template>
@@ -69,7 +79,7 @@ function handle_reply() {
                 <span class="font-medium text-slate-700" :class="is_reply ? 'text-sm' : 'text-sm'">
                     {{ comment.author.name }}
                 </span>
-                <span v-if="comment.author.is_admin" class="px-1.5 py-0.5 text-xs rounded bg-[var(--c-primary)] text-white">
+                <span v-if="comment.author.admin" class="px-1.5 py-0.5 text-xs rounded bg-[var(--c-primary)] text-white">
                     管理员
                 </span>
                 <span class="text-xs text-slate-400">{{ format_time(comment.created_at) }}</span>
@@ -79,8 +89,8 @@ function handle_reply() {
             <div class="mt-1 text-sm text-slate-600 break-words comment-content">
                 <!-- Markdown 格式渲染 -->
                 <MarkdownRender
-                    v-if="comment.is_markdown"
-                    :content="comment.content"
+                    v-if="comment.markdown"
+                    :content="processed_content"
                 />
                 <!-- 普通文本格式 -->
                 <div
@@ -94,7 +104,6 @@ function handle_reply() {
             <!-- 操作 -->
             <div class="mt-2 flex items-center gap-4">
                 <button
-                    v-if="!is_reply"
                     @click="handle_reply"
                     class="text-xs text-slate-400 hover:text-[var(--c-primary)] transition-colors"
                 >

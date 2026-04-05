@@ -449,7 +449,7 @@ export interface CommentAuthor {
     user_id: string | null
     name: string              // 用户名或游客名称
     avatar: string | null     // 头像URL
-    is_admin: boolean         // 是否管理员
+    admin: boolean            // 是否管理员
 }
 
 // 评论项（包含回复）
@@ -466,7 +466,7 @@ export interface Comment {
     reply_to_name: string | null  // 回复的用户名
 
     content: string
-    is_markdown: boolean          // 是否为 Markdown 格式
+    markdown: boolean             // 是否为 Markdown 格式
     status: CommentStatus
 
     // 回复列表（仅一级评论有）
@@ -485,7 +485,7 @@ export interface CreateCommentRequest {
     reply_to_user_id?: string | null
     reply_to_guest_name?: string | null
     content: string
-    is_markdown?: boolean         // 是否为 Markdown 格式，默认 false
+    markdown?: boolean              // 是否为 Markdown 格式，默认 false
 }
 
 // 发布评论请求（游客）
@@ -501,4 +501,72 @@ export interface SensitiveWord {
     word: string
     level: 'filter' | 'hide'
     created_at: string
+}
+
+// ========== 友人帐相关 ==========
+
+// 友人帐状态
+export type FriendStatus = 'active' | 'pending' | 'inactive'
+
+// 友链（图标由前端从 url 自动获取 favicon）
+export interface Friend {
+    id: string
+    name: string                 // 网站名称
+    url: string                  // 网站链接
+    description: string | null   // 网站描述
+    status: FriendStatus
+    visible: boolean
+    sort_order: number
+    created_at: string
+    updated_at: string
+}
+
+// 申请添加友链请求
+export interface ApplyFriendRequest {
+    name: string                 // 网站名称
+    url: string                  // 网站链接
+    description?: string         // 网站描述（可选）
+}
+
+// ========== 番剧相关 ==========
+
+// 番剧观看状态
+export type BangumiStatus = 'watching' | 'want_to_watch' | 'watched' | 'dropped'
+
+// 番剧
+export interface Bangumi {
+    id: string                   // UUIDv7
+    title: string                // 番剧标题
+    cover: string | null         // 封面图URL
+    status: BangumiStatus        // 观看状态
+    rating: number | null        // 评分 0-10
+    episodes: number             // 集数
+    description: string | null   // 简介
+    tags: string[]               // 标签数组
+    visible: boolean             // 是否可见
+    sort_order: number           // 排序权重
+    created_at: string           // 创建时间 ISO 8601
+    updated_at: string           // 更新时间 ISO 8601
+}
+
+// 创建番剧请求
+export interface CreateBangumiRequest {
+    title: string
+    cover?: string
+    status?: BangumiStatus
+    rating?: number
+    episodes?: number
+    description?: string
+    tags?: string[]
+}
+
+// 更新番剧请求
+export interface UpdateBangumiRequest {
+    title?: string
+    cover?: string
+    status?: BangumiStatus
+    rating?: number
+    episodes?: number
+    description?: string
+    tags?: string[]
 }

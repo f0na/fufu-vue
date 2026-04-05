@@ -11,7 +11,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: 'submit', data: {
         content: string
-        is_markdown: boolean
+        markdown: boolean
         guest_name?: string
         guest_email?: string
         guest_avatar?: string
@@ -51,13 +51,13 @@ function handle_submit() {
 
     const data: {
         content: string
-        is_markdown: boolean
+        markdown: boolean
         guest_name?: string
         guest_email?: string
         guest_avatar?: string
     } = {
         content: content.value.trim(),
-        is_markdown: is_markdown.value
+        markdown: is_markdown.value
     }
 
     if (show_guest_form.value) {

@@ -6,6 +6,7 @@ import { useToast } from '@/composables/useToast'
 import type { Comment, CommentTarget } from '@/api/types'
 import CommentItem from './CommentItem.vue'
 import CommentForm from './CommentForm.vue'
+import BackToTop from '@/components/common/BackToTop.vue'
 
 const props = defineProps<{
     target_type: CommentTarget
@@ -71,7 +72,7 @@ async function load_more() {
 // 提交评论
 async function handle_submit(data: {
     content: string
-    is_markdown: boolean
+    markdown: boolean
     guest_name?: string
     guest_email?: string
     guest_avatar?: string
@@ -84,7 +85,7 @@ async function handle_submit(data: {
             reply_to_user_id?: string | null
             reply_to_guest_name?: string | null
             content: string
-            is_markdown: boolean
+            markdown: boolean
             guest_name?: string
             guest_email?: string
             guest_avatar?: string
@@ -92,7 +93,7 @@ async function handle_submit(data: {
             target_type: props.target_type,
             target_id: props.target_id,
             content: data.content,
-            is_markdown: data.is_markdown
+            markdown: data.markdown
         }
 
         // 回复信息
@@ -233,5 +234,8 @@ onMounted(() => {
         <div v-if="loading && comments.length === 0" class="py-8 text-center">
             <div class="i-lucide-loader-2 w-6 h-6 mx-auto animate-spin text-slate-400" />
         </div>
+
+        <!-- 回到顶部 -->
+        <BackToTop />
     </div>
 </template>

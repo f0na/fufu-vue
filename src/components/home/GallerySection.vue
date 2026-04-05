@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGalleryFilter } from '@/composables/useGalleryFilter'
+import BackToTop from '@/components/common/BackToTop.vue'
 
 const router = useRouter()
 
@@ -169,5 +170,8 @@ onUnmounted(() => {
                 下拉加载更多
             </div>
         </div>
+
+        <!-- 回到顶部 -->
+        <BackToTop />
     </div>
 </template>

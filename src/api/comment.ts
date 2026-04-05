@@ -77,10 +77,8 @@ export function update_comment_status(id: string, status: 'normal' | 'hidden'): 
 export function get_sensitive_words(params?: {
     level?: 'filter' | 'hide'
     keyword?: string
-    page?: number
-    per_page?: number
-}): Promise<PaginatedData<SensitiveWord>> {
-    return get<PaginatedData<SensitiveWord>>('/admin/sensitive-words', { params })
+}): Promise<SensitiveWord[]> {
+    return get<SensitiveWord[]>('/admin/sensitive-words', { params })
 }
 
 /**

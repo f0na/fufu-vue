@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import { useBangumiFilter } from '@/composables/useBangumiStats'
+import BackToTop from '@/components/common/BackToTop.vue'
+
+const router = useRouter()
 
 // 使用共享筛选状态
 const { bangumi_filter, search_query } = useBangumiFilter()
@@ -124,6 +128,11 @@ watch(bangumi_filter, () => {
     display_count.value = load_count
     check_and_load()
 })
+
+// 点击番剧卡片，跳转到详情页
+function go_to_detail(id: string) {
+    router.push(`/home/bangumi/${id}`)
+}
 </script>
 
 <template>
@@ -134,6 +143,7 @@ watch(bangumi_filter, () => {
                 v-for="bangumi in bangumi_list"
                 :key="bangumi.id"
                 class="cursor-pointer group"
+                @click="go_to_detail(bangumi.id)"
             >
                 <!-- 封面图 -->
                 <div class="aspect-[3/4] overflow-hidden rounded-xl bg-white shadow-sm group-hover:shadow-md transition-shadow border border-[var(--c-border)] relative">
@@ -185,5 +195,8 @@ watch(bangumi_filter, () => {
                 下拉加载更多
             </div>
         </div>
+
+        <!-- 回到顶部 -->
+        <BackToTop />
     </div>
 </template>

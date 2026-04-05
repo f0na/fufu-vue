@@ -19,7 +19,7 @@ const desktop_menu_items = [
     { label: '链接', key: 'links', icon: 'i-lucide-link', route: '/home/links' },
     { label: '追番', key: 'bangumi', icon: 'i-simple-icons-bilibili', route: '/home/bangumi' },
     { label: '相册', key: 'gallery', icon: 'i-lucide-image', route: '/home/gallery' },
-    { label: '友人帐', key: 'friends', icon: 'i-lucide-users', route: '/friends' }
+    { label: '友人帐', key: 'friends', icon: 'i-lucide-users', route: '/home/friends' }
 ]
 
 // 移动端主菜单项（4个）
@@ -27,7 +27,7 @@ const mobile_menu_items = [
     { label: '归档', key: 'archive', icon: 'i-lucide-archive', route: '/archive' },
     { label: '链接', key: 'links', icon: 'i-lucide-link', route: '/home/links' },
     { label: '追番', key: 'bangumi', icon: 'i-simple-icons-bilibili', route: '/home/bangumi' },
-    { label: '友人帐', key: 'friends', icon: 'i-lucide-users', route: '/friends' }
+    { label: '友人帐', key: 'friends', icon: 'i-lucide-users', route: '/home/friends' }
 ]
 
 // 更多菜单项（桌面端4个，移动端多加相册）

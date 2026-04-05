@@ -2,6 +2,7 @@
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useLinksFilter } from '@/composables/useLinksFilter'
 import { useToast } from '@/composables/useToast'
+import BackToTop from '@/components/common/BackToTop.vue'
 
 // 链接数据类型
 interface LinkItem {
@@ -280,5 +281,8 @@ watch(links_filter, () => {
             <div class="i-lucide-inbox w-12 h-12 mx-auto mb-3 opacity-50" />
             <p class="text-sm">暂无链接</p>
         </div>
+
+        <!-- 回到顶部 -->
+        <BackToTop />
     </div>
 </template>

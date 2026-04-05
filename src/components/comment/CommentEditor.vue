@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import MarkdownRender from 'markstream-vue'
+import { preprocess_markdown_image_size } from '@/utils/markdown'
 
 const props = defineProps<{
     modelValue: string
@@ -44,6 +45,14 @@ watch(() => props.is_markdown, (value) => {
 
 // 字符数统计
 const char_count = computed(() => content.value.length)
+
+// 预处理后的 Markdown 内容
+const preview_content = computed(() => {
+    if (edit_mode.value === 'markdown') {
+        return preprocess_markdown_image_size(content.value)
+    }
+    return content.value
+})
 
 // 切换模式
 function toggle_mode() {
@@ -105,7 +114,7 @@ defineExpose({
             <!-- Markdown 模式渲染 -->
             <MarkdownRender
                 v-if="edit_mode === 'markdown'"
-                :content="content"
+                :content="preview_content"
                 class="comment-preview"
             />
             <!-- 普通文本模式直接显示 -->
