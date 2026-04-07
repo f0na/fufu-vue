@@ -7,7 +7,7 @@ import { ref } from 'vue'
 const search_query = ref('')
 
 export function useFriendsFilter() {
-    return {
-        search_query,
-    }
+  return {
+    search_query,
+  }
 }

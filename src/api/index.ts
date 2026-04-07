@@ -7,7 +7,17 @@
 export * from './types'
 
 // 请求工具
-export { request, get, post, patch, put, del, upload, save_auth_data, clear_auth_data } from './request'
+export {
+  request,
+  get,
+  post,
+  patch,
+  put,
+  del,
+  upload,
+  save_auth_data,
+  clear_auth_data,
+} from './request'
 
 // 各模块 API
 export * from './user'

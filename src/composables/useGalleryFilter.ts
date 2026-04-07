@@ -14,26 +14,26 @@ const search_query = ref('')
 
 // 设置筛选
 function set_gallery_filter(filter: string) {
-    gallery_filter.value = filter
+  gallery_filter.value = filter
 }
 
 // 设置所有标签
 function set_all_tags(tags: string[]) {
-    all_tags.value = tags
+  all_tags.value = tags
 }
 
 // 设置搜索关键词
 function set_search_query(query: string) {
-    search_query.value = query
+  search_query.value = query
 }
 
 export function useGalleryFilter() {
-    return {
-        gallery_filter,
-        all_tags,
-        search_query,
-        set_gallery_filter,
-        set_all_tags,
-        set_search_query,
-    }
+  return {
+    gallery_filter,
+    all_tags,
+    search_query,
+    set_gallery_filter,
+    set_all_tags,
+    set_search_query,
+  }
 }

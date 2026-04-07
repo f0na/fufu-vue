@@ -9,15 +9,18 @@ import type { Friend, ApplyFriendRequest, PaginatedData, FriendStatus } from './
 /**
  * 获取友链列表（仅返回活跃状态的友链）
  */
-export function get_friends(): Promise<Friend[]> {
-    return get<Friend[]>('/friends')
+export function get_friends(params?: {
+  page?: number
+  per_page?: number
+}): Promise<PaginatedData<Friend>> {
+  return get<PaginatedData<Friend>>('/friends', { params })
 }
 
 /**
  * 申请添加友链（无需登录）
  */
 export function apply_friend(data: ApplyFriendRequest): Promise<Friend> {
-    return post<Friend>('/friends/apply', data)
+  return post<Friend>('/friends/apply', data)
 }
 
 // ========== 管理接口 ==========
@@ -26,35 +29,39 @@ export function apply_friend(data: ApplyFriendRequest): Promise<Friend> {
  * 获取友链列表（管理员，含申请）
  */
 export function get_admin_friends(params?: {
-    status?: FriendStatus
-    page?: number
-    per_page?: number
+  status?: FriendStatus
+  visible?: boolean
+  page?: number
+  per_page?: number
 }): Promise<PaginatedData<Friend>> {
-    return get<PaginatedData<Friend>>('/admin/friends', { params })
+  return get<PaginatedData<Friend>>('/admin/friends', { params })
 }
 
 /**
  * 添加友链（管理员）
  */
 export function add_friend(data: {
-    name: string
-    url: string
-    description?: string
-    sort_order?: number
+  name: string
+  url: string
+  description?: string
+  sort_order?: number
 }): Promise<Friend> {
-    return post<Friend>('/admin/friends', data)
+  return post<Friend>('/admin/friends', data)
 }
 
 /**
  * 更新友链（管理员）
  */
-export function update_friend(id: string, data: {
+export function update_friend(
+  id: string,
+  data: {
     name?: string
     url?: string
     description?: string
     status?: FriendStatus
-}): Promise<Friend> {
-    return patch<Friend>(`/admin/friends/${id}`, data)
+  },
+): Promise<Friend> {
+  return patch<Friend>(`/admin/friends/${id}`, data)
 }
 
 /**
@@ -62,13 +69,16 @@ export function update_friend(id: string, data: {
  * 批准申请: status = 'active'
  * 拒绝申请: status = 'inactive'
  */
-export function update_friend_status(id: string, status: FriendStatus): Promise<Friend> {
-    return patch<Friend>(`/admin/friends/${id}/status`, { status })
+export function update_friend_status(
+  id: string,
+  status: FriendStatus,
+): Promise<{ id: string; status: FriendStatus }> {
+  return patch<{ id: string; status: FriendStatus }>(`/admin/friends/${id}/status`, { status })
 }
 
 /**
  * 删除友链（管理员）
  */
 export function delete_friend(id: string): Promise<void> {
-    return del(`/admin/friends/${id}`)
+  return del(`/admin/friends/${id}`)
 }

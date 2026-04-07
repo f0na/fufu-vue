@@ -9,5 +9,5 @@ import type { EmailData } from './types'
 
 // 发送邮件（需要管理员权限）
 export function send_email(data: EmailData): Promise<void> {
-    return post('/admin/email', data)
+  return post('/admin/email', data)
 }
