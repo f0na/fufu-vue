@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { useToast } from '@/composables/useToast'
+import { Mail, Github } from 'lucide-vue-next'
+import BilibiliIcon from '@/components/icons/BilibiliIcon.vue'
 
 const { success } = useToast()
 
@@ -9,9 +11,9 @@ const profile_config = {
   greeting: 'Ciallo～(∠・ω< )⌒★',
   email: 'fufu@example.com',
   social_links: [
-    { name: 'B站', url: 'https://space.bilibili.com/1018561538', icon: 'i-simple-icons-bilibili' },
-    { name: 'GitHub', url: 'https://github.com/f0na', icon: 'i-simple-icons-github' },
-    { name: 'Email', url: '', icon: 'i-lucide-mail' },
+    { name: 'B站', url: 'https://space.bilibili.com/1018561538', icon_component: BilibiliIcon },
+    { name: 'GitHub', url: 'https://github.com/f0na', icon_component: Github },
+    { name: 'Email', url: '', icon_component: Mail },
   ],
 }
 
@@ -59,7 +61,7 @@ async function handle_link_click(link: { name: string; url: string }) {
         class="w-7 h-7 flex items-center justify-center rounded-full bg-[var(--c-primary-bg)] hover:text-[var(--c-primary)] hover:bg-[var(--c-primary-light)]/30 transition-colors cursor-pointer"
         :title="link.name"
       >
-        <div :class="link.icon" class="w-3.5 h-3.5 text-slate-500" />
+        <component :is="link.icon_component" class="w-3.5 h-3.5 text-slate-500" />
       </button>
     </div>
   </div>

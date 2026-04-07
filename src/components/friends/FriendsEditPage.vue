@@ -7,6 +7,7 @@ import { add_friend, update_friend, get_admin_friends } from '@/api/friend'
 import { useFriendsStore } from '@/stores/friends'
 import type { Friend } from '@/api/types'
 import BackToTop from '@/components/common/BackToTop.vue'
+import { ArrowLeft, Loader2, AlertCircle } from 'lucide-vue-next'
 
 const router = useRouter()
 const route = useRoute()
@@ -178,7 +179,7 @@ onMounted(() => {
       @click="go_back"
       class="flex items-center gap-1 text-sm text-slate-500 hover:text-[var(--c-primary)] transition-colors self-start"
     >
-      <div class="i-lucide-arrow-left w-4 h-4" />
+      <ArrowLeft class="w-4 h-4" />
       返回
     </button>
 
@@ -189,7 +190,7 @@ onMounted(() => {
 
     <!-- 加载中 -->
     <div v-if="loading" class="py-12 flex justify-center">
-      <div class="i-lucide-loader-2 w-8 h-8 animate-spin text-slate-400" />
+      <Loader2 class="w-8 h-8 animate-spin text-slate-400" />
     </div>
 
     <!-- 表单 -->
@@ -245,7 +246,7 @@ onMounted(() => {
           v-else-if="show_icon_error"
           class="flex items-center gap-2 p-3 rounded-lg bg-amber-50 border border-amber-200"
         >
-          <div class="i-lucide-alert-circle w-4 h-4 text-amber-500" />
+          <AlertCircle class="w-4 h-4 text-amber-500" />
           <p class="text-xs text-amber-600">无法获取网站图标，将使用默认图标</p>
         </div>
       </div>

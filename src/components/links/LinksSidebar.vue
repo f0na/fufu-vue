@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useLinksFilter } from '@/composables/useLinksFilter'
+import { Search } from 'lucide-vue-next'
 
 // 使用共享筛选状态
 const { links_filter, all_tags, set_links_filter, search_query } = useLinksFilter()
@@ -21,9 +22,7 @@ function toggle_filter(tag: string) {
     >
       <!-- 输入框 -->
       <div class="relative">
-        <div class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400">
-          <div class="i-lucide-search w-3.5 h-3.5" />
-        </div>
+        <Search class="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
         <input
           v-model="search_query"
           type="text"

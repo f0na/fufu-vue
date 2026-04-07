@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { Search, X } from 'lucide-vue-next'
 
 const search_query = ref('')
 const is_focused = ref(false)
@@ -27,7 +28,7 @@ function clear_search() {
     >
       <!-- 搜索图标 -->
       <div class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-        <div class="i-lucide-search w-4 h-4" />
+        <Search class="w-4 h-4" />
       </div>
 
       <!-- 输入框 -->
@@ -48,7 +49,7 @@ function clear_search() {
         @mousedown.prevent
         @click="clear_search"
       >
-        <div class="i-lucide-x w-3 h-3" />
+        <X class="w-3 h-3" />
       </button>
     </div>
   </div>

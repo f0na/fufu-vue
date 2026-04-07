@@ -5,6 +5,7 @@ import MarkdownRender from 'markstream-vue'
 import { usePostEdit } from '@/composables/usePostEdit'
 import { preprocess_markdown_image_size } from '@/utils/markdown'
 import BackToTop from '@/components/common/BackToTop.vue'
+import { ArrowLeft, Upload, Eye, FileText, List } from 'lucide-vue-next'
 
 const router = useRouter()
 const route = useRoute()
@@ -72,7 +73,7 @@ onMounted(() => {
         @click="go_back"
         class="flex items-center gap-1 text-sm text-slate-500 hover:text-[var(--c-primary)] transition-colors"
       >
-        <div class="i-lucide-arrow-left w-4 h-4" />
+        <ArrowLeft class="w-4 h-4" />
         返回
       </button>
 
@@ -83,7 +84,7 @@ onMounted(() => {
           @click="handle_import_click"
           class="flex items-center gap-1 px-2 py-1 text-xs rounded-lg bg-[var(--c-primary-bg)] text-[var(--c-primary)] hover:bg-[var(--c-primary-bg)]/70 transition-colors"
         >
-          <div class="i-lucide-upload w-3 h-3" />
+          <Upload class="w-3 h-3" />
           导入 .md
         </button>
         <input
@@ -102,7 +103,7 @@ onMounted(() => {
             ? 'bg-[var(--c-primary)] text-white'
             : 'bg-[var(--c-primary-bg)] text-[var(--c-primary)] hover:bg-[var(--c-primary-bg)]/70'"
         >
-          <div class="i-lucide-eye w-3 h-3" />
+          <Eye class="w-3 h-3" />
           {{ is_preview ? '编辑' : '预览' }}
         </button>
       </div>
@@ -125,7 +126,7 @@ onMounted(() => {
         <div class="p-6 min-h-[400px] markdown-content prose prose-slate max-w-none">
           <!-- 如果没有内容，显示提示 -->
           <div v-if="!preview_content" class="text-slate-400 text-center py-12">
-            <div class="i-lucide-file-text w-8 h-8 mx-auto mb-2 opacity-50" />
+            <FileText class="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p class="text-sm">暂无内容，切换到编辑模式开始撰写</p>
           </div>
           <!-- 渲染 Markdown -->
@@ -137,7 +138,7 @@ onMounted(() => {
     <!-- 目录预览（仅在编辑模式下显示） -->
     <div v-if="!is_preview && toc.length > 0" class="p-4 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
       <h3 class="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1">
-        <div class="i-lucide-list w-3 h-3" />
+        <List class="w-3 h-3" />
         目录预览
       </h3>
       <nav class="text-xs">

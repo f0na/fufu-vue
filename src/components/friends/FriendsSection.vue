@@ -10,6 +10,7 @@ import { useToast } from '@/composables/useToast'
 import { useConfirm } from '@/composables/useConfirm'
 import { useFriendsStore } from '@/stores/friends'
 import BackToTop from '@/components/common/BackToTop.vue'
+import { ArrowUpRight, Loader2, Users } from 'lucide-vue-next'
 
 const { search_query } = useFriendsFilter()
 const { edit_mode, set_edit_mode } = useFriendEdit()
@@ -227,9 +228,9 @@ watch(
         </div>
 
         <!-- 访问图标（非编辑模式时显示） -->
-        <div
+        <ArrowUpRight
           v-if="edit_mode === 'none'"
-          class="i-lucide-arrow-up-right w-4 h-4 text-slate-300 group-hover:text-[var(--c-primary)] transition-colors shrink-0"
+          class="w-4 h-4 text-slate-300 group-hover:text-[var(--c-primary)] transition-colors shrink-0"
         />
       </div>
     </div>
@@ -238,7 +239,7 @@ watch(
     <div ref="bottom_trigger" class="py-6 flex justify-center">
       <!-- 加载中 -->
       <div v-if="friends_store.loading" class="flex items-center gap-2 text-slate-400">
-        <div class="i-lucide-loader-2 w-5 h-5 animate-spin" />
+        <Loader2 class="w-5 h-5 animate-spin" />
         <span class="text-sm">加载中...</span>
       </div>
       <!-- 没有更多 -->
@@ -251,7 +252,7 @@ watch(
 
     <!-- 空状态 -->
     <div v-if="friends_list.length === 0" class="py-12 text-center text-slate-400">
-      <div class="i-lucide-users w-12 h-12 mx-auto mb-3 opacity-50" />
+      <Users class="w-12 h-12 mx-auto mb-3 opacity-50" />
       <p class="text-sm">暂无友链</p>
     </div>
 

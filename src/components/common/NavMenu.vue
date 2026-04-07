@@ -1,7 +1,22 @@
 <script setup lang="ts">
-import { ref, computed, onUnmounted, onMounted } from 'vue'
+import { ref, computed, onUnmounted, onMounted, type Component } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTheme } from '@/composables/useTheme'
+import {
+  Archive,
+  Link,
+  Image,
+  Users,
+  FileText,
+  Info,
+  Wrench,
+  Activity,
+  Menu,
+  ChevronDown,
+  Palette,
+  Home,
+} from 'lucide-vue-next'
+import type { LucideIcon } from 'lucide-vue-next'
 
 const router = useRouter()
 
@@ -13,37 +28,45 @@ const is_mobile = ref(false)
 
 const { next_theme } = useTheme()
 
+// 菜单项接口
+interface MenuItem {
+  label: string
+  key: string
+  icon: LucideIcon
+  route: string
+}
+
 // 桌面端主菜单项（5个）
-const desktop_menu_items = [
-  { label: '归档', key: 'archive', icon: 'i-lucide-archive', route: '/home/archive' },
-  { label: '链接', key: 'links', icon: 'i-lucide-link', route: '/home/links' },
-  { label: '追番', key: 'bangumi', icon: 'i-simple-icons-bilibili', route: '/home/bangumi' },
-  { label: '相册', key: 'gallery', icon: 'i-lucide-image', route: '/home/gallery' },
-  { label: '友人帐', key: 'friends', icon: 'i-lucide-users', route: '/home/friends' },
+const desktop_menu_items: MenuItem[] = [
+  { label: '归档', key: 'archive', icon: Archive, route: '/home/archive' },
+  { label: '链接', key: 'links', icon: Link, route: '/home/links' },
+  { label: '追番', key: 'bangumi', icon: Image, route: '/home/bangumi' },
+  { label: '相册', key: 'gallery', icon: Image, route: '/home/gallery' },
+  { label: '友人帐', key: 'friends', icon: Users, route: '/home/friends' },
 ]
 
 // 移动端主菜单项（4个）
-const mobile_menu_items = [
-  { label: '归档', key: 'archive', icon: 'i-lucide-archive', route: '/home/archive' },
-  { label: '链接', key: 'links', icon: 'i-lucide-link', route: '/home/links' },
-  { label: '追番', key: 'bangumi', icon: 'i-simple-icons-bilibili', route: '/home/bangumi' },
-  { label: '友人帐', key: 'friends', icon: 'i-lucide-users', route: '/home/friends' },
+const mobile_menu_items: MenuItem[] = [
+  { label: '归档', key: 'archive', icon: Archive, route: '/home/archive' },
+  { label: '链接', key: 'links', icon: Link, route: '/home/links' },
+  { label: '追番', key: 'bangumi', icon: Image, route: '/home/bangumi' },
+  { label: '友人帐', key: 'friends', icon: Users, route: '/home/friends' },
 ]
 
-// 更多菜单项（桌面端4个，移动端多加相册）
-const desktop_more_items = [
-  { label: '文章', key: 'posts', icon: 'i-lucide-file-text', route: '/home/posts' },
-  { label: '关于', key: 'about', icon: 'i-lucide-info', route: '/about' },
-  { label: '小工具', key: 'tools', icon: 'i-lucide-wrench', route: '/tools' },
-  { label: '网站状态', key: 'status', icon: 'i-lucide-activity', route: '/status' },
+// 更多菜单项
+const desktop_more_items: MenuItem[] = [
+  { label: '文章', key: 'posts', icon: FileText, route: '/home/posts' },
+  { label: '关于', key: 'about', icon: Info, route: '/about' },
+  { label: '小工具', key: 'tools', icon: Wrench, route: '/tools' },
+  { label: '网站状态', key: 'status', icon: Activity, route: '/status' },
 ]
 
-const mobile_more_items = [
-  { label: '相册', key: 'gallery', icon: 'i-lucide-image', route: '/home/gallery' },
-  { label: '文章', key: 'posts', icon: 'i-lucide-file-text', route: '/home/posts' },
-  { label: '关于', key: 'about', icon: 'i-lucide-info', route: '/about' },
-  { label: '小工具', key: 'tools', icon: 'i-lucide-wrench', route: '/tools' },
-  { label: '网站状态', key: 'status', icon: 'i-lucide-activity', route: '/status' },
+const mobile_more_items: MenuItem[] = [
+  { label: '相册', key: 'gallery', icon: Image, route: '/home/gallery' },
+  { label: '文章', key: 'posts', icon: FileText, route: '/home/posts' },
+  { label: '关于', key: 'about', icon: Info, route: '/about' },
+  { label: '小工具', key: 'tools', icon: Wrench, route: '/tools' },
+  { label: '网站状态', key: 'status', icon: Activity, route: '/status' },
 ]
 
 const menu_items = computed(() => (is_mobile.value ? mobile_menu_items : desktop_menu_items))
@@ -150,7 +173,7 @@ onUnmounted(() => {
             @click="handle_menu_click(item.key)"
             class="px-3 py-1.5 text-sm text-slate-600 hover:text-[var(--c-primary)] hover:bg-[var(--c-primary-bg)] rounded-lg transition-colors flex items-center gap-1.5"
           >
-            <div :class="item.icon" class="w-4 h-4" />
+            <component :is="item.icon" class="w-4 h-4" />
             {{ item.label }}
           </button>
 
@@ -163,8 +186,8 @@ onUnmounted(() => {
               class="px-3 py-1.5 text-sm text-slate-600 hover:text-[var(--c-primary)] hover:bg-[var(--c-primary-bg)] rounded-lg transition-colors flex items-center gap-1"
             >
               更多
-              <div
-                class="i-lucide-chevron-down w-3 h-3 transition-transform"
+              <ChevronDown
+                class="w-3 h-3 transition-transform"
                 :class="show_more_menu ? 'rotate-180' : ''"
               />
             </button>
@@ -180,7 +203,7 @@ onUnmounted(() => {
       <div class="flex items-center justify-around py-2">
         <!-- 首页 -->
         <button @click="router.push('/home')" class="flex flex-col items-center gap-0.5 px-3 py-1">
-          <div class="i-lucide-home w-5 h-5 text-[var(--c-primary)]" />
+          <Home class="w-5 h-5 text-[var(--c-primary)]" />
           <span class="text-xs text-[var(--c-primary)]">首页</span>
         </button>
 
@@ -191,7 +214,7 @@ onUnmounted(() => {
           @click="handle_menu_click(item.key)"
           class="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-600"
         >
-          <div :class="item.icon" class="w-5 h-5" />
+          <component :is="item.icon" class="w-5 h-5" />
           <span class="text-xs">{{ item.label }}</span>
         </button>
 
@@ -201,7 +224,7 @@ onUnmounted(() => {
           @click="show_more_menu = !show_more_menu"
           class="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-600"
         >
-          <div class="i-lucide-menu w-5 h-5" />
+          <Menu class="w-5 h-5" />
           <span class="text-xs">更多</span>
         </button>
       </div>
@@ -224,14 +247,14 @@ onUnmounted(() => {
         @click="handle_more_click(item.key)"
         class="w-full px-4 py-2 text-left text-sm text-slate-600 hover:text-[var(--c-primary)] hover:bg-[var(--c-primary-bg)] transition-colors flex items-center gap-2 first:rounded-t-xl last:rounded-b-xl"
       >
-        <div :class="item.icon" class="w-4 h-4" />
+        <component :is="item.icon" class="w-4 h-4" />
         {{ item.label }}
       </button>
       <button
         @click="next_theme"
         class="w-full px-4 py-2 text-left text-sm text-slate-600 hover:text-[var(--c-primary)] hover:bg-[var(--c-primary-bg)] transition-colors flex items-center gap-2 rounded-b-xl border-t border-[var(--c-border)]"
       >
-        <div class="i-lucide-palette w-4 h-4" />
+        <Palette class="w-4 h-4" />
         切换主题
       </button>
     </div>
@@ -256,14 +279,14 @@ onUnmounted(() => {
                 @click="handle_more_click(item.key)"
                 class="flex flex-col items-center gap-1 p-2 rounded-lg bg-[var(--c-primary-bg)] hover:bg-[var(--c-primary-light)]/30 transition-colors"
               >
-                <div :class="item.icon" class="w-5 h-5 text-[var(--c-primary)]" />
+                <component :is="item.icon" class="w-5 h-5 text-[var(--c-primary)]" />
                 <span class="text-xs text-slate-700">{{ item.label }}</span>
               </button>
               <button
                 @click="handle_theme_switch"
                 class="flex flex-col items-center gap-1 p-2 rounded-lg bg-[var(--c-primary-bg)] hover:bg-[var(--c-primary-light)]/30 transition-colors"
               >
-                <div class="i-lucide-palette w-5 h-5 text-[var(--c-primary)]" />
+                <Palette class="w-5 h-5 text-[var(--c-primary)]" />
                 <span class="text-xs text-slate-700">主题</span>
               </button>
             </div>

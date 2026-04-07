@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { request_password_reset } from '@/api/auth'
+import { CheckCircle } from 'lucide-vue-next'
 
 const emit = defineEmits<{
   close: []
@@ -41,7 +42,7 @@ function handle_close() {
       <!-- 成功状态 -->
       <template v-if="success">
         <div class="text-center">
-          <span class="i-lucide-check-circle text-green-500 text-4xl mb-4" />
+          <CheckCircle class="text-green-500 w-10 h-10 mb-4" />
           <h3 class="text-$primary font-bold mb-2">发送成功</h3>
           <p class="text-$secondary text-sm mb-4">重置链接已发送到管理员邮箱</p>
           <button @click="handle_close" class="px-4 py-2 bg-$primary text-white rounded">

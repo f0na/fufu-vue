@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ChevronDown, Check } from 'lucide-vue-next'
 
 interface Option {
   value: string | number
@@ -26,31 +27,26 @@ const emit = defineEmits<{
 const is_open = ref(false)
 const select_ref = ref<HTMLElement | null>(null)
 
-// 当前选中的选项
 const selected_option = computed(() => {
   return props.options.find((opt) => opt.value === props.modelValue)
 })
 
-// 切换下拉
 function toggle_dropdown() {
   if (props.disabled) return
   is_open.value = !is_open.value
 }
 
-// 选择选项
 function select_option(option: Option) {
   emit('update:modelValue', option.value)
   is_open.value = false
 }
 
-// 点击外部关闭
 function handle_click_outside(event: MouseEvent) {
   if (select_ref.value && !select_ref.value.contains(event.target as Node)) {
     is_open.value = false
   }
 }
 
-// 键盘操作
 function handle_keydown(event: KeyboardEvent) {
   if (props.disabled) return
 
@@ -100,8 +96,8 @@ onUnmounted(() => {
       <span :class="selected_option ? 'text-slate-700' : 'text-slate-400'">
         {{ selected_option?.label || placeholder }}
       </span>
-      <div
-        class="i-lucide-chevron-down w-4 h-4 text-slate-400 transition-transform shrink-0"
+      <ChevronDown
+        class="w-4 h-4 text-slate-400 transition-transform shrink-0"
         :class="{ 'rotate-180': is_open }"
       />
     </button>
@@ -135,7 +131,7 @@ onUnmounted(() => {
         >
           <div class="flex items-center justify-between">
             <span>{{ option.label }}</span>
-            <div v-if="option.value === modelValue" class="i-lucide-check w-4 h-4" />
+            <Check v-if="option.value === modelValue" class="w-4 h-4" />
           </div>
         </button>
       </div>

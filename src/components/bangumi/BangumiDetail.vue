@@ -15,8 +15,9 @@ import {
 } from '@/api/bangumi'
 import type { BangumiInfo, WatchlistItem } from '@/api/types'
 import CommentSection from '@/components/comment/CommentSection.vue'
-import NumberInput from '@/components/common/NumberInput.vue'
+import SimpleNumberInput from '@/components/common/SimpleNumberInput.vue'
 import DateInput from '@/components/common/DateInput.vue'
+import { ArrowLeft, Loader2, Image as ImageIcon, ChevronUp, Inbox } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
@@ -255,13 +256,13 @@ watch(edit_mode, (new_mode) => {
       @click="go_back"
       class="flex items-center gap-1 text-sm text-slate-500 hover:text-[var(--c-primary)] transition-colors self-start"
     >
-      <div class="i-lucide-arrow-left w-4 h-4" />
+      <ArrowLeft class="w-4 h-4" />
       返回番剧列表
     </button>
 
     <!-- 加载中 -->
     <div v-if="loading" class="py-12 flex justify-center">
-      <div class="i-lucide-loader-2 w-8 h-8 animate-spin text-slate-400" />
+      <Loader2 class="w-8 h-8 animate-spin text-slate-400" />
     </div>
 
     <template v-else-if="bangumi_info">
@@ -288,7 +289,7 @@ watch(edit_mode, (new_mode) => {
               class="w-full h-full object-cover"
             />
             <div v-else class="w-full h-full bg-[var(--c-primary-bg)] flex items-center justify-center">
-              <div class="i-lucide-image text-slate-300 text-2xl" />
+              <ImageIcon class="text-slate-300 w-6 h-6" />
             </div>
           </div>
         </div>
@@ -328,7 +329,7 @@ watch(edit_mode, (new_mode) => {
             @click="show_watchlist_section = !show_watchlist_section"
             class="text-xs text-slate-500 hover:text-[var(--c-primary)] transition-colors flex items-center gap-1"
           >
-            <div class="i-lucide-chevron-up w-4 h-4 transition-transform" :class="show_watchlist_section ? '' : '-rotate-180'" />
+            <ChevronUp class="w-4 h-4 transition-transform" :class="show_watchlist_section ? '' : '-rotate-180'" />
             {{ show_watchlist_section ? '隐藏' : '显示' }}
           </button>
         </div>
@@ -343,7 +344,7 @@ watch(edit_mode, (new_mode) => {
           <div class="grid grid-cols-2 gap-3 mb-3">
             <div class="flex flex-col gap-1">
               <label class="text-xs text-slate-500">评分</label>
-              <NumberInput v-model="add_form.rating" :min="0" :max="10" :step="0.1" />
+              <SimpleNumberInput v-model="add_form.rating" :min="0" :max="10" :step="0.1" />
             </div>
             <div class="flex flex-col gap-1">
               <label class="text-xs text-slate-500">进度</label>
@@ -478,7 +479,7 @@ watch(edit_mode, (new_mode) => {
 
         <!-- 空状态 -->
         <div v-else-if="show_watchlist_section" class="py-8 text-center text-slate-400">
-          <div class="i-lucide-inbox w-8 h-8 mx-auto mb-2 opacity-50" />
+          <Inbox class="w-8 h-8 mx-auto mb-2 opacity-50" />
           <p class="text-sm">暂无追番记录</p>
         </div>
       </div>

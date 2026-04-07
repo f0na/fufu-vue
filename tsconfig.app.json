@@ -6,6 +6,12 @@
     // Extra safety for array and object lookups, but may have false positives.
     "noUncheckedIndexedAccess": true,
 
+    // Ignore deprecation warnings for baseUrl
+    "ignoreDeprecations": "6.0",
+
+    // Base URL for path mapping
+    "baseUrl": ".",
+
     // Path mapping for cleaner imports.
     "paths": {
       "@/*": ["./src/*"]

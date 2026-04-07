@@ -11,10 +11,11 @@ import {
 import { post } from '@/api/request'
 import type { CreateBangumiInfoRequest, UpdateBangumiInfoRequest, WatchStatus } from '@/api/types'
 import BackToTop from '@/components/common/BackToTop.vue'
-import NumberInput from '@/components/common/NumberInput.vue'
-import TagsInput from '@/components/common/TagsInput.vue'
+import SimpleNumberInput from '@/components/common/SimpleNumberInput.vue'
+import SimpleTagsInput from '@/components/common/SimpleTagsInput.vue'
+import SimpleSelect from '@/components/common/SimpleSelect.vue'
 import ImageInput from '@/components/common/ImageInput.vue'
-import CustomSelect from '@/components/common/CustomSelect.vue'
+import { ArrowLeft, Loader2 } from 'lucide-vue-next'
 
 interface UploadToken {
   token: string
@@ -190,7 +191,7 @@ onMounted(() => {
       @click="go_back"
       class="flex items-center gap-1 text-sm text-slate-500 hover:text-[var(--c-primary)] transition-colors self-start"
     >
-      <div class="i-lucide-arrow-left w-4 h-4" />
+      <ArrowLeft class="w-4 h-4" />
       返回
     </button>
 
@@ -201,7 +202,7 @@ onMounted(() => {
 
     <!-- 加载中 -->
     <div v-if="loading" class="py-12 flex justify-center">
-      <div class="i-lucide-loader-2 w-8 h-8 animate-spin text-slate-400" />
+      <Loader2 class="w-8 h-8 animate-spin text-slate-400" />
     </div>
 
     <!-- 表单 -->
@@ -234,7 +235,7 @@ onMounted(() => {
       <!-- 集数 -->
       <div class="flex flex-col gap-1.5">
         <label class="text-sm text-slate-600">集数 <span class="text-slate-400">(可选，新番可留空)</span></label>
-        <NumberInput v-model="form_data.episodes" :min="0" :step="1" placeholder="集数" />
+        <SimpleNumberInput v-model="form_data.episodes" :min="0" :step="1" placeholder="集数" />
       </div>
 
       <!-- 简介 -->
@@ -253,13 +254,13 @@ onMounted(() => {
       <!-- 标签 -->
       <div class="flex flex-col gap-1.5">
         <label class="text-sm text-slate-600">标签 <span class="text-slate-400">(可选)</span></label>
-        <TagsInput v-model="form_data.tags" tag-source="bangumi" placeholder="输入标签，按回车添加" />
+        <SimpleTagsInput v-model="form_data.tags" tag-source="bangumi" placeholder="输入标签，按回车添加" />
       </div>
 
       <!-- 追番状态 -->
       <div class="flex flex-col gap-1.5">
         <label class="text-sm text-slate-600">追番状态</label>
-        <CustomSelect v-model="form_data.status" :options="status_options" />
+        <SimpleSelect v-model="form_data.status" :options="status_options" />
       </div>
 
       <!-- 可见性 -->

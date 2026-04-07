@@ -5,6 +5,7 @@ import type { ArchiveGroup } from '@/api/types'
 import { useArchiveFilter } from '@/composables/useArchiveFilter'
 import { usePostStore } from '@/stores/post'
 import BackToTop from '@/components/common/BackToTop.vue'
+import { Loader2, Archive } from 'lucide-vue-next'
 
 const router = useRouter()
 const { selected_year, selected_tag, sort_desc, reset_filters } = useArchiveFilter()
@@ -90,7 +91,7 @@ onMounted(() => {
   <div class="flex flex-col gap-6">
     <!-- 加载中 -->
     <div v-if="loading" class="py-12 text-center text-slate-400">
-      <div class="i-lucide-loader-2 w-8 h-8 animate-spin mx-auto mb-3" />
+      <Loader2 class="w-8 h-8 animate-spin mx-auto mb-3" />
       <p class="text-sm">加载中...</p>
     </div>
 
@@ -141,7 +142,7 @@ onMounted(() => {
 
       <!-- 空状态 -->
       <div v-if="filtered_archive.length === 0" class="py-12 text-center text-slate-400">
-        <div class="i-lucide-archive w-12 h-12 mx-auto mb-3 opacity-50" />
+        <Archive class="w-12 h-12 mx-auto mb-3 opacity-50" />
         <p class="text-sm">暂无文章</p>
       </div>
     </template>

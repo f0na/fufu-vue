@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { ArrowUp } from 'lucide-vue-next'
 
 const props = withDefaults(
   defineProps<{
-    threshold?: number // 显示按钮的滚动高度阈值
-    bottom?: string // 距底部的距离
-    right?: string // 距右边的距离
+    threshold?: number
+    bottom?: string
+    right?: string
   }>(),
   {
     threshold: 300,
@@ -14,15 +15,12 @@ const props = withDefaults(
   },
 )
 
-// 是否显示按钮
 const show_button = ref(false)
 
-// 检查滚动位置
 function check_scroll() {
   show_button.value = window.scrollY > props.threshold
 }
 
-// 回到顶部
 function scroll_to_top() {
   window.scrollTo({
     top: 0,
@@ -48,12 +46,12 @@ onUnmounted(() => {
       class="fixed z-50 w-10 h-10 rounded-full bg-[var(--c-primary)] text-white shadow-lg hover:shadow-xl transition-all flex items-center justify-center"
       :style="{ bottom: bottom, right: right }"
     >
-      <div class="i-lucide-arrow-up w-5 h-5" />
+      <ArrowUp class="w-5 h-5" />
     </button>
   </Transition>
 </template>
 
-<style>
+<style scoped>
 .fade-enter-active,
 .fade-leave-active {
   transition:

@@ -12,6 +12,7 @@ import PhotoCard from '@/components/gallery/PhotoCard.vue'
 import PhotoViewer from '@/components/gallery/PhotoViewer.vue'
 import NavMenu from '@/components/common/NavMenu.vue'
 import CommentSection from '@/components/comment/CommentSection.vue'
+import { ArrowLeft, Maximize2, Loader2, Upload, X, Trash2, MessageCircle } from 'lucide-vue-next'
 
 interface PhotoState {
   id: string
@@ -470,7 +471,7 @@ onUnmounted(() => {
       class="fixed top-4 left-4 z-50 w-10 h-10 flex items-center justify-center bg-white/80 hover:bg-white shadow-md rounded-full transition-colors"
       @click="go_back"
     >
-      <div class="i-lucide-arrow-left w-5 h-5 text-slate-600" />
+      <ArrowLeft class="w-5 h-5 text-slate-600" />
     </button>
 
     <!-- 重置缩放按钮 -->
@@ -480,7 +481,7 @@ onUnmounted(() => {
       :class="is_mobile ? 'top-4 left-4' : 'top-4 left-16'"
       @click="reset_canvas_scale"
     >
-      <div class="i-lucide-maximize-2 w-5 h-5 text-slate-600" />
+      <Maximize2 class="w-5 h-5 text-slate-600" />
     </button>
 
     <!-- 右上角按钮组 -->
@@ -493,8 +494,8 @@ onUnmounted(() => {
           :disabled="upload_loading"
           @click="trigger_upload"
         >
-          <div v-if="upload_loading" class="i-lucide-loader-2 w-5 h-5 text-slate-600 animate-spin" />
-          <div v-else class="i-lucide-upload w-5 h-5 text-slate-600" />
+          <Loader2 v-if="upload_loading" class="w-5 h-5 text-slate-600 animate-spin" />
+          <Upload v-else class="w-5 h-5 text-slate-600" />
         </button>
         <!-- 删除模式按钮 -->
         <button
@@ -502,8 +503,8 @@ onUnmounted(() => {
           :class="delete_mode ? 'bg-red-500 text-white' : 'bg-white/80 hover:bg-white text-slate-600'"
           @click="delete_mode = !delete_mode"
         >
-          <div v-if="delete_mode" class="i-lucide-x w-5 h-5" />
-          <div v-else class="i-lucide-trash-2 w-5 h-5" />
+          <X v-if="delete_mode" class="w-5 h-5" />
+          <Trash2 v-else class="w-5 h-5" />
         </button>
       </template>
       <!-- 评论按钮 -->
@@ -511,7 +512,7 @@ onUnmounted(() => {
         class="w-10 h-10 flex items-center justify-center bg-white/80 hover:bg-white shadow-md rounded-full transition-colors"
         @click="show_comments = !show_comments"
       >
-        <div class="i-lucide-message-circle w-5 h-5 text-slate-600" />
+        <MessageCircle class="w-5 h-5 text-slate-600" />
       </button>
     </div>
 
@@ -534,7 +535,7 @@ onUnmounted(() => {
 
     <!-- 加载中 -->
     <div v-if="loading" class="fixed inset-0 flex items-center justify-center">
-      <div class="i-lucide-loader-2 w-8 h-8 animate-spin text-slate-400" />
+      <Loader2 class="w-8 h-8 animate-spin text-slate-400" />
     </div>
 
     <!-- 照片画布 -->
@@ -582,7 +583,7 @@ onUnmounted(() => {
               @click="show_comments = false"
               class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
             >
-              <div class="i-lucide-x w-5 h-5 text-slate-500" />
+              <X class="w-5 h-5 text-slate-500" />
             </button>
           </div>
           <div class="p-4">

@@ -7,7 +7,8 @@ import { useRouter, useRoute } from 'vue-router'
 import { create_post, update_post, get_post } from '@/api/post'
 import { post } from '@/api/request'
 import type { PostStatus } from '@/api/types'
-import CustomSelect from '@/components/common/CustomSelect.vue'
+import SimpleSelect from '@/components/common/SimpleSelect.vue'
+import { X, ImagePlus } from 'lucide-vue-next'
 
 interface UploadToken {
     token: string
@@ -274,13 +275,13 @@ watch(() => form_data.value.cover, (new_val: string) => {
                 <!-- 清除按钮 -->
                 <button type="button" @click="clear_cover"
                     class="absolute top-1 right-1 p-1 rounded bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70">
-                    <div class="i-lucide-x w-3 h-3" />
+                    <X class="w-3 h-3" />
                 </button>
             </div>
             <!-- 无封面图时的占位 -->
             <div v-else class="relative group cursor-pointer" @click="trigger_cover_upload">
                 <div class="w-full aspect-video rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center gap-1 text-slate-400 hover:border-[var(--c-primary)] hover:bg-[var(--c-primary-bg)]/30 transition-colors">
-                    <div class="i-lucide-image-plus w-6 h-6" />
+                    <ImagePlus class="w-6 h-6" />
                     <span class="text-xs">点击上传封面</span>
                 </div>
             </div>
@@ -319,7 +320,7 @@ watch(() => form_data.value.cover, (new_val: string) => {
         <!-- 状态 -->
         <div class="p-3 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
             <label class="text-xs font-medium text-slate-500 mb-1 block">状态</label>
-            <CustomSelect v-model="form_data.status" :options="status_options" />
+            <SimpleSelect v-model="form_data.status" :options="status_options" />
         </div>
 
         <!-- 置顶 -->

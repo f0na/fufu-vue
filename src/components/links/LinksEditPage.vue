@@ -6,7 +6,8 @@ import { useFormCache } from '@/composables/useFormCache'
 import { create_link, update_link, get_link } from '@/api/link'
 import type { CreateLinkRequest, UpdateLinkRequest } from '@/api/types'
 import BackToTop from '@/components/common/BackToTop.vue'
-import TagsInput from '@/components/common/TagsInput.vue'
+import SimpleTagsInput from '@/components/common/SimpleTagsInput.vue'
+import { ArrowLeft, Loader2 } from 'lucide-vue-next'
 
 const router = useRouter()
 const route = useRoute()
@@ -115,7 +116,7 @@ onMounted(() => {
       @click="go_back"
       class="flex items-center gap-1 text-sm text-slate-500 hover:text-[var(--c-primary)] transition-colors self-start"
     >
-      <div class="i-lucide-arrow-left w-4 h-4" />
+      <ArrowLeft class="w-4 h-4" />
       返回
     </button>
 
@@ -126,7 +127,7 @@ onMounted(() => {
 
     <!-- 加载中 -->
     <div v-if="loading" class="py-12 flex justify-center">
-      <div class="i-lucide-loader-2 w-8 h-8 animate-spin text-slate-400" />
+      <Loader2 class="w-8 h-8 animate-spin text-slate-400" />
     </div>
 
     <!-- 表单 -->
@@ -169,7 +170,7 @@ onMounted(() => {
       <!-- 标签 -->
       <div class="flex flex-col gap-1.5">
         <label class="text-sm text-slate-600">标签</label>
-        <TagsInput v-model="form_data.tags" tag-source="link" placeholder="输入标签，按回车添加" />
+        <SimpleTagsInput v-model="form_data.tags" tag-source="link" placeholder="输入标签，按回车添加" />
       </div>
 
       <!-- 操作按钮 -->

@@ -10,6 +10,7 @@ import { useToast } from '@/composables/useToast'
 import { useConfirm } from '@/composables/useConfirm'
 import { usePostStore } from '@/stores/post'
 import BackToTop from '@/components/common/BackToTop.vue'
+import { Pin, Eye, Heart, MessageCircle, Loader2, FileText } from 'lucide-vue-next'
 
 const router = useRouter()
 const { search_query, selected_tag, selected_category, reset_filters } = usePostFilter()
@@ -242,7 +243,7 @@ watch(
           <div class="flex-1 min-w-0">
             <!-- 置顶标记 -->
             <div v-if="post.top" class="flex items-center gap-1 mb-2 text-xs text-[var(--c-primary)]">
-              <div class="i-lucide-pin w-3 h-3" />
+              <Pin class="w-3 h-3" />
               <span>置顶</span>
             </div>
 
@@ -271,15 +272,15 @@ watch(
             <!-- 统计信息 -->
             <div class="flex items-center gap-3 text-xs text-slate-400">
               <div class="flex items-center gap-1">
-                <div class="i-lucide-eye w-3 h-3" />
+                <Eye class="w-3 h-3" />
                 <span>{{ post.view_count }}</span>
               </div>
               <div class="flex items-center gap-1">
-                <div class="i-lucide-heart w-3 h-3" />
+                <Heart class="w-3 h-3" />
                 <span>{{ post.like_count }}</span>
               </div>
               <div class="flex items-center gap-1">
-                <div class="i-lucide-message-circle w-3 h-3" />
+                <MessageCircle class="w-3 h-3" />
                 <span>{{ post.comment_count }}</span>
               </div>
               <span>{{ format_date(post.published_at) }}</span>
@@ -312,7 +313,7 @@ watch(
     <div ref="bottom_trigger" class="py-6 flex justify-center">
       <!-- 加载中 -->
       <div v-if="post_store.loading" class="flex items-center gap-2 text-slate-400">
-        <div class="i-lucide-loader-2 w-5 h-5 animate-spin" />
+        <Loader2 class="w-5 h-5 animate-spin" />
         <span class="text-sm">加载中...</span>
       </div>
       <!-- 没有更多 -->
@@ -325,7 +326,7 @@ watch(
 
     <!-- 空状态 -->
     <div v-if="posts_list.length === 0" class="py-12 text-center text-slate-400">
-      <div class="i-lucide-file-text w-12 h-12 mx-auto mb-3 opacity-50" />
+      <FileText class="w-12 h-12 mx-auto mb-3 opacity-50" />
       <p class="text-sm">暂无文章</p>
     </div>
 

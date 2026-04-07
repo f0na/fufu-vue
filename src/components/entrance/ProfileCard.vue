@@ -1,5 +1,16 @@
 <script setup lang="ts">
-import type { SocialLink } from '@/api/types'
+import { Mail, Github } from 'lucide-vue-next'
+import BilibiliIcon from '@/components/icons/BilibiliIcon.vue'
+import type { Component } from 'vue'
+
+interface LocalSocialLink {
+  id: string
+  name: string
+  url: string
+  icon_component: Component
+  link_type: 'link' | 'email'
+  sort_order: number
+}
 
 // 个人信息配置
 const profile_config = {
@@ -11,7 +22,7 @@ const profile_config = {
       id: '1',
       name: 'B站',
       url: 'https://space.bilibili.com/1018561538',
-      icon: 'i-simple-icons-bilibili',
+      icon_component: BilibiliIcon,
       link_type: 'link' as const,
       sort_order: 0,
     },
@@ -19,7 +30,7 @@ const profile_config = {
       id: '2',
       name: 'GitHub',
       url: 'https://github.com/f0na',
-      icon: 'i-simple-icons-github',
+      icon_component: Github,
       link_type: 'link' as const,
       sort_order: 1,
     },
@@ -27,14 +38,14 @@ const profile_config = {
       id: '3',
       name: 'Email',
       url: 'example@email.com',
-      icon: 'i-lucide-mail',
+      icon_component: Mail,
       link_type: 'email' as const,
       sort_order: 2,
     },
-  ] as SocialLink[],
+  ] as const satisfies readonly LocalSocialLink[],
 }
 
-function handle_link_click(link: SocialLink) {
+function handle_link_click(link: LocalSocialLink) {
   if (link.link_type === 'email') {
     window.location.href = `mailto:${link.url}`
   } else if (link.url) {
@@ -73,7 +84,7 @@ function handle_link_click(link: SocialLink) {
         class="w-9 h-9 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors cursor-pointer"
         :title="link.name"
       >
-        <div :class="link.icon" class="w-4 h-4 text-white" />
+        <component :is="link.icon_component" class="w-4 h-4 text-white" />
       </button>
     </div>
   </div>

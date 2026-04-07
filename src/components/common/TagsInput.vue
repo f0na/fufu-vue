@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { X } from 'lucide-vue-next'
 
 export type TagSource = 'bangumi' | 'link' | 'gallery'
 
@@ -152,7 +153,7 @@ onMounted(() => {
           @click="remove_tag(tag)"
           class="hover:bg-white/20 rounded transition-colors"
         >
-          <div class="i-lucide-x w-3 h-3" />
+          <X class="w-3 h-3" />
         </button>
       </span>
     </div>

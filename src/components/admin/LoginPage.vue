@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { get_github_auth_url } from '@/api/auth'
+import { Github } from 'lucide-vue-next'
 
 const router = useRouter()
 const { login, loading, error } = useAuth()
@@ -111,7 +112,7 @@ async function handle_github_login() {
         :disabled="loading"
         class="w-48 px-3 py-2 bg-gray-700 text-white rounded-lg hover:opacity-80 disabled:opacity-50 transition-opacity flex items-center justify-center gap-2 text-sm"
       >
-        <span class="i-simple-icons-github" />
+        <Github class="w-5 h-5" />
         GitHub 登录
       </button>
     </div>

@@ -1,6 +1,6 @@
 ---
 name: tavily-search
-description: Web search using Tavily's LLM-optimized API. Returns relevant results with content snippets, scores, and metadata.当无法使用websearch访问网站时可以使用该技能
+description: 使用 Tavily 针对大语言模型优化的 API 进行网页搜索。返回包含内容摘要、评分和元数据的相关结果。当无法使用websearch或者curl工具获取有用信息时应使用此技能。
 metadata: {"openclaw":{"emoji":"🔍","requires":{"bins":["bun"],"env":["TAVILY_API_KEY"]},"primaryEnv":"TAVILY_API_KEY"}}
 ---
 

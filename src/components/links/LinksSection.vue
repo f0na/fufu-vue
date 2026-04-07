@@ -9,6 +9,7 @@ import { useConfirm } from '@/composables/useConfirm'
 import { get_links, get_admin_links, delete_link, toggle_link_visibility } from '@/api/link'
 import type { Link } from '@/api/types'
 import BackToTop from '@/components/common/BackToTop.vue'
+import { Copy, ArrowUpRight, Loader2, Inbox } from 'lucide-vue-next'
 
 // 使用共享筛选状态
 const { links_filter, search_query, set_all_tags } = useLinksFilter()
@@ -334,7 +335,7 @@ watch(links_filter, () => {
               class="p-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600"
               title="复制链接"
             >
-              <div class="i-lucide-copy w-4 h-4" />
+              <Copy class="w-4 h-4" />
             </button>
             <!-- 打开链接 -->
             <button
@@ -342,7 +343,7 @@ watch(links_filter, () => {
               class="p-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600"
               title="打开链接"
             >
-              <div class="i-lucide-arrow-up-right w-4 h-4" />
+              <ArrowUpRight class="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -353,7 +354,7 @@ watch(links_filter, () => {
     <div ref="bottom_trigger" class="py-6 flex justify-center">
       <!-- 加载中 -->
       <div v-if="loading" class="flex items-center gap-2 text-slate-400">
-        <div class="i-lucide-loader-2 w-5 h-5 animate-spin" />
+        <Loader2 class="w-5 h-5 animate-spin" />
         <span class="text-sm">加载中...</span>
       </div>
       <!-- 没有更多 -->
@@ -366,7 +367,7 @@ watch(links_filter, () => {
 
     <!-- 空状态 -->
     <div v-if="!loading && grouped_links.length === 0" class="py-12 text-center text-slate-400">
-      <div class="i-lucide-inbox w-12 h-12 mx-auto mb-3 opacity-50" />
+      <Inbox class="w-12 h-12 mx-auto mb-3 opacity-50" />
       <p class="text-sm">暂无链接</p>
     </div>
 

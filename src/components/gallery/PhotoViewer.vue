@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { add_auto_orient } from '@/utils/qiniu'
+import { X } from 'lucide-vue-next'
 
 interface PhotoData {
   id: string
@@ -55,7 +56,7 @@ function handle_close() {
           class="absolute top-4 right-4 w-12 h-12 flex items-center justify-center bg-white/20 hover:bg-white/40 rounded-full transition-colors"
           @click="handle_close"
         >
-          <div class="i-lucide-x w-6 h-6 text-white" />
+          <X class="w-6 h-6 text-white" />
         </button>
       </div>
     </Transition>

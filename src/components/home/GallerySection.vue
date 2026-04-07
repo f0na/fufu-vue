@@ -9,6 +9,7 @@ import { useConfirm } from '@/composables/useConfirm'
 import { fetch_galleries, get_admin_galleries, delete_gallery, toggle_gallery_visibility } from '@/api/gallery'
 import type { Gallery } from '@/api/types'
 import BackToTop from '@/components/common/BackToTop.vue'
+import { Image as ImageIcon, Loader2, Images } from 'lucide-vue-next'
 
 const router = useRouter()
 
@@ -230,7 +231,7 @@ onUnmounted(() => {
             v-else
             class="w-full h-full bg-[var(--c-primary-bg)] flex items-center justify-center"
           >
-            <span class="i-lucide-image text-slate-300 text-2xl" />
+            <ImageIcon class="text-slate-300 w-6 h-6" />
           </div>
         </div>
 
@@ -258,7 +259,7 @@ onUnmounted(() => {
     <div ref="bottom_trigger" class="py-6 flex justify-center">
       <!-- 加载中 -->
       <div v-if="loading" class="flex items-center gap-2 text-slate-400">
-        <div class="i-lucide-loader-2 w-5 h-5 animate-spin" />
+        <Loader2 class="w-5 h-5 animate-spin" />
         <span class="text-sm">加载中...</span>
       </div>
       <!-- 没有更多 -->
@@ -271,7 +272,7 @@ onUnmounted(() => {
 
     <!-- 空状态 -->
     <div v-if="!loading && galleries.length === 0" class="py-12 text-center text-slate-400">
-      <div class="i-lucide-images w-12 h-12 mx-auto mb-3 opacity-50" />
+      <Images class="w-12 h-12 mx-auto mb-3 opacity-50" />
       <p class="text-sm">暂无相册</p>
     </div>
 

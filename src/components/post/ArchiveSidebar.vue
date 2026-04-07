@@ -2,6 +2,7 @@
 import { onMounted, computed } from 'vue'
 import { useArchiveFilter } from '@/composables/useArchiveFilter'
 import { usePostStore } from '@/stores/post'
+import { Calendar, Tag, ArrowUpDown, ArrowDown, ArrowUp } from 'lucide-vue-next'
 
 const { selected_year, selected_tag, sort_desc } = useArchiveFilter()
 const post_store = usePostStore()
@@ -41,7 +42,7 @@ function toggle_sort() {
     <!-- 年份筛选 -->
     <div class="p-3 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
       <h3 class="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1">
-        <div class="i-lucide-calendar w-3 h-3" />
+        <Calendar class="w-3 h-3" />
         年份
       </h3>
       <div class="flex flex-wrap gap-2">
@@ -75,7 +76,7 @@ function toggle_sort() {
     <!-- 标签筛选 -->
     <div class="p-3 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
       <h3 class="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1">
-        <div class="i-lucide-tag w-3 h-3" />
+        <Tag class="w-3 h-3" />
         标签
       </h3>
       <div class="flex flex-wrap gap-2">
@@ -110,7 +111,7 @@ function toggle_sort() {
     <!-- 排序 -->
     <div class="p-3 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
       <h3 class="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1">
-        <div class="i-lucide-arrow-up-down w-3 h-3" />
+        <ArrowUpDown class="w-3 h-3" />
         排序
       </h3>
       <div class="flex gap-2">
@@ -123,7 +124,7 @@ function toggle_sort() {
               : 'bg-[var(--c-primary-bg)] text-slate-600 hover:bg-[var(--c-primary-bg)]/70'
           "
         >
-          <div class="i-lucide-arrow-down w-3 h-3" />
+          <ArrowDown class="w-3 h-3" />
           最新
         </button>
         <button
@@ -135,7 +136,7 @@ function toggle_sort() {
               : 'bg-[var(--c-primary-bg)] text-slate-600 hover:bg-[var(--c-primary-bg)]/70'
           "
         >
-          <div class="i-lucide-arrow-up w-3 h-3" />
+          <ArrowUp class="w-3 h-3" />
           最早
         </button>
       </div>

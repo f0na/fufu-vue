@@ -4,6 +4,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { github_callback } from '@/api/auth'
 import { ErrorCodes } from '@/api/types'
 import { useAuth } from '@/composables/useAuth'
+import { Loader2, XCircle } from 'lucide-vue-next'
 
 const router = useRouter()
 const route = useRoute()
@@ -55,15 +56,15 @@ onMounted(async () => {
     <div class="text-center">
       <!-- 加载中 -->
       <template v-if="loading">
-        <div
-          class="i-lucide-loader-2 w-12 h-12 text-[var(--c-primary)] animate-spin mx-auto mb-4"
+        <Loader2
+          class="w-12 h-12 text-[var(--c-primary)] animate-spin mx-auto mb-4"
         />
         <p class="text-slate-600">正在登录...</p>
       </template>
 
       <!-- 错误状态 -->
       <template v-else-if="error">
-        <div class="i-lucide-x-circle w-12 h-12 text-red-500 mx-auto mb-4" />
+        <XCircle class="w-12 h-12 text-red-500 mx-auto mb-4" />
         <p class="text-red-500 mb-4">{{ error }}</p>
         <button
           @click="router.push('/home/login')"

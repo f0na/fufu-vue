@@ -19,7 +19,7 @@ function handle_enter() {
 </script>
 
 <template>
-  <div class="relative size-full overflow-hidden md:size-screen">
+  <div class="relative w-full h-full overflow-hidden md:w-screen md:h-screen">
     <background-image />
 
     <!-- 内容层 -->

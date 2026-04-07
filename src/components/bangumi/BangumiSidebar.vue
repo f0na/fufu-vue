@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useBangumiFilter, type BangumiStatusFilter } from '@/composables/useBangumiStats'
+import { Search } from 'lucide-vue-next'
 
 // 使用共享筛选状态
 const { bangumi_filter, set_bangumi_filter, search_query } = useBangumiFilter()
@@ -30,7 +31,7 @@ function toggle_filter(status: BangumiStatusFilter) {
       <!-- 输入框 -->
       <div class="relative">
         <div class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400">
-          <div class="i-lucide-search w-3.5 h-3.5" />
+          <Search class="w-3.5 h-3.5" />
         </div>
         <input
           v-model="search_query"

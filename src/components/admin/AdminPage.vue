@@ -13,7 +13,8 @@ import { useToast } from '@/composables/useToast'
 import { useDataCacheStore } from '@/stores/dataCache'
 import type { SensitiveWord, Comment } from '@/api/types'
 import BackToTop from '@/components/common/BackToTop.vue'
-import CustomSelect from '@/components/common/CustomSelect.vue'
+import SimpleSelect from '@/components/common/SimpleSelect.vue'
+import { ArrowLeft, Loader2 } from 'lucide-vue-next'
 
 const router = useRouter()
 const { success, error } = useToast()
@@ -194,7 +195,7 @@ function filter_comments() {
       @click="go_back"
       class="flex items-center gap-1 text-sm text-slate-500 hover:text-[var(--c-primary)] transition-colors self-start"
     >
-      <div class="i-lucide-arrow-left w-4 h-4" />
+      <ArrowLeft class="w-4 h-4" />
       返回首页
     </button>
 
@@ -236,7 +237,7 @@ function filter_comments() {
             class="flex-1 px-3 py-2 text-sm rounded-lg border border-[var(--c-border)] focus:border-[var(--c-primary)] focus:ring-2 focus:ring-[var(--c-primary)]/20 focus:outline-none"
           />
           <div class="w-40">
-            <CustomSelect v-model="word_level" :options="word_level_options" />
+            <SimpleSelect v-model="word_level" :options="word_level_options" />
           </div>
           <button
             @click="handle_add_word"
@@ -257,7 +258,7 @@ function filter_comments() {
           @keyup.enter="search_words"
         />
         <div class="w-32">
-          <CustomSelect
+          <SimpleSelect
             v-model="word_filter_level"
             :options="word_filter_options"
             @update:model-value="filter_words"
@@ -268,7 +269,7 @@ function filter_comments() {
       <!-- 敏感词列表 -->
       <div class="p-4 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
         <div v-if="words_loading" class="py-8 text-center">
-          <div class="i-lucide-loader-2 w-6 h-6 mx-auto animate-spin text-slate-400" />
+          <Loader2 class="w-6 h-6 mx-auto animate-spin text-slate-400" />
         </div>
         <div v-else-if="words.length === 0" class="py-8 text-center text-sm text-slate-400">
           暂无敏感词
@@ -313,7 +314,7 @@ function filter_comments() {
           @keyup.enter="search_comments"
         />
         <div class="w-32">
-          <CustomSelect
+          <SimpleSelect
             v-model="comment_filter_status"
             :options="comment_status_options"
             @update:model-value="filter_comments"
@@ -324,7 +325,7 @@ function filter_comments() {
       <!-- 评论列表 -->
       <div class="p-4 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
         <div v-if="comments_loading" class="py-8 text-center">
-          <div class="i-lucide-loader-2 w-6 h-6 mx-auto animate-spin text-slate-400" />
+          <Loader2 class="w-6 h-6 mx-auto animate-spin text-slate-400" />
         </div>
         <div v-else-if="comments.length === 0" class="py-8 text-center text-sm text-slate-400">
           暂无评论

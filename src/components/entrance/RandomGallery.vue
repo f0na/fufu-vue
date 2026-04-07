@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { Image as ImageIcon } from 'lucide-vue-next'
 
 const router = useRouter()
 
@@ -53,7 +54,7 @@ onMounted(() => {
     <div
       class="absolute inset-0 flex items-center justify-center bg-rose-900/30 opacity-0 group-hover:opacity-100 transition-opacity"
     >
-      <div class="i-lucide-image w-6 h-6 text-white" />
+      <ImageIcon class="w-6 h-6 text-white" />
     </div>
 
     <!-- 标签 -->

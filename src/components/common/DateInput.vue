@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
+import { Calendar, ChevronLeft, ChevronRight, X } from 'lucide-vue-next'
 
 const props = withDefaults(
   defineProps<{
@@ -24,14 +25,11 @@ const emit = defineEmits<{
 const is_open = ref(false)
 const is_focused = ref(false)
 
-// 当前显示的年月
 const current_year = ref(new Date().getFullYear())
 const current_month = ref(new Date().getMonth() + 1)
 
-// 是否有值
 const has_value = computed(() => props.modelValue && props.modelValue.trim() !== '')
 
-// 格式化显示日期
 const display_date = computed(() => {
   if (!has_value.value) return ''
   const parts = props.modelValue.split('-')
@@ -41,7 +39,6 @@ const display_date = computed(() => {
   return props.modelValue
 })
 
-// 解析日期值
 const selected_date = computed(() => {
   if (!has_value.value) return null
   const parts = props.modelValue.split('-')
@@ -55,29 +52,24 @@ const selected_date = computed(() => {
   return null
 })
 
-// 获取月份天数
 function get_days_in_month(year: number, month: number): number {
   return new Date(year, month, 0).getDate()
 }
 
-// 获取月份第一天是周几（0-6，周日为0）
 function get_first_day_of_month(year: number, month: number): number {
   return new Date(year, month - 1, 1).getDay()
 }
 
-// 日历网格
 const calendar_days = computed(() => {
   const days_in_month = get_days_in_month(current_year.value, current_month.value)
   const first_day = get_first_day_of_month(current_year.value, current_month.value)
 
   const days: Array<{ day: number; is_current: boolean; is_selected: boolean; is_today: boolean }> = []
 
-  // 前面填充空格
   for (let i = 0; i < first_day; i++) {
     days.push({ day: 0, is_current: false, is_selected: false, is_today: false })
   }
 
-  // 当月日期
   const today = new Date()
   for (let i = 1; i <= days_in_month; i++) {
     const is_today =
@@ -97,10 +89,8 @@ const calendar_days = computed(() => {
   return days
 })
 
-// 月份显示文本
 const month_text = computed(() => `${current_year.value}年${current_month.value}月`)
 
-// 上个月
 function prev_month() {
   if (current_month.value === 1) {
     current_month.value = 12
@@ -110,7 +100,6 @@ function prev_month() {
   }
 }
 
-// 下个月
 function next_month() {
   if (current_month.value === 12) {
     current_month.value = 1
@@ -120,11 +109,9 @@ function next_month() {
   }
 }
 
-// 选择日期
 function select_day(day: number) {
   if (day === 0) return
 
-  // 检查 min/max 限制
   const date_str = `${current_year.value}-${String(current_month.value).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 
   if (props.min && date_str < props.min) return
@@ -134,7 +121,6 @@ function select_day(day: number) {
   is_open.value = false
 }
 
-// 检查日期是否禁用
 function is_day_disabled(day: number): boolean {
   if (day === 0) return true
 
@@ -146,7 +132,6 @@ function is_day_disabled(day: number): boolean {
   return false
 }
 
-// 打开/关闭日历
 function toggle_calendar() {
   if (props.disabled) return
   is_open.value = !is_open.value
@@ -160,13 +145,11 @@ function toggle_calendar() {
   }
 }
 
-// 清空值
 function clear_value(event: MouseEvent) {
   event.stopPropagation()
   emit('update:modelValue', '')
 }
 
-// 快捷选择：今天
 function select_today() {
   const today = new Date()
   const date_str = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
@@ -178,13 +161,11 @@ function select_today() {
   is_open.value = false
 }
 
-// 快捷选择：清空
 function clear_value_fast() {
   emit('update:modelValue', '')
   is_open.value = false
 }
 
-// 处理外部点击关闭
 function handle_click_outside(event: MouseEvent) {
   const target = event.target as HTMLElement
   if (!target.closest('.date-input-wrapper')) {
@@ -200,7 +181,6 @@ watch(is_open, (open) => {
   }
 })
 
-// 默认设置为今天
 onMounted(() => {
   if (!has_value.value) {
     select_today()
@@ -225,16 +205,16 @@ onMounted(() => {
       ]"
     >
       <div class="flex items-center gap-2">
-        <div class="i-lucide-calendar w-4 h-4 shrink-0" :class="has_value ? 'text-[var(--c-primary)]' : 'text-slate-400'" />
+        <Calendar class="w-4 h-4 shrink-0" :class="has_value ? 'text-[var(--c-primary)]' : 'text-slate-400'" />
         <span :class="has_value ? 'text-slate-700' : 'text-slate-400'">
           {{ display_date || placeholder }}
         </span>
       </div>
 
-      <div
+      <X
         v-if="has_value && !disabled"
         @click="clear_value"
-        class="i-lucide-x w-4 h-4 text-slate-400 hover:text-slate-600 transition-colors shrink-0"
+        class="w-4 h-4 text-slate-400 hover:text-slate-600 transition-colors shrink-0"
       />
     </button>
 
@@ -257,7 +237,7 @@ onMounted(() => {
             @click="prev_month"
             class="p-1.5 rounded-lg hover:bg-[var(--c-primary-bg)] transition-colors"
           >
-            <div class="i-lucide-chevron-left w-4 h-4 text-slate-600" />
+            <ChevronLeft class="w-4 h-4 text-slate-600" />
           </button>
 
           <span class="text-sm font-medium text-slate-700">{{ month_text }}</span>
@@ -266,7 +246,7 @@ onMounted(() => {
             @click="next_month"
             class="p-1.5 rounded-lg hover:bg-[var(--c-primary-bg)] transition-colors"
           >
-            <div class="i-lucide-chevron-right w-4 h-4 text-slate-600" />
+            <ChevronRight class="w-4 h-4 text-slate-600" />
           </button>
         </div>
 

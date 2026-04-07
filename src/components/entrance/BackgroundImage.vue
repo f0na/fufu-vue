@@ -25,7 +25,7 @@ onMounted(() => {
 <template>
   <div class="absolute inset-0">
     <!-- 背景图 -->
-    <img :src="current_image" class="absolute inset-0 size-full object-cover" alt="背景图" />
+    <img :src="current_image" class="absolute inset-0 w-full h-full object-cover" alt="背景图" />
 
     <!-- 遮罩层：增加文字可读性 -->
     <div class="absolute inset-0 bg-black/30" />

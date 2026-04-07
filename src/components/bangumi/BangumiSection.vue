@@ -13,6 +13,7 @@ import {
   toggle_bangumi_info_visibility,
 } from '@/api/bangumi'
 import type { BangumiInfo, WatchStatus } from '@/api/types'
+import { Image as ImageIcon, Loader2, Tv } from 'lucide-vue-next'
 import BackToTop from '@/components/common/BackToTop.vue'
 
 const router = useRouter()
@@ -238,7 +239,7 @@ const mode_hint = computed(() => {
             v-else
             class="w-full h-full bg-[var(--c-primary-bg)] flex items-center justify-center"
           >
-            <span class="i-lucide-image text-slate-300 text-2xl" />
+            <ImageIcon class="text-slate-300 w-6 h-6" />
           </div>
           <!-- 标题（底部渐变叠加） -->
           <div
@@ -284,7 +285,7 @@ const mode_hint = computed(() => {
     <div ref="bottom_trigger" class="py-6 flex justify-center">
       <!-- 加载中 -->
       <div v-if="loading" class="flex items-center gap-2 text-slate-400">
-        <div class="i-lucide-loader-2 w-5 h-5 animate-spin" />
+        <Loader2 class="w-5 h-5 animate-spin" />
         <span class="text-sm">加载中...</span>
       </div>
       <!-- 没有更多 -->
@@ -297,7 +298,7 @@ const mode_hint = computed(() => {
 
     <!-- 空状态 -->
     <div v-if="bangumi_display.length === 0" class="py-12 text-center text-slate-400">
-      <div class="i-lucide-tv w-12 h-12 mx-auto mb-3 opacity-50" />
+      <Tv class="w-12 h-12 mx-auto mb-3 opacity-50" />
       <p class="text-sm">暂无番剧</p>
     </div>
 

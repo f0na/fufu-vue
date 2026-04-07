@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { add_auto_orient } from '@/utils/qiniu'
+import { RotateCw } from 'lucide-vue-next'
 
 interface PhotoData {
   id: string
@@ -341,7 +342,7 @@ function handle_rotate_touch_end() {
         :class="is_rotating ? 'opacity-100 cursor-grabbing bg-slate-100' : ''"
         @mousedown="handle_rotate_start"
       >
-        <div class="i-lucide-rotate-cw w-3.5 h-3.5 text-slate-500" />
+        <RotateCw class="w-3.5 h-3.5 text-slate-500" />
       </div>
 
       <!-- 移动端旋转手柄 - 更大更容易触摸 -->
@@ -353,7 +354,7 @@ function handle_rotate_touch_end() {
         @touchmove="handle_rotate_touch_move"
         @touchend="handle_rotate_touch_end"
       >
-        <div class="i-lucide-rotate-cw w-4 h-4 text-slate-500" />
+        <RotateCw class="w-4 h-4 text-slate-500" />
       </div>
     </div>
   </div>

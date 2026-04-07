@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { request_password_reset } from '@/api/auth'
+import { CheckCircle } from 'lucide-vue-next'
 
 const router = useRouter()
 
@@ -40,7 +41,7 @@ function handle_back() {
       <!-- 成功状态 -->
       <template v-if="success">
         <div class="text-center">
-          <span class="i-lucide-check-circle text-green-500 text-5xl mb-4 block" />
+          <CheckCircle class="text-green-500 w-12 h-12 mb-4" />
           <h3 class="text-$primary font-bold text-xl mb-2">发送成功</h3>
           <p class="text-$secondary text-sm mb-6">重置链接已发送到管理员邮箱</p>
           <button

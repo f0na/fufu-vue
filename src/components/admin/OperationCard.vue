@@ -7,6 +7,18 @@ import { useBangumiEdit } from '@/composables/useBangumiEdit'
 import { useGalleryEdit } from '@/composables/useGalleryEdit'
 import { useFriendEdit } from '@/composables/useFriendEdit'
 import { usePostEdit } from '@/composables/usePostEdit'
+import {
+  User,
+  LayoutDashboard,
+  Plus,
+  Edit,
+  Eye,
+  FileEdit,
+  Pin,
+  Trash2,
+  CheckCircle,
+  LogOut,
+} from 'lucide-vue-next'
 
 const router = useRouter()
 const route = useRoute()
@@ -165,7 +177,7 @@ function go_to_profile() {
           class="w-full h-full object-cover"
         />
         <div v-else class="w-full h-full bg-[var(--c-primary-bg)] flex items-center justify-center">
-          <span class="i-lucide-user text-[var(--c-primary)] text-lg" />
+          <User class="text-[var(--c-primary)] w-5 h-5" />
         </div>
       </button>
 
@@ -198,7 +210,7 @@ function go_to_profile() {
         :disabled="loading"
         class="w-full px-3 py-2 bg-[var(--c-primary-bg)] border border-[var(--c-border)] text-slate-600 rounded-lg hover:bg-[var(--c-primary)] hover:text-white transition-colors disabled:opacity-50 text-sm flex items-center justify-center gap-2"
       >
-        <span class="i-lucide-layout-dashboard" />
+        <LayoutDashboard class="w-4 h-4" />
         面板
       </button>
 
@@ -209,7 +221,7 @@ function go_to_profile() {
         :disabled="loading"
         class="w-full px-3 py-2 bg-[var(--c-primary-bg)] border border-[var(--c-border)] text-slate-600 rounded-lg hover:bg-[var(--c-primary)] hover:text-white transition-colors disabled:opacity-50 text-sm flex items-center justify-center gap-2"
       >
-        <span class="i-lucide-plus" />
+        <Plus class="w-4 h-4" />
         添加
       </button>
 
@@ -220,7 +232,7 @@ function go_to_profile() {
         :disabled="loading"
         class="w-full px-3 py-2 bg-[var(--c-primary-bg)] border border-[var(--c-border)] text-slate-600 rounded-lg hover:bg-[var(--c-primary)] hover:text-white transition-colors disabled:opacity-50 text-sm flex items-center justify-center gap-2"
       >
-        <span class="i-lucide-edit" />
+        <Edit class="w-4 h-4" />
         编辑
       </button>
 
@@ -231,7 +243,7 @@ function go_to_profile() {
         :disabled="loading"
         class="w-full px-3 py-2 bg-[var(--c-primary-bg)] border border-[var(--c-border)] text-slate-600 rounded-lg hover:bg-[var(--c-primary)] hover:text-white transition-colors disabled:opacity-50 text-sm flex items-center justify-center gap-2"
       >
-        <span class="i-lucide-eye" />
+        <Eye class="w-4 h-4" />
         显/隐
       </button>
 
@@ -242,7 +254,7 @@ function go_to_profile() {
         :disabled="loading"
         class="w-full px-3 py-2 bg-[var(--c-primary-bg)] border border-[var(--c-border)] text-slate-600 rounded-lg hover:bg-[var(--c-primary)] hover:text-white transition-colors disabled:opacity-50 text-sm flex items-center justify-center gap-2"
       >
-        <span class="i-lucide-file-edit" />
+        <FileEdit class="w-4 h-4" />
         状态
       </button>
 
@@ -253,7 +265,7 @@ function go_to_profile() {
         :disabled="loading"
         class="w-full px-3 py-2 bg-[var(--c-primary-bg)] border border-[var(--c-border)] text-slate-600 rounded-lg hover:bg-[var(--c-primary)] hover:text-white transition-colors disabled:opacity-50 text-sm flex items-center justify-center gap-2"
       >
-        <span class="i-lucide-pin" />
+        <Pin class="w-4 h-4" />
         置顶
       </button>
 
@@ -264,7 +276,7 @@ function go_to_profile() {
         :disabled="loading"
         class="w-full px-3 py-2 bg-[var(--c-primary-bg)] border border-[var(--c-border)] text-slate-600 rounded-lg hover:bg-[var(--c-primary)] hover:text-white transition-colors disabled:opacity-50 text-sm flex items-center justify-center gap-2"
       >
-        <span class="i-lucide-trash" />
+        <Trash2 class="w-4 h-4" />
         删除
       </button>
 
@@ -275,7 +287,7 @@ function go_to_profile() {
         :disabled="loading"
         class="w-full px-3 py-2 bg-[var(--c-primary-bg)] border border-[var(--c-border)] text-slate-600 rounded-lg hover:bg-[var(--c-primary)] hover:text-white transition-colors disabled:opacity-50 text-sm flex items-center justify-center gap-2"
       >
-        <span class="i-lucide-check-circle" />
+        <CheckCircle class="w-4 h-4" />
         审批
       </button>
 
@@ -285,7 +297,7 @@ function go_to_profile() {
         :disabled="loading"
         class="w-full px-3 py-2 bg-red-50 border border-red-200 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors disabled:opacity-50 text-sm flex items-center justify-center gap-2"
       >
-        <span class="i-lucide-log-out" />
+        <LogOut class="w-4 h-4" />
         登出
       </button>
     </div>

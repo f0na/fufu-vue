@@ -8,6 +8,7 @@ import { useToast } from '@/composables/useToast'
 import { preprocess_markdown_image_size } from '@/utils/markdown'
 import CommentSection from '@/components/comment/CommentSection.vue'
 import BackToTop from '@/components/common/BackToTop.vue'
+import { Loader2, Pin, Calendar, Eye, Heart, MessageCircle, Folder, FileText } from 'lucide-vue-next'
 
 const router = useRouter()
 const route = useRoute()
@@ -69,7 +70,7 @@ onMounted(() => {
   <div class="flex flex-col gap-6">
     <!-- 加载中 -->
     <div v-if="loading" class="py-12 text-center text-slate-400">
-      <div class="i-lucide-loader-2 w-8 h-8 animate-spin mx-auto mb-3" />
+      <Loader2 class="w-8 h-8 animate-spin mx-auto mb-3" />
       <p class="text-sm">加载中...</p>
     </div>
 
@@ -79,7 +80,7 @@ onMounted(() => {
       <div class="bg-white rounded-xl p-6 border border-[var(--c-border)] shadow-sm">
         <!-- 置顶标记 -->
         <div v-if="post.top" class="flex items-center gap-1 mb-2 text-xs text-[var(--c-primary)]">
-          <div class="i-lucide-pin w-3 h-3" />
+          <Pin class="w-3 h-3" />
           <span>置顶</span>
         </div>
 
@@ -91,19 +92,19 @@ onMounted(() => {
         <!-- 元信息 -->
         <div class="flex items-center gap-3 text-sm text-slate-500 mb-3">
           <div class="flex items-center gap-1">
-            <div class="i-lucide-calendar w-3.5 h-3.5" />
+            <Calendar class="w-3.5 h-3.5" />
             <span>{{ format_date(post.published_at) }}</span>
           </div>
           <div class="flex items-center gap-1">
-            <div class="i-lucide-eye w-3.5 h-3.5" />
+            <Eye class="w-3.5 h-3.5" />
             <span>{{ post.view_count }}</span>
           </div>
           <div class="flex items-center gap-1">
-            <div class="i-lucide-heart w-3.5 h-3.5" />
+            <Heart class="w-3.5 h-3.5" />
             <span>{{ post.like_count }}</span>
           </div>
           <div v-if="post.comment_allowed" class="flex items-center gap-1">
-            <div class="i-lucide-message-circle w-3.5 h-3.5" />
+            <MessageCircle class="w-3.5 h-3.5" />
             <span>{{ post.comment_count }}</span>
           </div>
         </div>
@@ -122,7 +123,7 @@ onMounted(() => {
 
         <!-- 分类 -->
         <div v-if="post.category" class="flex items-center gap-1 text-xs text-slate-500">
-          <div class="i-lucide-folder w-3 h-3" />
+          <Folder class="w-3 h-3" />
           <span>{{ post.category }}</span>
         </div>
       </div>
@@ -150,7 +151,7 @@ onMounted(() => {
 
     <!-- 文章不存在 -->
     <div v-else class="py-12 text-center text-slate-400">
-      <div class="i-lucide-file-text w-12 h-12 mx-auto mb-3 opacity-50" />
+      <FileText class="w-12 h-12 mx-auto mb-3 opacity-50" />
       <p class="text-sm">文章不存在或已被删除</p>
       <button
         @click="router.push('/home/posts')"

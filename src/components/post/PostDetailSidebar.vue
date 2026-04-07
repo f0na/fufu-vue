@@ -5,6 +5,7 @@ import type { PostDetail, PostTocItem } from '@/api/types'
 import { get_post } from '@/api/post'
 import { toggle_like, check_like } from '@/api/like'
 import { useToast } from '@/composables/useToast'
+import { Search, Eye, Heart, MessageCircle, FileText, List } from 'lucide-vue-next'
 
 const route = useRoute()
 const { success, error } = useToast()
@@ -144,7 +145,7 @@ watch(() => route.params.id, () => {
     >
       <div class="relative">
         <div class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400">
-          <div class="i-lucide-search w-3.5 h-3.5" />
+          <Search class="w-3.5 h-3.5" />
         </div>
         <input
           type="text"
@@ -161,7 +162,7 @@ watch(() => route.params.id, () => {
       <div class="flex flex-col gap-2">
         <!-- 浏览数 -->
         <div class="flex items-center gap-2 text-xs text-slate-600">
-          <div class="i-lucide-eye w-3.5 h-3.5" />
+          <Eye class="w-3.5 h-3.5" />
           <span>{{ post.view_count }}</span>
         </div>
         <!-- 点赞数（可点击） -->
@@ -170,7 +171,7 @@ watch(() => route.params.id, () => {
           class="flex items-center gap-2 text-xs transition-all"
           :class="is_liked ? 'text-[var(--c-primary)]' : 'text-slate-600 hover:text-[var(--c-primary)]'"
         >
-          <div class="i-lucide-heart w-3.5 h-3.5" :class="is_liked ? 'fill-current' : ''" />
+          <Heart class="w-3.5 h-3.5" :class="is_liked ? 'fill-current' : ''" />
           <span>{{ like_count }}</span>
         </button>
         <!-- 评论数（可点击） -->
@@ -179,7 +180,7 @@ watch(() => route.params.id, () => {
           @click="scroll_to_comments"
           class="flex items-center gap-2 text-xs text-slate-600 hover:text-[var(--c-primary)] transition-all"
         >
-          <div class="i-lucide-message-circle w-3.5 h-3.5" />
+          <MessageCircle class="w-3.5 h-3.5" />
           <span>{{ post.comment_count }}</span>
         </button>
       </div>
@@ -188,7 +189,7 @@ watch(() => route.params.id, () => {
     <!-- 摘要 -->
     <div v-if="post?.summary" class="p-3 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
       <h3 class="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1">
-        <div class="i-lucide-file-text w-3 h-3" />
+        <FileText class="w-3 h-3" />
         摘要
       </h3>
       <p class="text-xs text-slate-600 line-clamp-4">{{ post.summary }}</p>
@@ -197,7 +198,7 @@ watch(() => route.params.id, () => {
     <!-- 目录 -->
     <div v-if="toc_items.length > 0" class="p-3 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
       <h3 class="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1">
-        <div class="i-lucide-list w-3 h-3" />
+        <List class="w-3 h-3" />
         目录
       </h3>
       <nav class="text-xs">

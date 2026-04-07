@@ -1,5 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
 
 interface ConfirmOptions {
   title?: string
@@ -47,34 +58,22 @@ defineExpose({
 </script>
 
 <template>
-  <div
-    v-if="visible"
-    class="fixed inset-0 flex items-center justify-center z-[100]"
-  >
-    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-lg w-72 max-w-[90vw]">
-      <h3 class="text-slate-800 font-bold text-center mb-2">
-        {{ options.title }}
-      </h3>
-      <p class="text-slate-600 text-sm text-center mb-4">
-        {{ options.message }}
-      </p>
-      <div class="flex gap-3">
-        <button
-          @click="handle_cancel"
-          class="flex-1 px-4 py-2 bg-slate-100 border border-slate-200 text-slate-600 rounded-lg"
-        >
+  <AlertDialog v-model:open="visible">
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>{{ options.title }}</AlertDialogTitle>
+        <AlertDialogDescription>{{ options.message }}</AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel @click="handle_cancel">
           {{ options.cancel_text }}
-        </button>
-        <button
-          @click="handle_confirm"
-          :class="[
-            'flex-1 px-4 py-2 rounded-lg text-white',
-            options.danger ? 'bg-red-500' : 'bg-[var(--c-primary)]',
-          ]"
-        >
-          {{ options.confirm_text }}
-        </button>
-      </div>
-    </div>
-  </div>
+        </AlertDialogCancel>
+        <AlertDialogAction as-child>
+          <Button :variant="options.danger ? 'destructive' : 'default'" @click="handle_confirm">
+            {{ options.confirm_text }}
+          </Button>
+        </AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
 </template>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ArrowRight } from 'lucide-vue-next'
+
 const emit = defineEmits<{
   (e: 'click'): void
 }>()
@@ -12,7 +14,7 @@ const emit = defineEmits<{
     <!-- 箭头图标 -->
     <span class="flex items-center gap-2">
       进入主页
-      <div class="i-lucide-arrow-right w-4 h-4 transition-transform group-hover:translate-x-1" />
+      <ArrowRight class="w-4 h-4 transition-transform group-hover:translate-x-1" />
     </span>
 
     <!-- 悬停发光效果 -->

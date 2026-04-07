@@ -7,6 +7,7 @@ import { useConfirm } from '@/composables/useConfirm'
 import { useFriendsStore } from '@/stores/friends'
 import type { Friend } from '@/api/types'
 import BackToTop from '@/components/common/BackToTop.vue'
+import { ArrowLeft, Loader2, CheckCircle } from 'lucide-vue-next'
 
 const router = useRouter()
 const { success, error } = useToast()
@@ -110,7 +111,7 @@ onMounted(() => {
       @click="go_back"
       class="flex items-center gap-1 text-sm text-slate-500 hover:text-[var(--c-primary)] transition-colors self-start"
     >
-      <div class="i-lucide-arrow-left w-4 h-4" />
+      <ArrowLeft class="w-4 h-4" />
       返回
     </button>
 
@@ -119,12 +120,12 @@ onMounted(() => {
 
     <!-- 加载中 -->
     <div v-if="loading" class="py-12 flex justify-center">
-      <div class="i-lucide-loader-2 w-8 h-8 animate-spin text-slate-400" />
+      <Loader2 class="w-8 h-8 animate-spin text-slate-400" />
     </div>
 
     <!-- 空状态 -->
     <div v-else-if="pending_friends.length === 0" class="py-12 text-center text-slate-400">
-      <div class="i-lucide-check-circle w-12 h-12 mx-auto mb-3 opacity-50" />
+      <CheckCircle class="w-12 h-12 mx-auto mb-3 opacity-50" />
       <p class="text-sm">暂无待审批的友链申请</p>
     </div>
 

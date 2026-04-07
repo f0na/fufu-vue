@@ -8,6 +8,7 @@ import type { Comment, CommentTarget } from '@/api/types'
 import CommentItem from './CommentItem.vue'
 import CommentForm from './CommentForm.vue'
 import BackToTop from '@/components/common/BackToTop.vue'
+import { Loader2, MessageCircle } from 'lucide-vue-next'
 
 const props = defineProps<{
   target_type: CommentTarget
@@ -241,7 +242,7 @@ onMounted(() => {
     <div ref="bottom_trigger" class="py-6 flex justify-center">
       <!-- 加载中 -->
       <div v-if="loading" class="flex items-center gap-2 text-slate-400">
-        <div class="i-lucide-loader-2 w-5 h-5 animate-spin" />
+        <Loader2 class="w-5 h-5 animate-spin" />
         <span class="text-sm">加载中...</span>
       </div>
       <!-- 没有更多 -->
@@ -254,13 +255,13 @@ onMounted(() => {
 
     <!-- 空状态 -->
     <div v-if="!loading && comments.length === 0" class="py-12 text-center">
-      <div class="i-lucide-message-circle w-12 h-12 mx-auto mb-3 text-slate-200" />
+      <MessageCircle class="w-12 h-12 mx-auto mb-3 text-slate-200" />
       <p class="text-sm text-slate-400">暂无评论，来说点什么吧~</p>
     </div>
 
     <!-- 加载中 -->
     <div v-if="loading && comments.length === 0" class="py-8 text-center">
-      <div class="i-lucide-loader-2 w-6 h-6 mx-auto animate-spin text-slate-400" />
+      <Loader2 class="w-6 h-6 mx-auto animate-spin text-slate-400" />
     </div>
 
     <!-- 回到顶部 -->
