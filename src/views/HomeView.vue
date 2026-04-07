@@ -51,7 +51,12 @@ const is_links_page = computed(() => route.name === 'links')
 const is_gallery_page = computed(() => route.name === 'gallery-list')
 
 // 是否是友人帐页
-const is_friends_page = computed(() => route.name === 'friends')
+const is_friends_page = computed(() =>
+  route.name === 'friends' ||
+  route.name === 'friends-add' ||
+  route.name === 'friends-edit' ||
+  route.name === 'friends-approve'
+)
 
 // 是否是管理页
 const is_admin_page = computed(() => route.name === 'admin')
@@ -138,7 +143,7 @@ onUnmounted(() => {
 
     <!-- 主内容区 -->
     <main class="flex-1 flex justify-center px-4 py-8 pb-16 md:pb-8 md:px-8">
-      <div class="w-full md:w-[65%] flex gap-4 md:gap-6 relative">
+      <div class="w-full md:w-[61.8%] flex gap-4 md:gap-6 relative">
         <!-- 左侧小组件区 -->
         <aside class="hidden md:flex flex-col gap-4 w-[18%] shrink-0">
           <profile-widget />

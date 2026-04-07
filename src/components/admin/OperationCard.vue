@@ -5,6 +5,7 @@ import { useAuth } from '@/composables/useAuth'
 import { useLinkEdit } from '@/composables/useLinkEdit'
 import { useBangumiEdit } from '@/composables/useBangumiEdit'
 import { useGalleryEdit } from '@/composables/useGalleryEdit'
+import { useFriendEdit } from '@/composables/useFriendEdit'
 
 const router = useRouter()
 const route = useRoute()
@@ -13,6 +14,7 @@ const { logout, loading, can_add, can_edit, can_delete, can_toggle_visibility, u
 const { toggle_edit_mode: toggle_link_edit_mode } = useLinkEdit()
 const { toggle_edit_mode: toggle_bangumi_edit_mode } = useBangumiEdit()
 const { toggle_edit_mode: toggle_gallery_edit_mode } = useGalleryEdit()
+const { toggle_edit_mode: toggle_friend_edit_mode } = useFriendEdit()
 
 // 角色显示文本
 const role_text = computed(() => {
@@ -37,9 +39,17 @@ const is_gallery_page = computed(() =>
   route.name === 'gallery-edit'
 )
 
+// 是否在友人帐页
+const is_friends_page = computed(() =>
+  route.name === 'friends' ||
+  route.name === 'friends-add' ||
+  route.name === 'friends-edit' ||
+  route.name === 'friends-approve'
+)
+
 // 是否显示管理按钮
 const show_manage_buttons = computed(
-  () => is_links_page.value || is_bangumi_page.value || is_gallery_page.value,
+  () => is_links_page.value || is_bangumi_page.value || is_gallery_page.value || is_friends_page.value,
 )
 
 async function handle_logout() {
@@ -64,6 +74,8 @@ function handle_add() {
     }
   } else if (is_gallery_page.value) {
     router.push('/home/gallery/add')
+  } else if (is_friends_page.value) {
+    router.push('/home/friends/add')
   }
 }
 
@@ -74,6 +86,8 @@ function handle_edit() {
     toggle_bangumi_edit_mode('edit')
   } else if (is_gallery_page.value) {
     toggle_gallery_edit_mode('edit')
+  } else if (is_friends_page.value) {
+    toggle_friend_edit_mode('edit')
   }
 }
 
@@ -84,6 +98,8 @@ function handle_toggle_visibility() {
     toggle_bangumi_edit_mode('visibility')
   } else if (is_gallery_page.value) {
     toggle_gallery_edit_mode('visibility')
+  } else if (is_friends_page.value) {
+    toggle_friend_edit_mode('visibility')
   }
 }
 
@@ -94,7 +110,14 @@ function handle_delete() {
     toggle_bangumi_edit_mode('delete')
   } else if (is_gallery_page.value) {
     toggle_gallery_edit_mode('delete')
+  } else if (is_friends_page.value) {
+    toggle_friend_edit_mode('delete')
   }
+}
+
+// 审批（仅友人帐页）
+function handle_approve() {
+  router.push('/home/friends/approve')
 }
 
 // 点击头像跳转个人信息页
@@ -198,6 +221,17 @@ function go_to_profile() {
       >
         <span class="i-lucide-trash" />
         删除
+      </button>
+
+      <!-- 审批（仅友人帐页） -->
+      <button
+        v-if="can_edit && is_friends_page"
+        @click="handle_approve"
+        :disabled="loading"
+        class="w-full px-3 py-2 bg-[var(--c-primary-bg)] border border-[var(--c-border)] text-slate-600 rounded-lg hover:bg-[var(--c-primary)] hover:text-white transition-colors disabled:opacity-50 text-sm flex items-center justify-center gap-2"
+      >
+        <span class="i-lucide-check-circle" />
+        审批
       </button>
 
       <!-- 登出 -->

@@ -70,6 +70,21 @@ const router = createRouter({
           component: () => import('@/components/friends/FriendsSection.vue'),
         },
         {
+          path: 'friends/add',
+          name: 'friends-add',
+          component: () => import('@/components/friends/FriendsEditPage.vue'),
+        },
+        {
+          path: 'friends/:id/edit',
+          name: 'friends-edit',
+          component: () => import('@/components/friends/FriendsEditPage.vue'),
+        },
+        {
+          path: 'friends/approve',
+          name: 'friends-approve',
+          component: () => import('@/components/friends/FriendsApprovePage.vue'),
+        },
+        {
           path: 'admin',
           name: 'admin',
           component: () => import('@/components/admin/AdminPage.vue'),

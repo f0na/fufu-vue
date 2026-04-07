@@ -58,10 +58,22 @@ export function update_friend(
     name?: string
     url?: string
     description?: string
+    sort_order?: number
+    visible?: boolean
     status?: FriendStatus
   },
 ): Promise<Friend> {
   return patch<Friend>(`/admin/friends/${id}`, data)
+}
+
+/**
+ * 切换友链可见性（管理员）
+ */
+export function toggle_friend_visibility(
+  id: string,
+  visible: boolean,
+): Promise<{ id: string; visible: boolean }> {
+  return patch<{ id: string; visible: boolean }>(`/admin/friends/${id}/visibility`, { visible })
 }
 
 /**

@@ -1,13 +1,23 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import type { Friend } from '@/api/types'
-import { get_friends } from '@/api/friend'
+import { delete_friend, toggle_friend_visibility } from '@/api/friend'
 import { useFriendsFilter } from '@/composables/useFriendsFilter'
+import { useFriendEdit } from '@/composables/useFriendEdit'
+import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
+import { useConfirm } from '@/composables/useConfirm'
+import { useFriendsStore } from '@/stores/friends'
 import BackToTop from '@/components/common/BackToTop.vue'
 
 const { search_query } = useFriendsFilter()
-const { error } = useToast()
+const { edit_mode, set_edit_mode } = useFriendEdit()
+const { can_toggle_visibility } = useAuth()
+const { success, error } = useToast()
+const { confirm } = useConfirm()
+const friends_store = useFriendsStore()
+const router = useRouter()
 
 // 每次加载数量
 const load_count = 6
@@ -15,39 +25,31 @@ const load_count = 6
 // 当前显示数量
 const display_count = ref(load_count)
 
-// 加载状态
-const loading = ref(false)
-
 // 底部观察元素引用
 const bottom_trigger = ref<HTMLElement | null>(null)
 
 // Intersection Observer
 let observer: IntersectionObserver | null = null
 
-// 所有友链数据
-const all_friends = ref<Friend[]>([])
-
-// 加载友链列表
+// 加载友链列表（使用 store）
 async function load_friends() {
-  loading.value = true
-  try {
-    const res = await get_friends({ per_page: 100 })
-    all_friends.value = res.items
-  } catch (e) {
-    console.error('加载友链失败:', e)
-    error('加载友链失败')
-  } finally {
-    loading.value = false
-  }
+  await friends_store.load_friends(can_toggle_visibility.value)
 }
 
 // 筛选后的友链列表
 const filtered_friends = computed(() => {
+  // 先按显隐模式筛选
+  let filtered = friends_store.friends
+  if (edit_mode.value !== 'visibility') {
+    filtered = filtered.filter((f) => f.visible)
+  }
+
+  // 再按搜索关键词筛选
   if (!search_query.value.trim()) {
-    return all_friends.value
+    return filtered
   }
   const query = search_query.value.toLowerCase()
-  return all_friends.value.filter(
+  return filtered.filter(
     (f) =>
       f.name.toLowerCase().includes(query) ||
       f.description?.toLowerCase().includes(query) ||
@@ -65,12 +67,10 @@ const has_more = computed(() => display_count.value < filtered_friends.value.len
 
 // 加载更多
 async function load_more() {
-  if (loading.value || !has_more.value) return
+  if (friends_store.loading || !has_more.value) return
 
-  loading.value = true
   await new Promise((resolve) => setTimeout(resolve, 300))
   display_count.value += load_count
-  loading.value = false
 }
 
 // 获取网站图标 URL
@@ -87,6 +87,57 @@ function get_favicon_url(url: string): string {
 function open_link(url: string) {
   window.open(url, '_blank', 'noopener,noreferrer')
 }
+
+// ========== 管理功能 ==========
+
+// 删除友链
+async function handle_delete(friend: Friend) {
+  const confirmed = await confirm(`确定要删除「${friend.name}」吗？`)
+  if (!confirmed) return
+
+  try {
+    await delete_friend(friend.id)
+    friends_store.remove_friend_local(friend.id)
+    success('删除成功')
+  } catch (e) {
+    console.error('删除失败:', e)
+    error('删除失败')
+  }
+}
+
+// 切换可见性
+async function handle_toggle_visibility(friend: Friend) {
+  const new_visible = !friend.visible
+  try {
+    await toggle_friend_visibility(friend.id, new_visible)
+    friends_store.update_friend_local(friend.id, { visible: new_visible })
+    success(new_visible ? '已显示' : '已隐藏')
+  } catch (e) {
+    console.error('操作失败:', e)
+    error('操作失败')
+  }
+}
+
+// 点击友链卡片（根据编辑模式执行不同操作）
+function handle_friend_click(friend: Friend) {
+  if (edit_mode.value === 'edit') {
+    router.push(`/home/friends/${friend.id}/edit`)
+  } else if (edit_mode.value === 'delete') {
+    handle_delete(friend)
+  } else if (edit_mode.value === 'visibility') {
+    handle_toggle_visibility(friend)
+  } else {
+    open_link(friend.url)
+  }
+}
+
+// 获取操作提示
+const mode_hint = computed(() => {
+  if (edit_mode.value === 'edit') return '点击友链进行编辑'
+  if (edit_mode.value === 'delete') return '点击友链进行删除'
+  if (edit_mode.value === 'visibility') return '点击友链切换显/隐'
+  return ''
+})
 
 // 组件挂载时加载数据和设置 Intersection Observer
 onMounted(() => {
@@ -113,17 +164,42 @@ onUnmounted(() => {
 watch(search_query, () => {
   display_count.value = load_count
 })
+
+// 路由变化时重置编辑模式
+watch(
+  () => router.currentRoute.value.path,
+  () => {
+    set_edit_mode('none')
+  },
+)
 </script>
 
 <template>
   <div class="flex flex-col gap-6">
+    <!-- 编辑模式提示 -->
+    <div
+      v-if="edit_mode !== 'none'"
+      class="flex items-center justify-between px-4 py-2 rounded-lg bg-[var(--c-primary-bg)] text-sm"
+    >
+      <span class="text-slate-600">
+        {{ mode_hint }}
+      </span>
+      <button @click="set_edit_mode('none')" class="text-[var(--c-primary)] hover:underline">
+        取消
+      </button>
+    </div>
+
     <!-- 友链卡片网格 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       <div
         v-for="friend in friends_list"
         :key="friend.id"
-        @click="open_link(friend.url)"
+        @click="handle_friend_click(friend)"
         class="cursor-pointer group p-4 rounded-xl bg-white border border-[var(--c-border)] shadow-sm hover:shadow-md transition-all flex items-center gap-3"
+        :class="{
+          'opacity-50': !friend.visible,
+          'ring-2 ring-[var(--c-primary)]': edit_mode !== 'none',
+        }"
       >
         <!-- 网站图标 -->
         <div
@@ -150,8 +226,9 @@ watch(search_query, () => {
           </p>
         </div>
 
-        <!-- 访问图标 -->
+        <!-- 访问图标（非编辑模式时显示） -->
         <div
+          v-if="edit_mode === 'none'"
           class="i-lucide-arrow-up-right w-4 h-4 text-slate-300 group-hover:text-[var(--c-primary)] transition-colors shrink-0"
         />
       </div>
@@ -160,7 +237,7 @@ watch(search_query, () => {
     <!-- 底部加载触发器 -->
     <div ref="bottom_trigger" class="py-6 flex justify-center">
       <!-- 加载中 -->
-      <div v-if="loading" class="flex items-center gap-2 text-slate-400">
+      <div v-if="friends_store.loading" class="flex items-center gap-2 text-slate-400">
         <div class="i-lucide-loader-2 w-5 h-5 animate-spin" />
         <span class="text-sm">加载中...</span>
       </div>
