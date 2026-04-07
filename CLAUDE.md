@@ -33,14 +33,6 @@ vue3 + unocss + bun
     - https://www.loliapi.com/acg/pp/（随机头像）
     - https://www.loliapi.com/acg/（自适应二次元）
 
-## git规范
-- feat: 新功能
-- fix: 修复bug
-- docs: 文档更新
-- refactor: 重构
-- perf: 优化
-- style: 代码格式调整
-
 ## 命名规范
 - 文件命名使用 `PascalCase`
 - template使用 `kebab-case`

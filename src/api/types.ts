@@ -439,7 +439,7 @@ export interface TwoFactorRequiredGitHubResponse {
 // ========== 评论相关 ==========
 
 // 评论目标类型
-export type CommentTarget = 'gallery' | 'bangumi'
+export type CommentTarget = 'gallery' | 'bangumi' | 'post'
 
 // 评论状态
 export type CommentStatus = 'normal' | 'hidden'
@@ -651,4 +651,128 @@ export interface UpdateLinkRequest {
   tags?: string[]
   icon?: string
   sort_order?: number
+}
+
+// ========== 文章相关 ==========
+
+// 文章状态
+export type PostStatus = 'published' | 'draft' | 'hidden'
+
+// 文章基础信息（列表项）
+export interface Post {
+  id: string
+  title: string
+  slug: string
+  summary: string | null
+  cover: string | null
+  tags: string[]
+  category: string | null
+  status: PostStatus
+  view_count: number
+  like_count: number
+  comment_count: number
+  top: boolean
+  published_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+// 文章详情（含内容）
+export interface PostDetail extends Post {
+  content: string
+  comment_allowed: boolean
+}
+
+// 文章目录项
+export interface PostTocItem {
+  id: string
+  text: string
+  level: number
+  children: PostTocItem[]
+}
+
+// 归档分组
+export interface ArchiveGroup {
+  year: number
+  months: {
+    month: number
+    count: number
+    posts: Pick<Post, 'id' | 'title' | 'slug' | 'published_at'>[]
+  }[]
+  total: number
+}
+
+// 标签统计
+export interface TagCount {
+  name: string
+  count: number
+}
+
+// 分类统计
+export interface CategoryCount {
+  name: string
+  count: number
+}
+
+// 创建文章请求
+export interface CreatePostRequest {
+  title: string
+  slug?: string
+  summary?: string
+  content: string
+  cover?: string
+  tags?: string[]
+  category?: string
+  status?: PostStatus
+  top?: boolean
+  comment_allowed?: boolean
+}
+
+// 更新文章请求
+export interface UpdatePostRequest {
+  title?: string
+  slug?: string
+  summary?: string
+  content?: string
+  cover?: string
+  tags?: string[]
+  category?: string
+  comment_allowed?: boolean
+}
+
+// 切换文章状态请求
+export interface UpdatePostStatusRequest {
+  status: PostStatus
+}
+
+// 切换置顶请求
+export interface UpdatePostTopRequest {
+  top: boolean
+}
+
+// ========== 点赞相关 ==========
+
+// 点赞目标类型
+export type LikeTarget = 'gallery' | 'bangumi' | 'post' | 'site'
+
+// 点赞请求
+export interface LikeRequest {
+  target_type: LikeTarget
+  target_id?: string // site 类型时不需要
+}
+
+// 点赞响应
+export interface LikeResponse {
+  liked: boolean // true=点赞成功，false=取消点赞
+  like_count: number // 当前点赞数
+}
+
+// 点赞检查响应
+export interface LikeCheckResponse {
+  liked: boolean
+}
+
+// 点赞数响应
+export interface LikeCountResponse {
+  count: number
 }

@@ -8,9 +8,11 @@
         "@iconify-json/lucide": "^1.2.101",
         "@iconify-json/simple-icons": "^1.2.76",
         "axios": "^1.14.0",
+        "blueimp-md5": "^2.19.0",
         "katex": "^0.16.44",
         "markstream-vue": "^0.0.10",
         "pinia": "^3.0.4",
+        "pinyin-pro": "^3.28.0",
         "pixi-live2d-display": "^0.4.0",
         "pixi.js": "7",
         "stream-monaco": "^0.0.21",
@@ -21,6 +23,7 @@
         "@julr/unocss-preset-forms": "^2.0.0",
         "@playwright/test": "^1.58.2",
         "@tsconfig/node24": "^24.0.4",
+        "@types/blueimp-md5": "^2.18.2",
         "@types/jsdom": "^28.0.1",
         "@types/node": "^24.12.0",
         "@unocss/preset-attributify": "^66.6.7",
@@ -464,6 +467,8 @@
 
     "@tybys/wasm-util": ["@tybys/wasm-util@0.10.1", "https://registry.npmmirror.com/@tybys/wasm-util/-/wasm-util-0.10.1.tgz", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg=="],
 
+    "@types/blueimp-md5": ["@types/blueimp-md5@2.18.2", "https://registry.npmmirror.com/@types/blueimp-md5/-/blueimp-md5-2.18.2.tgz", {}, "sha512-dJ9yRry9Olt5GAWlgCtE5dK9d/Dfhn/V7hna86eEO2Pn76+E8Y0S0n61iEUEGhWXXgtKtHxtZLVNwL8X+vLHzg=="],
+
     "@types/chai": ["@types/chai@5.2.3", "https://registry.npmmirror.com/@types/chai/-/chai-5.2.3.tgz", { "dependencies": { "@types/deep-eql": "*", "assertion-error": "^2.0.1" } }, "sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA=="],
 
     "@types/css-font-loading-module": ["@types/css-font-loading-module@0.0.12", "https://registry.npmmirror.com/@types/css-font-loading-module/-/css-font-loading-module-0.0.12.tgz", {}, "sha512-x2tZZYkSxXqWvTDgveSynfjq/T2HyiZHXb00j/+gy19yp70PHCizM48XFdjBCWH7eHBD0R5i/pw9yMBP/BH5uA=="],
@@ -661,6 +666,8 @@
     "bidi-js": ["bidi-js@1.0.3", "https://registry.npmmirror.com/bidi-js/-/bidi-js-1.0.3.tgz", { "dependencies": { "require-from-string": "^2.0.2" } }, "sha512-RKshQI1R3YQ+n9YJz2QQ147P66ELpa1FQEg20Dk8oW9t2KgLbpDLLp9aGZ7y8WHSshDknG0bknqGw5/tyCs5tw=="],
 
     "birpc": ["birpc@2.9.0", "https://registry.npmmirror.com/birpc/-/birpc-2.9.0.tgz", {}, "sha512-KrayHS5pBi69Xi9JmvoqrIgYGDkD6mcSe/i6YKi3w5kekCLzrX4+nawcXqrj2tIp50Kw/mT/s3p+GVK0A0sKxw=="],
+
+    "blueimp-md5": ["blueimp-md5@2.19.0", "https://registry.npmmirror.com/blueimp-md5/-/blueimp-md5-2.19.0.tgz", {}, "sha512-DRQrD6gJyy8FbiE4s+bDoXS9hiW3Vbx5uCdwvcCf3zLHL+Iv7LtGHLpr+GZV8rHG8tK766FGYBwRbu8pELTt+w=="],
 
     "boolbase": ["boolbase@1.0.0", "https://registry.npmmirror.com/boolbase/-/boolbase-1.0.0.tgz", {}, "sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww=="],
 
@@ -1151,6 +1158,8 @@
     "pinkie": ["pinkie@2.0.4", "https://registry.npmmirror.com/pinkie/-/pinkie-2.0.4.tgz", {}, "sha512-MnUuEycAemtSaeFSjXKW/aroV7akBbY+Sv+RkyqFjgAe73F+MR0TBWKBRDkmfWq/HiFmdavfZ1G7h4SPZXaCSg=="],
 
     "pinkie-promise": ["pinkie-promise@2.0.1", "https://registry.npmmirror.com/pinkie-promise/-/pinkie-promise-2.0.1.tgz", { "dependencies": { "pinkie": "^2.0.0" } }, "sha512-0Gni6D4UcLTbv9c57DfxDGdr41XfgUjqWZu492f0cIGr16zDU06BWP/RAEvOuo7CQ0CNjHaLlM59YJJFm3NWlw=="],
+
+    "pinyin-pro": ["pinyin-pro@3.28.0", "https://registry.npmmirror.com/pinyin-pro/-/pinyin-pro-3.28.0.tgz", {}, "sha512-mMRty6RisoyYNphJrTo3pnvp3w8OMZBrXm9YSWkxhAfxKj1KZk2y8T2PDIZlDDRsvZ0No+Hz6FI4sZpA6Ey25g=="],
 
     "pixi-live2d-display": ["pixi-live2d-display@0.4.0", "https://registry.npmmirror.com/pixi-live2d-display/-/pixi-live2d-display-0.4.0.tgz", { "dependencies": { "gh-pages": "^4.0.0" }, "peerDependencies": { "@pixi/core": "^6", "@pixi/display": "^6", "@pixi/loaders": "^6", "@pixi/math": "^6", "@pixi/sprite": "^6", "@pixi/utils": "^6" } }, "sha512-xeYC6y4Y0Bxe9ksWNlGFZC1rII/MPrzPQK7t1c3ubA8RhkOISIqHJl38fNumXqhGEs+yItmgDOkFT+9dsyGDjA=="],
 

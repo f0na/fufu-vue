@@ -13,6 +13,10 @@ import BangumiDetailSidebar from '@/components/bangumi/BangumiDetailSidebar.vue'
 import LinksSidebar from '@/components/links/LinksSidebar.vue'
 import GallerySidebar from '@/components/gallery/GallerySidebar.vue'
 import FriendsSidebar from '@/components/friends/FriendsSidebar.vue'
+import PostSidebar from '@/components/post/PostSidebar.vue'
+import PostDetailSidebar from '@/components/post/PostDetailSidebar.vue'
+import PostEditSidebar from '@/components/post/PostEditSidebar.vue'
+import ArchiveSidebar from '@/components/post/ArchiveSidebar.vue'
 import OperationCard from '@/components/admin/OperationCard.vue'
 import { useAuth } from '@/composables/useAuth'
 
@@ -57,6 +61,21 @@ const is_friends_page = computed(() =>
   route.name === 'friends-edit' ||
   route.name === 'friends-approve'
 )
+
+// 是否是文章列表页
+const is_posts_list = computed(() => route.name === 'posts')
+
+// 是否是文章详情页
+const is_posts_detail = computed(() => route.name === 'posts-detail')
+
+// 是否是文章编辑页
+const is_posts_edit = computed(() =>
+  route.name === 'posts-add' ||
+  route.name === 'posts-edit'
+)
+
+// 是否是归档页
+const is_archive_page = computed(() => route.name === 'archive')
 
 // 是否是管理页
 const is_admin_page = computed(() => route.name === 'admin')
@@ -179,14 +198,30 @@ onUnmounted(() => {
           <template v-else-if="is_friends_page">
             <friends-sidebar />
           </template>
+          <!-- 文章列表页显示筛选侧边栏 -->
+          <template v-else-if="is_posts_list">
+            <post-sidebar />
+          </template>
+          <!-- 文章详情页显示详情侧边栏 -->
+          <template v-else-if="is_posts_detail">
+            <post-detail-sidebar @scroll-comments="handle_scroll_comments" />
+          </template>
+          <!-- 文章编辑页显示编辑侧边栏 -->
+          <template v-else-if="is_posts_edit">
+            <post-edit-sidebar />
+          </template>
+          <!-- 归档页显示筛选侧边栏 -->
+          <template v-else-if="is_archive_page">
+            <archive-sidebar />
+          </template>
           <!-- 其他页面显示搜索框 -->
           <template v-else>
             <search-box />
           </template>
         </aside>
 
-        <!-- 看板娘 - 相对主内容区右侧 -->
-        <div class="hidden md:block absolute -right-48 top-0">
+        <!-- 看板娘 - 相对主内容区左侧 -->
+        <div class="hidden md:block absolute -left-48 top-0">
           <mascot-area @secret-click="handle_secret_click" />
         </div>
       </div>

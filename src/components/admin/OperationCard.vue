@@ -6,6 +6,7 @@ import { useLinkEdit } from '@/composables/useLinkEdit'
 import { useBangumiEdit } from '@/composables/useBangumiEdit'
 import { useGalleryEdit } from '@/composables/useGalleryEdit'
 import { useFriendEdit } from '@/composables/useFriendEdit'
+import { usePostEdit } from '@/composables/usePostEdit'
 
 const router = useRouter()
 const route = useRoute()
@@ -15,6 +16,7 @@ const { toggle_edit_mode: toggle_link_edit_mode } = useLinkEdit()
 const { toggle_edit_mode: toggle_bangumi_edit_mode } = useBangumiEdit()
 const { toggle_edit_mode: toggle_gallery_edit_mode } = useGalleryEdit()
 const { toggle_edit_mode: toggle_friend_edit_mode } = useFriendEdit()
+const { set_edit_mode: set_post_edit_mode } = usePostEdit()
 
 // 角色显示文本
 const role_text = computed(() => {
@@ -47,9 +49,17 @@ const is_friends_page = computed(() =>
   route.name === 'friends-approve'
 )
 
+// 是否在文章页
+const is_posts_page = computed(() =>
+  route.name === 'posts' ||
+  route.name === 'posts-add' ||
+  route.name === 'posts-edit' ||
+  route.name === 'posts-detail'
+)
+
 // 是否显示管理按钮
 const show_manage_buttons = computed(
-  () => is_links_page.value || is_bangumi_page.value || is_gallery_page.value || is_friends_page.value,
+  () => is_links_page.value || is_bangumi_page.value || is_gallery_page.value || is_friends_page.value || is_posts_page.value,
 )
 
 async function handle_logout() {
@@ -76,6 +86,8 @@ function handle_add() {
     router.push('/home/gallery/add')
   } else if (is_friends_page.value) {
     router.push('/home/friends/add')
+  } else if (is_posts_page.value) {
+    router.push('/home/posts/add')
   }
 }
 
@@ -88,6 +100,8 @@ function handle_edit() {
     toggle_gallery_edit_mode('edit')
   } else if (is_friends_page.value) {
     toggle_friend_edit_mode('edit')
+  } else if (is_posts_page.value) {
+    set_post_edit_mode('edit')
   }
 }
 
@@ -100,6 +114,8 @@ function handle_toggle_visibility() {
     toggle_gallery_edit_mode('visibility')
   } else if (is_friends_page.value) {
     toggle_friend_edit_mode('visibility')
+  } else if (is_posts_page.value) {
+    set_post_edit_mode('status')
   }
 }
 
@@ -112,7 +128,14 @@ function handle_delete() {
     toggle_gallery_edit_mode('delete')
   } else if (is_friends_page.value) {
     toggle_friend_edit_mode('delete')
+  } else if (is_posts_page.value) {
+    set_post_edit_mode('delete')
   }
+}
+
+// 置顶（仅文章页）
+function handle_top() {
+  set_post_edit_mode('top')
 }
 
 // 审批（仅友人帐页）
@@ -203,13 +226,35 @@ function go_to_profile() {
 
       <!-- 显/隐 -->
       <button
-        v-if="can_toggle_visibility && show_manage_buttons"
+        v-if="can_toggle_visibility && show_manage_buttons && !is_posts_page"
         @click="handle_toggle_visibility"
         :disabled="loading"
         class="w-full px-3 py-2 bg-[var(--c-primary-bg)] border border-[var(--c-border)] text-slate-600 rounded-lg hover:bg-[var(--c-primary)] hover:text-white transition-colors disabled:opacity-50 text-sm flex items-center justify-center gap-2"
       >
         <span class="i-lucide-eye" />
         显/隐
+      </button>
+
+      <!-- 状态（文章页） -->
+      <button
+        v-if="can_toggle_visibility && is_posts_page"
+        @click="handle_toggle_visibility"
+        :disabled="loading"
+        class="w-full px-3 py-2 bg-[var(--c-primary-bg)] border border-[var(--c-border)] text-slate-600 rounded-lg hover:bg-[var(--c-primary)] hover:text-white transition-colors disabled:opacity-50 text-sm flex items-center justify-center gap-2"
+      >
+        <span class="i-lucide-file-edit" />
+        状态
+      </button>
+
+      <!-- 置顶（文章页） -->
+      <button
+        v-if="can_edit && is_posts_page"
+        @click="handle_top"
+        :disabled="loading"
+        class="w-full px-3 py-2 bg-[var(--c-primary-bg)] border border-[var(--c-border)] text-slate-600 rounded-lg hover:bg-[var(--c-primary)] hover:text-white transition-colors disabled:opacity-50 text-sm flex items-center justify-center gap-2"
+      >
+        <span class="i-lucide-pin" />
+        置顶
       </button>
 
       <!-- 删除 -->

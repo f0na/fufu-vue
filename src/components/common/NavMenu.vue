@@ -15,7 +15,7 @@ const { next_theme } = useTheme()
 
 // 桌面端主菜单项（5个）
 const desktop_menu_items = [
-  { label: '归档', key: 'archive', icon: 'i-lucide-archive', route: '/archive' },
+  { label: '归档', key: 'archive', icon: 'i-lucide-archive', route: '/home/archive' },
   { label: '链接', key: 'links', icon: 'i-lucide-link', route: '/home/links' },
   { label: '追番', key: 'bangumi', icon: 'i-simple-icons-bilibili', route: '/home/bangumi' },
   { label: '相册', key: 'gallery', icon: 'i-lucide-image', route: '/home/gallery' },
@@ -24,7 +24,7 @@ const desktop_menu_items = [
 
 // 移动端主菜单项（4个）
 const mobile_menu_items = [
-  { label: '归档', key: 'archive', icon: 'i-lucide-archive', route: '/archive' },
+  { label: '归档', key: 'archive', icon: 'i-lucide-archive', route: '/home/archive' },
   { label: '链接', key: 'links', icon: 'i-lucide-link', route: '/home/links' },
   { label: '追番', key: 'bangumi', icon: 'i-simple-icons-bilibili', route: '/home/bangumi' },
   { label: '友人帐', key: 'friends', icon: 'i-lucide-users', route: '/home/friends' },
@@ -32,7 +32,7 @@ const mobile_menu_items = [
 
 // 更多菜单项（桌面端4个，移动端多加相册）
 const desktop_more_items = [
-  { label: '文章', key: 'articles', icon: 'i-lucide-file-text', route: '/articles' },
+  { label: '文章', key: 'posts', icon: 'i-lucide-file-text', route: '/home/posts' },
   { label: '关于', key: 'about', icon: 'i-lucide-info', route: '/about' },
   { label: '小工具', key: 'tools', icon: 'i-lucide-wrench', route: '/tools' },
   { label: '网站状态', key: 'status', icon: 'i-lucide-activity', route: '/status' },
@@ -40,7 +40,7 @@ const desktop_more_items = [
 
 const mobile_more_items = [
   { label: '相册', key: 'gallery', icon: 'i-lucide-image', route: '/home/gallery' },
-  { label: '文章', key: 'articles', icon: 'i-lucide-file-text', route: '/articles' },
+  { label: '文章', key: 'posts', icon: 'i-lucide-file-text', route: '/home/posts' },
   { label: '关于', key: 'about', icon: 'i-lucide-info', route: '/about' },
   { label: '小工具', key: 'tools', icon: 'i-lucide-wrench', route: '/tools' },
   { label: '网站状态', key: 'status', icon: 'i-lucide-activity', route: '/status' },

@@ -85,6 +85,31 @@ const router = createRouter({
           component: () => import('@/components/friends/FriendsApprovePage.vue'),
         },
         {
+          path: 'posts',
+          name: 'posts',
+          component: () => import('@/components/post/PostSection.vue'),
+        },
+        {
+          path: 'posts/add',
+          name: 'posts-add',
+          component: () => import('@/components/post/PostEditPage.vue'),
+        },
+        {
+          path: 'posts/:id/edit',
+          name: 'posts-edit',
+          component: () => import('@/components/post/PostEditPage.vue'),
+        },
+        {
+          path: 'posts/:id',
+          name: 'posts-detail',
+          component: () => import('@/components/post/PostDetail.vue'),
+        },
+        {
+          path: 'archive',
+          name: 'archive',
+          component: () => import('@/components/post/ArchiveSection.vue'),
+        },
+        {
           path: 'admin',
           name: 'admin',
           component: () => import('@/components/admin/AdminPage.vue'),
