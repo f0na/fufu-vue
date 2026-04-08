@@ -85,6 +85,15 @@ function toggle_preview() {
   is_preview.value = !is_preview.value
 }
 
+// 将标题文本转为 slug ID（与 markdown 渲染器保持一致）
+function heading_to_slug(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')        // 空格转连字符
+    .replace(/[^\w\u4e00-\u9fa5-]/g, '') // 移除非字母数字和中文的字符
+}
+
 // 从 Markdown 内容提取标题生成目录
 const toc = computed<PostTocItem[]>(() => {
   const content = form_data.value.content
@@ -92,14 +101,22 @@ const toc = computed<PostTocItem[]>(() => {
 
   const lines = content.split('\n')
   const headings: { id: string; text: string; level: number }[] = []
+  const slug_counts: Map<string, number> = new Map() // 用于处理重复标题
 
-  lines.forEach((line, index) => {
-    const match = line.match(/^#{1,6}\s+(.+)$/)
-    if (match && match[1]) {
-      const level = line.match(/^#+/)?.[0]?.length || 1
-      const text = match[1].trim()
-      // 生成 ID：使用标题文本的 slug 格式
-      const id = `heading-${index}`
+  lines.forEach((line) => {
+    // 去除行尾的 \r（Monaco 编辑器使用 \r\n 换行）
+    const clean_line = line.replace(/\r$/, '')
+    const match = clean_line.match(/^(#{1,6})\s+(.+)$/)
+    if (match && match[1] && match[2]) {
+      const level = match[1].length
+      const text = match[2].trim()
+      const base_slug = heading_to_slug(text)
+
+      // 处理重复标题
+      const count = slug_counts.get(base_slug) || 0
+      slug_counts.set(base_slug, count + 1)
+      const id = count > 0 ? `${base_slug}-${count}` : base_slug
+
       headings.push({ id, text, level })
     }
   })

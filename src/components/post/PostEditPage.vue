@@ -7,6 +7,7 @@ import EditorToolbar from '@/components/common/EditorToolbar.vue'
 import { usePostEdit } from '@/composables/usePostEdit'
 import { preprocess_markdown_image_size } from '@/utils/markdown'
 import BackToTop from '@/components/common/BackToTop.vue'
+import TocTree from '@/components/post/TocTree.vue'
 import { ArrowLeft, Upload, Eye, FileText, List } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -134,6 +135,17 @@ onMounted(() => {
       </div>
     </div>
 
+    <!-- 目录预览（仅在编辑模式下显示，放在编辑区上面） -->
+    <div v-if="!is_preview && toc.length > 0" class="p-4 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
+      <h3 class="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1">
+        <List class="w-3 h-3" />
+        目录预览
+      </h3>
+      <nav class="text-xs">
+        <TocTree :items="toc" />
+      </nav>
+    </div>
+
     <!-- 编辑器 / 预览区 -->
     <div class="bg-white rounded-xl border border-[var(--c-border)] shadow-sm overflow-hidden">
       <!-- 编辑模式 -->
@@ -168,26 +180,6 @@ onMounted(() => {
         <!-- 渲染 Markdown -->
         <MarkdownRenderer v-else :content="preview_content" />
       </div>
-    </div>
-
-    <!-- 目录预览（仅在编辑模式下显示） -->
-    <div v-if="!is_preview && toc.length > 0" class="p-4 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
-      <h3 class="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1">
-        <List class="w-3 h-3" />
-        目录预览
-      </h3>
-      <nav class="text-xs">
-        <template v-for="item in toc" :key="item.id">
-          <div class="py-1 text-slate-600" :style="{ paddingLeft: `${(item.level - 1) * 8}px` }">
-            {{ item.text }}
-          </div>
-          <template v-for="child in item.children" :key="child.id">
-            <div class="py-1 text-slate-600" :style="{ paddingLeft: `${(child.level - 1) * 8}px` }">
-              {{ child.text }}
-            </div>
-          </template>
-        </template>
-      </nav>
     </div>
 
     <!-- 回到顶部 -->

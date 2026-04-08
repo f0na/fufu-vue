@@ -310,7 +310,7 @@ function insert_heading(level: number) {
   // 检查当前行是否已经有标题标记
   const heading_match = line_content.match(/^(#{1,6}\s*)/)
 
-  if (heading_match) {
+  if (heading_match && heading_match[1]) {
     // 替换现有的标题级别
     const new_content = prefix + line_content.slice(heading_match[1].length)
     editor.executeEdits('', [{
