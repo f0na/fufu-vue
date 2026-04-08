@@ -99,6 +99,25 @@
   color: #2d3748 !important;
 }
 
+/* 任务列表 - 移除缩进和列表样式 */
+.band-markdown ul:has(input[type="checkbox"]) {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+  list-style: none !important;
+}
+
+.band-markdown li:has(input[type="checkbox"]) {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+  list-style: none !important;
+}
+
+/* checkbox 与文字间距 */
+.band-markdown .checkbox-node,
+.band-markdown input[type="checkbox"] {
+  margin-right: 0.25em !important;
+}
+
 .band-markdown ol {
   list-style: decimal !important;
   margin: 1em 0 !important;

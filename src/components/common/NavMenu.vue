@@ -97,10 +97,12 @@ function handle_menu_click(key: string) {
     router.push(item.route)
   }
   show_more_menu.value = false
+  is_expanded.value = false
 }
 
 function handle_more_click(key: string) {
   show_more_menu.value = false
+  is_expanded.value = false
   const item = more_items.value.find((m) => m.key === key)
   if (item?.route) {
     router.push(item.route)
@@ -202,7 +204,7 @@ onUnmounted(() => {
     <div class="bg-white border-t border-[var(--c-border)] shadow-sm">
       <div class="flex items-center justify-around py-2">
         <!-- 首页 -->
-        <button @click="router.push('/home')" class="flex flex-col items-center gap-0.5 px-3 py-1">
+        <button @click="router.push('/home'); show_more_menu = false" class="flex flex-col items-center gap-0.5 px-3 py-1">
           <Home class="w-5 h-5 text-[var(--c-primary)]" />
           <span class="text-xs text-[var(--c-primary)]">首页</span>
         </button>

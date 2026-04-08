@@ -16,13 +16,16 @@ const code_block_props = computed(() => ({
         light: 'github-light-default',
         dark: 'github-dark-default'
     },
-    showHeader: false,
-    showCopyButton: false,
-    showExpandButton: false,
-    showPreviewButton: false,
-    showCollapseButton: false,
-    showFontSizeButtons: false,
-    showTooltips: false,
+    showHeader: true,           // 显示代码块头部（语言标签）
+    showCopyButton: true,       // 显示复制按钮
+    showExpandButton: false,    // 隐藏展开按钮
+    showPreviewButton: false,   // 隐藏预览按钮
+    showCollapseButton: false,  // 隐藏折叠按钮
+    showFontSizeButtons: false, // 隐藏字体大小按钮
+    showTooltips: true,         // 显示工具提示
+    monacoOptions: {
+        revealStrategy: 'bottom' as const, // 默认滚动到底部（最后一行）
+    },
 }))
 </script>
 

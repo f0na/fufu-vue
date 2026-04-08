@@ -4,6 +4,121 @@
  */
 
 /* ============================================
+   代码块容器
+   ============================================ */
+
+.band-markdown .code-block-container,
+.band-markdown .markstream-vue .code-block-container {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--c-border, #e2e8f0);
+}
+
+/* ============================================
+   代码块头部 - 自定义样式
+   ============================================ */
+
+.band-markdown .code-block-header {
+  padding: 0.25rem 0.75rem !important;
+  border-bottom: 1px solid var(--c-border, #e2e8f0) !important;
+  background: var(--c-primary-bg, #ffe4e6) !important;
+}
+
+/* 语言标签区域 */
+.band-markdown .code-header-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 语言图标 */
+.band-markdown .code-header-main .icon-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--c-primary, #fb7185);
+}
+
+/* 语言名称标签 */
+.band-markdown .code-header-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.band-markdown .code-header-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--c-primary, #fb7185);
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+.band-markdown .code-header-caption {
+  font-size: 0.625rem;
+  color: #64748b;
+  margin-top: 0;
+}
+
+/* 右侧按钮组 */
+.band-markdown .code-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* 操作按钮 */
+.band-markdown .code-action-btn {
+  padding: 0.375rem;
+  border-radius: 6px;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.band-markdown .code-action-btn:hover {
+  background: var(--c-primary-bg, #ffe4e6);
+  color: var(--c-primary, #fb7185);
+}
+
+.band-markdown .code-action-btn:focus {
+  outline: 2px solid var(--c-primary, #fb7185);
+  outline-offset: 2px;
+}
+
+.band-markdown .code-action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Diff 统计 */
+.band-markdown .code-diff-stats {
+  display: flex;
+  gap: 0.5rem;
+  margin-right: 0.5rem;
+  padding-right: 0.5rem;
+  border-right: 1px solid var(--c-border, #e2e8f0);
+}
+
+.band-markdown .code-diff-stat {
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.band-markdown .code-diff-stat.removed {
+  color: #ef4444;
+}
+
+.band-markdown .code-diff-stat.added {
+  color: #22c55e;
+}
+
+/* ============================================
    基础代码块样式
    ============================================ */
 
@@ -99,6 +214,24 @@
   box-shadow: none !important;
 }
 
+/* MyGO 主题 - 代码块头部 */
+[data-theme="mygo"] .band-markdown .code-block-header {
+  border-bottom-color: rgba(255, 136, 153, 0.2);
+}
+
+[data-theme="mygo"] .band-markdown .code-header-title {
+  color: #c53030;
+}
+
+[data-theme="mygo"] .band-markdown .code-header-main .icon-slot {
+  color: #c53030;
+}
+
+[data-theme="mygo"] .band-markdown .code-action-btn:hover {
+  background: rgba(255, 136, 153, 0.15);
+  color: #c53030;
+}
+
 [data-theme="mygo"] .band-markdown code:not(pre code) {
   background: #fff5f6;
   color: #c53030;
@@ -143,6 +276,24 @@
   border: 0 !important;
   border-width: 0 !important;
   box-shadow: none !important;
+}
+
+/* Ave Mujica 主题 - 代码块头部 */
+[data-theme="avemujica"] .band-markdown .code-block-header {
+  border-bottom-color: rgba(90, 143, 168, 0.2);
+}
+
+[data-theme="avemujica"] .band-markdown .code-header-title {
+  color: #0e7490;
+}
+
+[data-theme="avemujica"] .band-markdown .code-header-main .icon-slot {
+  color: #0e7490;
+}
+
+[data-theme="avemujica"] .band-markdown .code-action-btn:hover {
+  background: rgba(90, 143, 168, 0.15);
+  color: #0e7490;
 }
 
 [data-theme="avemujica"] .band-markdown code:not(pre code) {

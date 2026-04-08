@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import MarkdownRenderer from '@/components/common/MarkdownRenderer.vue'
+import MonacoMarkdownEditor from '@/components/common/MonacoMarkdownEditor.vue'
+import EditorToolbar from '@/components/common/EditorToolbar.vue'
 import { usePostEdit } from '@/composables/usePostEdit'
 import { preprocess_markdown_image_size } from '@/utils/markdown'
 import BackToTop from '@/components/common/BackToTop.vue'
@@ -11,8 +13,11 @@ const router = useRouter()
 const route = useRoute()
 const { form_data, is_preview, toggle_preview, toc, import_markdown_file, reset_form } = usePostEdit()
 
-// Markdown 编辑器引用
-const editor_ref = ref<HTMLTextAreaElement | null>(null)
+// Monaco 编辑器引用
+const editor_ref = ref<InstanceType<typeof MonacoMarkdownEditor> | null>(null)
+
+// Vim 模式
+const vim_mode = ref(false)
 
 // 导入文件输入
 const file_input_ref = ref<HTMLInputElement | null>(null)
@@ -53,6 +58,26 @@ async function handle_file_change(e: Event) {
 // 切换预览
 function handle_toggle_preview() {
   toggle_preview()
+}
+
+// 处理工具栏格式化
+function handle_format(prefix: string, suffix: string) {
+  editor_ref.value?.wrap_selection(prefix, suffix)
+}
+
+// 处理工具栏插入
+function handle_insert(text: string) {
+  editor_ref.value?.insert_text(text)
+}
+
+// 处理插入标题
+function handle_insert_heading(level: number) {
+  editor_ref.value?.insert_heading(level)
+}
+
+// 切换 Vim 模式
+function toggle_vim_mode() {
+  vim_mode.value = !vim_mode.value
 }
 
 // 初始化
@@ -112,27 +137,37 @@ onMounted(() => {
     <!-- 编辑器 / 预览区 -->
     <div class="bg-white rounded-xl border border-[var(--c-border)] shadow-sm overflow-hidden">
       <!-- 编辑模式 -->
-      <template v-if="!is_preview">
-        <textarea
-          ref="editor_ref"
-          v-model="form_data.content"
-          placeholder="在此输入 Markdown 内容..."
-          class="w-full min-h-[400px] p-6 text-sm font-mono bg-white resize-none focus:outline-none"
+      <div v-show="!is_preview">
+        <!-- 编辑器工具栏 -->
+        <EditorToolbar
+          :vim-mode="vim_mode"
+          @format="handle_format"
+          @insert="handle_insert"
+          @insert-heading="handle_insert_heading"
+          @toggle-vim="toggle_vim_mode"
         />
-      </template>
+
+        <!-- Monaco 编辑器 -->
+        <div class="overflow-hidden pb-3">
+          <MonacoMarkdownEditor
+            ref="editor_ref"
+            v-model="form_data.content"
+            :vim-mode="vim_mode"
+            placeholder="在此输入 Markdown 内容..."
+          />
+        </div>
+      </div>
 
       <!-- 预览模式 -->
-      <template v-else>
-        <div class="p-6 min-h-[400px] band-markdown prose prose-slate max-w-none">
-          <!-- 如果没有内容，显示提示 -->
-          <div v-if="!preview_content" class="text-slate-400 text-center py-12">
-            <FileText class="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p class="text-sm">暂无内容，切换到编辑模式开始撰写</p>
-          </div>
-          <!-- 渲染 Markdown -->
-          <MarkdownRenderer v-else :content="preview_content" />
+      <div v-show="is_preview" class="p-6 band-markdown prose prose-slate max-w-none">
+        <!-- 如果没有内容，显示提示 -->
+        <div v-if="!preview_content" class="text-slate-400 text-center py-12">
+          <FileText class="w-8 h-8 mx-auto mb-2 opacity-50" />
+          <p class="text-sm">暂无内容，切换到编辑模式开始撰写</p>
         </div>
-      </template>
+        <!-- 渲染 Markdown -->
+        <MarkdownRenderer v-else :content="preview_content" />
+      </div>
     </div>
 
     <!-- 目录预览（仅在编辑模式下显示） -->

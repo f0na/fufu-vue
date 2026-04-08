@@ -246,18 +246,15 @@ watch(() => form_data.value.cover, (new_val: string) => {
         <!-- Slug -->
         <div class="p-3 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
             <label class="text-xs font-medium text-slate-500 mb-1 block">Slug</label>
-            <div class="flex gap-2">
-                <ExpandingInput
-                    v-model="form_data.slug"
-                    placeholder="url-slug"
-                    class="flex-1 min-w-0 max-w-48"
-                    :disabled="slug_generating"
-                />
-                <button @click="handle_generate_slug" :disabled="slug_generating || !form_data.title"
-                    class="px-2 py-1.5 text-xs rounded-lg bg-[var(--c-primary-bg)] text-[var(--c-primary)] hover:bg-[var(--c-primary-bg)]/70 disabled:opacity-50 shrink-0">
-                    {{ slug_generating ? '生成中...' : '生成' }}
-                </button>
-            </div>
+            <ExpandingInput
+                v-model="form_data.slug"
+                placeholder="url-slug"
+                :disabled="slug_generating"
+            />
+            <button @click="handle_generate_slug" :disabled="slug_generating || !form_data.title"
+                class="mt-2 px-3 py-1.5 text-xs rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 disabled:opacity-50 transition-colors">
+                {{ slug_generating ? '生成中...' : '生成' }}
+            </button>
         </div>
 
         <!-- 摘要 -->
