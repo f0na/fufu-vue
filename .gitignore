@@ -41,6 +41,7 @@ __screenshots__/
 test-results/
 playwright-report/
 .playwright-cli/
+screenshots
 
 .env.development
 .env.production

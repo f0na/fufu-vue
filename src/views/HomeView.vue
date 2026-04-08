@@ -34,7 +34,8 @@ function handle_secret_click() {
   // 已登录时不做任何操作
 }
 
-// 是否是番剧页（包括列表页和详情页）
+// 路由 key，用于强制刷新 router-view
+const route_key = computed(() => route.fullPath)
 const is_bangumi_page = computed(() =>
   route.name === 'bangumi' ||
   route.name === 'bangumi-detail' ||
@@ -173,7 +174,7 @@ onUnmounted(() => {
 
         <!-- 中间内容区 -->
         <div class="w-[67%] min-w-0 shrink-0">
-          <router-view />
+          <router-view :key="route_key" />
         </div>
 
         <!-- 右侧边栏 -->

@@ -1,0 +1,308 @@
+/**
+ * 美少女乐队风格 Markdown 样式
+ *
+ * MyGO!!!!! 主题 - 阳光青春活力
+ * Ave Mujica 主题 - 神秘优雅
+ */
+
+/* ============================================
+   基础样式
+   ============================================ */
+
+.band-markdown {
+  font-family: 'Noto Sans SC', system-ui, sans-serif !important;
+  line-height: 1.8 !important;
+  color: #2d3748 !important;
+}
+
+.band-markdown.prose {
+  max-width: none !important;
+}
+
+/* ===== 标题 ===== */
+
+.band-markdown h1 {
+  font-size: 1.75em !important;
+  font-weight: 700 !important;
+  color: #1a202c !important;
+  margin: 2em 0 1em !important;
+  padding-bottom: 0.4em !important;
+  border-bottom: 3px solid !important;
+}
+
+.band-markdown h2 {
+  font-size: 1.4em !important;
+  font-weight: 600 !important;
+  color: #1a202c !important;
+  margin: 1.75em 0 0.75em !important;
+  padding: 0.3em 0.8em !important;
+  border-left: 4px solid !important;
+  border-radius: 0 8px 8px 0 !important;
+}
+
+.band-markdown h3 {
+  font-size: 1.2em !important;
+  font-weight: 600 !important;
+  color: #2d3748 !important;
+  margin: 1.5em 0 0.5em !important;
+  padding-left: 0.6em !important;
+  border-left: 3px solid !important;
+}
+
+.band-markdown h4,
+.band-markdown h5,
+.band-markdown h6 {
+  font-size: 1.1em !important;
+  font-weight: 600 !important;
+  color: #2d3748 !important;
+  margin: 1.25em 0 0.5em !important;
+}
+
+/* ===== 段落和链接 ===== */
+
+.band-markdown p {
+  margin: 1em 0 !important;
+  line-height: 1.8 !important;
+  color: #2d3748 !important;
+}
+
+.band-markdown a {
+  text-decoration: none !important;
+  border-bottom: 2px solid transparent !important;
+  transition: all 0.2s ease !important;
+}
+
+/* ===== 引用块 ===== */
+
+.band-markdown blockquote {
+  margin: 1.5em 0 !important;
+  padding: 1em 1.25em !important;
+  border-radius: 0 8px 8px 0 !important;
+  border-left: 4px solid !important;
+  color: #4a5568 !important;
+}
+
+.band-markdown blockquote p {
+  margin: 0 !important;
+  color: #4a5568 !important;
+}
+
+/* ===== 列表 ===== */
+
+.band-markdown ul {
+  margin: 1em 0 !important;
+  padding-left: 1.5em !important;
+}
+
+.band-markdown ul li {
+  margin: 0.5em 0 !important;
+  color: #2d3748 !important;
+}
+
+.band-markdown ol {
+  list-style: decimal !important;
+  margin: 1em 0 !important;
+  padding-left: 1.8em !important;
+}
+
+.band-markdown ol li {
+  margin: 0.5em 0 !important;
+  color: #2d3748 !important;
+  padding-left: 0.25em !important;
+}
+
+/* ===== 表格 ===== */
+
+.band-markdown table {
+  width: 100% !important;
+  margin: 1.5em 0 !important;
+  border-collapse: collapse !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+
+.band-markdown th {
+  padding: 0.75em 1em !important;
+  font-weight: 600 !important;
+  text-align: left !important;
+}
+
+.band-markdown td {
+  padding: 0.75em 1em !important;
+  border-bottom: 1px solid !important;
+  color: #2d3748 !important;
+}
+
+.band-markdown tr:nth-child(even) td {
+  background: rgba(0, 0, 0, 0.02) !important;
+}
+
+/* ===== 分割线 ===== */
+
+.band-markdown hr {
+  height: 2px !important;
+  border: none !important;
+  margin: 2em 0 !important;
+  border-radius: 1px !important;
+}
+
+/* ===== 图片 ===== */
+
+.band-markdown img {
+  max-width: 100% !important;
+  margin: 1.5em auto !important;
+  border-radius: 8px !important;
+}
+
+/* ============================================
+   MyGO!!!!! 主题
+   ============================================ */
+
+[data-theme="mygo"] .band-markdown {
+  --mygo-pink: #ff8899;
+  --mygo-blue: #77bbdd;
+  --mygo-green: #77dd77;
+  --mygo-gold: #ffdd88;
+}
+
+[data-theme="mygo"] .band-markdown h1 {
+  border-bottom-color: var(--mygo-pink) !important;
+}
+
+[data-theme="mygo"] .band-markdown h2 {
+  border-left-color: var(--mygo-pink) !important;
+  background: rgba(255, 136, 153, 0.08) !important;
+}
+
+[data-theme="mygo"] .band-markdown h3 {
+  border-left-color: var(--mygo-blue) !important;
+}
+
+[data-theme="mygo"] .band-markdown a {
+  color: #c53030 !important;
+}
+
+[data-theme="mygo"] .band-markdown a:hover {
+  color: var(--mygo-pink) !important;
+  border-bottom-color: var(--mygo-pink) !important;
+}
+
+[data-theme="mygo"] .band-markdown blockquote {
+  background: rgba(255, 136, 153, 0.05) !important;
+  border-left-color: var(--mygo-pink) !important;
+}
+
+[data-theme="mygo"] .band-markdown ol li::marker {
+  color: var(--mygo-pink) !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="mygo"] .band-markdown th {
+  background: var(--mygo-pink) !important;
+  color: #1a202c !important;
+}
+
+[data-theme="mygo"] .band-markdown td {
+  border-bottom-color: rgba(255, 136, 153, 0.15) !important;
+}
+
+[data-theme="mygo"] .band-markdown tr:nth-child(even) td {
+  background: rgba(255, 221, 136, 0.05) !important;
+}
+
+[data-theme="mygo"] .band-markdown tr:hover td {
+  background: rgba(255, 136, 153, 0.05) !important;
+}
+
+[data-theme="mygo"] .band-markdown hr {
+  background: var(--mygo-pink) !important;
+}
+
+/* ============================================
+   Ave Mujica 主题
+   ============================================ */
+
+[data-theme="avemujica"] .band-markdown {
+  --mujica-lightblue: #5a8fa8;
+  --mujica-green: #2f6f4f;
+  --mujica-gold: #b8860b;
+}
+
+[data-theme="avemujica"] .band-markdown h1 {
+  border-bottom-color: var(--mujica-lightblue) !important;
+}
+
+[data-theme="avemujica"] .band-markdown h2 {
+  border-left-color: var(--mujica-lightblue) !important;
+  background: rgba(90, 143, 168, 0.08) !important;
+}
+
+[data-theme="avemujica"] .band-markdown h3 {
+  border-left-color: var(--mujica-green) !important;
+}
+
+[data-theme="avemujica"] .band-markdown a {
+  color: #0e7490 !important;
+}
+
+[data-theme="avemujica"] .band-markdown a:hover {
+  color: var(--mujica-lightblue) !important;
+  border-bottom-color: var(--mujica-lightblue) !important;
+}
+
+[data-theme="avemujica"] .band-markdown blockquote {
+  background: rgba(90, 143, 168, 0.05) !important;
+  border-left-color: var(--mujica-lightblue) !important;
+}
+
+[data-theme="avemujica"] .band-markdown ol li::marker {
+  color: var(--mujica-lightblue) !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="avemujica"] .band-markdown th {
+  background: var(--mujica-lightblue) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="avemujica"] .band-markdown td {
+  border-bottom-color: rgba(90, 143, 168, 0.15) !important;
+}
+
+[data-theme="avemujica"] .band-markdown tr:nth-child(even) td {
+  background: rgba(184, 134, 11, 0.04) !important;
+}
+
+[data-theme="avemujica"] .band-markdown tr:hover td {
+  background: rgba(90, 143, 168, 0.06) !important;
+}
+
+[data-theme="avemujica"] .band-markdown hr {
+  background: var(--mujica-lightblue) !important;
+}
+
+/* ============================================
+   响应式
+   ============================================ */
+
+@media (max-width: 768px) {
+  .band-markdown {
+    font-size: 0.95em !important;
+  }
+
+  .band-markdown h1 {
+    font-size: 1.5em !important;
+  }
+
+  .band-markdown h2 {
+    font-size: 1.25em !important;
+  }
+
+  .band-markdown h3 {
+    font-size: 1.1em !important;
+  }
+
+  .band-markdown table {
+    font-size: 0.9em !important;
+  }
+}

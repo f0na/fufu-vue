@@ -139,6 +139,11 @@ const router = createRouter({
           name: 'reset-password',
           component: () => import('@/components/admin/ResetPasswordPage.vue'),
         },
+        {
+          path: 'markdown-demo',
+          name: 'markdown-demo',
+          component: () => import('@/views/MarkdownDemo.vue'),
+        },
       ],
     },
     { path: '/gallery/:id', name: 'gallery', component: () => import('@/views/GalleryView.vue') },

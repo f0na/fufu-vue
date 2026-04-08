@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "color-palette": {
+      "source": "jezweb/claude-skills",
+      "sourceType": "github",
+      "computedHash": "44d5b40b13ca787c1c63225d4af517e7096e8d7c3ede62d16bd5acdd25794ec3"
+    }
+  }
+}

@@ -178,6 +178,10 @@ const mode_hint = computed(() => {
 // 组件挂载
 onMounted(() => {
   load_posts()
+
+  // 预加载 Monaco 编辑器
+  import('stream-monaco').catch(() => {})
+
   observer = new IntersectionObserver(
     (entries) => {
       if (entries[0]?.isIntersecting && has_more.value) {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import MarkdownRender from 'markstream-vue'
+import MarkdownRenderer from '@/components/common/MarkdownRenderer.vue'
 import type { PostDetail } from '@/api/types'
 import { get_post } from '@/api/post'
 import { useToast } from '@/composables/useToast'
@@ -135,8 +135,8 @@ onMounted(() => {
 
       <!-- Markdown 内容 -->
       <div class="bg-white rounded-xl p-6 border border-[var(--c-border)] shadow-sm">
-        <div class="markdown-content prose prose-slate max-w-none">
-          <MarkdownRender :content="processed_content" />
+        <div class="band-markdown prose prose-slate max-w-none">
+          <MarkdownRenderer :content="processed_content" />
         </div>
       </div>
 
@@ -165,76 +165,3 @@ onMounted(() => {
     <BackToTop />
   </div>
 </template>
-
-<style scoped>
-.markdown-content {
-  --prose-headings: theme('colors.slate.800');
-  --prose-links: theme('colors.primary.DEFAULT');
-  --prose-code: theme('colors.slate.700');
-}
-
-.markdown-content :deep(h1),
-.markdown-content :deep(h2),
-.markdown-content :deep(h3),
-.markmark-content :deep(h4),
-.markdown-content :deep(h5),
-.markdown-content :deep(h6) {
-  color: var(--prose-headings);
-  font-weight: 600;
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
-}
-
-.markdown-content :deep(h1) {
-  font-size: 1.5em;
-}
-
-.markdown-content :deep(h2) {
-  font-size: 1.25em;
-}
-
-.markdown-content :deep(h3) {
-  font-size: 1.125em;
-}
-
-.markdown-content :deep(a) {
-  color: var(--prose-links);
-  text-decoration: none;
-}
-
-.markdown-content :deep(a:hover) {
-  text-decoration: underline;
-}
-
-.markdown-content :deep(code) {
-  background-color: theme('colors.slate.100');
-  padding: 0.125em 0.25em;
-  border-radius: 0.25em;
-  font-size: 0.875em;
-}
-
-.markdown-content :deep(pre) {
-  background-color: theme('colors.slate.900');
-  color: theme('colors.slate.100');
-  padding: 1em;
-  border-radius: 0.5em;
-  overflow-x: auto;
-}
-
-.markdown-content :deep(pre code) {
-  background-color: transparent;
-  padding: 0;
-}
-
-.markdown-content :deep(img) {
-  max-width: 100%;
-  border-radius: 0.5em;
-}
-
-.markdown-content :deep(blockquote) {
-  border-left: 3px solid var(--c-primary);
-  padding-left: 1em;
-  color: theme('colors.slate.500');
-  margin: 1em 0;
-}
-</style>

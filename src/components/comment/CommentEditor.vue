@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import MarkdownRender from 'markstream-vue'
+import MarkdownRenderer from '@/components/common/MarkdownRenderer.vue'
 import { preprocess_markdown_image_size } from '@/utils/markdown'
 
 const props = defineProps<{
@@ -122,7 +122,7 @@ defineExpose({
     >
       <div class="text-xs text-slate-400 mb-1">预览</div>
       <!-- Markdown 模式渲染 -->
-      <MarkdownRender
+      <MarkdownRenderer
         v-if="edit_mode === 'markdown'"
         :content="preview_content"
         class="comment-preview"

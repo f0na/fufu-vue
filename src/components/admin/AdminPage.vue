@@ -156,7 +156,7 @@ async function handle_toggle_status(comment: Comment) {
 
 // 返回
 function go_back() {
-  router.push('/home')
+  router.push({ name: 'home-content' })
 }
 
 // 初始化

@@ -1,0 +1,188 @@
+/**
+ * 乐队主题代码块样式
+ * 纯色背景 + 装饰元素
+ */
+
+/* ============================================
+   基础代码块样式
+   ============================================ */
+
+.band-markdown pre,
+.band-markdown .code-block,
+.band-markdown .code-node,
+.band-markdown .code-block-wrapper {
+  position: relative;
+  margin: 1.5em 0;
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.875em;
+  line-height: 1.7;
+  border: none;
+}
+
+.band-markdown pre code,
+.band-markdown .code-block code {
+  display: block;
+  padding: 1em 1.25em;
+  background: transparent;
+  color: #1a202c;
+}
+
+/* 行内代码 */
+.band-markdown code:not(pre code) {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85em;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+}
+
+/* 语法高亮 - 高对比度 */
+.band-markdown pre .token.comment,
+.band-markdown pre .token.prolog,
+.band-markdown pre .token.doctype {
+  color: #6b7280;
+}
+
+.band-markdown pre .token.punctuation {
+  color: #374151;
+}
+
+.band-markdown pre .token.property,
+.band-markdown pre .token.tag,
+.band-markdown pre .token.boolean,
+.band-markdown pre .token.number,
+.band-markdown pre .token.constant {
+  color: #0369a1;
+}
+
+.band-markdown pre .token.selector,
+.band-markdown pre .token.attr-name,
+.band-markdown pre .token.string,
+.band-markdown pre .token.char,
+.band-markdown pre .token.builtin {
+  color: #047857;
+}
+
+.band-markdown pre .token.atrule,
+.band-markdown pre .token.attr-value,
+.band-markdown pre .token.keyword {
+  color: #b91c1c;
+}
+
+.band-markdown pre .token.function,
+.band-markdown pre .token.class-name {
+  color: #7c3aed;
+}
+
+.band-markdown pre .token.operator {
+  color: #4b5563;
+}
+
+.band-markdown pre .token.variable {
+  color: #b45309;
+}
+
+/* ============================================
+   MyGO!!!!! 主题代码块
+   ============================================ */
+
+/* 移除所有代码块相关容器的边框 */
+[data-theme="mygo"] .band-markdown .code-block-container,
+[data-theme="mygo"] .band-markdown .code-block-wrapper,
+[data-theme="mygo"] .band-markdown .code-block,
+[data-theme="mygo"] .band-markdown .code-node,
+[data-theme="mygo"] .band-markdown pre {
+  background: #fff5f6;
+  border: 0 !important;
+  border-width: 0 !important;
+  box-shadow: none !important;
+}
+
+[data-theme="mygo"] .band-markdown code:not(pre code) {
+  background: #fff5f6;
+  color: #c53030;
+}
+
+/* Monaco 编辑器 */
+[data-theme="mygo"] .band-markdown .monaco-editor,
+[data-theme="mygo"] .band-markdown .monaco-editor-background,
+[data-theme="mygo"] .band-markdown .monaco-editor .margin {
+  background: #fff5f6 !important;
+}
+
+/* 移除 Monaco 边框 */
+[data-theme="mygo"] .band-markdown .monaco-editor,
+[data-theme="mygo"] .band-markdown .monaco-editor .overflow-guard,
+[data-theme="mygo"] .band-markdown .code-editor-container,
+[data-theme="mygo"] .band-markdown .code-editor-layer {
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+[data-theme="mygo"] .band-markdown .monaco-editor .line-numbers {
+  color: #ff8899 !important;
+}
+
+[data-theme="mygo"] .band-markdown .monaco-editor .current-line {
+  background: rgba(255, 136, 153, 0.1) !important;
+}
+
+/* ============================================
+   Ave Mujica 主题代码块
+   ============================================ */
+
+/* 移除所有代码块相关容器的边框 */
+[data-theme="avemujica"] .band-markdown .code-block-container,
+[data-theme="avemujica"] .band-markdown .code-block-wrapper,
+[data-theme="avemujica"] .band-markdown .code-block,
+[data-theme="avemujica"] .band-markdown .code-node,
+[data-theme="avemujica"] .band-markdown pre {
+  background: #f5f9fa;
+  border: 0 !important;
+  border-width: 0 !important;
+  box-shadow: none !important;
+}
+
+[data-theme="avemujica"] .band-markdown code:not(pre code) {
+  background: #f5f9fa;
+  color: #0e7490;
+}
+
+/* Monaco 编辑器 */
+[data-theme="avemujica"] .band-markdown .monaco-editor,
+[data-theme="avemujica"] .band-markdown .monaco-editor-background,
+[data-theme="avemujica"] .band-markdown .monaco-editor .margin {
+  background: #f5f9fa !important;
+}
+
+/* 移除 Monaco 边框 */
+[data-theme="avemujica"] .band-markdown .monaco-editor,
+[data-theme="avemujica"] .band-markdown .monaco-editor .overflow-guard,
+[data-theme="avemujica"] .band-markdown .code-editor-container,
+[data-theme="avemujica"] .band-markdown .code-editor-layer {
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+[data-theme="avemujica"] .band-markdown .monaco-editor .line-numbers {
+  color: #5a8fa8 !important;
+}
+
+[data-theme="avemujica"] .band-markdown .monaco-editor .current-line {
+  background: rgba(90, 143, 168, 0.1) !important;
+}
+
+/* ============================================
+   响应式
+   ============================================ */
+
+@media (max-width: 768px) {
+  .band-markdown pre,
+  .band-markdown .code-block {
+    font-size: 0.8em;
+    border-radius: 6px;
+  }
+}

@@ -152,6 +152,15 @@
   }
 }
 
+/* 移除 Markdown 代码块容器的边框和轮廓 - 最高优先级 */
+.band-markdown .code-block-container,
+.band-markdown .code-block-container.border {
+  border: none !important;
+  border-width: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 /* 自定义动画 */
 @keyframes fade-in {
   from {
@@ -167,3 +176,9 @@
 .animate-fade-in {
   animation: fade-in 0.3s ease-out forwards;
 }
+
+/* GitHub 主题代码高亮 */
+@import '../github-highlight.css';
+
+/* 美少女乐队风格 Markdown 样式 */
+@import '../markdown-band.css';

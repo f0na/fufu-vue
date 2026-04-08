@@ -8,6 +8,8 @@ import { create_post, update_post, get_post } from '@/api/post'
 import { post } from '@/api/request'
 import type { PostStatus } from '@/api/types'
 import SimpleSelect from '@/components/common/SimpleSelect.vue'
+import ExpandingTextarea from '@/components/common/ExpandingTextarea.vue'
+import ExpandingInput from '@/components/common/ExpandingInput.vue'
 import { X, ImagePlus } from 'lucide-vue-next'
 
 interface UploadToken {
@@ -235,17 +237,22 @@ watch(() => form_data.value.cover, (new_val: string) => {
             <label class="text-xs font-medium text-slate-500 mb-1 block">
                 标题 <span class="text-red-500">*</span>
             </label>
-            <input v-model="form_data.title" type="text" placeholder="文章标题"
-                class="w-full px-2 py-1.5 text-sm rounded-lg border border-slate-200 bg-white focus:border-[var(--c-primary)] focus:outline-none" />
+            <ExpandingInput
+                v-model="form_data.title"
+                placeholder="文章标题"
+            />
         </div>
 
         <!-- Slug -->
         <div class="p-3 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
             <label class="text-xs font-medium text-slate-500 mb-1 block">Slug</label>
             <div class="flex gap-2">
-                <input v-model="form_data.slug" type="text" placeholder="url-slug"
-                    class="flex-1 min-w-0 max-w-48 px-2 py-1.5 text-sm rounded-lg border border-slate-200 bg-white focus:border-[var(--c-primary)] focus:outline-none"
-                    :disabled="slug_generating" />
+                <ExpandingInput
+                    v-model="form_data.slug"
+                    placeholder="url-slug"
+                    class="flex-1 min-w-0 max-w-48"
+                    :disabled="slug_generating"
+                />
                 <button @click="handle_generate_slug" :disabled="slug_generating || !form_data.title"
                     class="px-2 py-1.5 text-xs rounded-lg bg-[var(--c-primary-bg)] text-[var(--c-primary)] hover:bg-[var(--c-primary-bg)]/70 disabled:opacity-50 shrink-0">
                     {{ slug_generating ? '生成中...' : '生成' }}
@@ -256,8 +263,12 @@ watch(() => form_data.value.cover, (new_val: string) => {
         <!-- 摘要 -->
         <div class="p-3 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
             <label class="text-xs font-medium text-slate-500 mb-1 block">摘要</label>
-            <textarea v-model="form_data.summary" placeholder="文章摘要（可选）" rows="3"
-                class="w-full px-2 py-1.5 text-sm rounded-lg border border-slate-200 bg-white focus:border-[var(--c-primary)] focus:outline-none resize-none" />
+            <ExpandingTextarea
+                v-model="form_data.summary"
+                placeholder="文章摘要（可选）"
+                :minRows="1"
+                :maxRows="5"
+            />
         </div>
 
         <!-- 封面图 -->
@@ -286,8 +297,11 @@ watch(() => form_data.value.cover, (new_val: string) => {
                 </div>
             </div>
             <!-- URL 输入框 -->
-            <input v-model="form_data.cover" type="text" placeholder="或输入图片URL"
-                class="w-full mt-2 px-2 py-1.5 text-sm rounded-lg border border-slate-200 bg-white focus:border-[var(--c-primary)] focus:outline-none" />
+            <ExpandingInput
+                v-model="form_data.cover"
+                placeholder="或输入图片URL"
+                class="mt-2"
+            />
             <input ref="cover_input_ref" type="file" accept="image/*" class="hidden" @change="handle_cover_select" />
         </div>
 
@@ -301,17 +315,23 @@ watch(() => form_data.value.cover, (new_val: string) => {
                     {{ tag }} ×
                 </span>
             </div>
-            <input type="text" placeholder="按回车添加"
-                class="w-full px-2 py-1.5 text-sm rounded-lg border border-slate-200 bg-white focus:border-[var(--c-primary)] focus:outline-none"
-                @keydown.enter="(e) => { const val = (e.target as HTMLInputElement).value.trim(); if (val) { add_tag(val); (e.target as HTMLInputElement).value = '' } }" />
+            <ExpandingTextarea
+                :modelValue="''"
+                placeholder="按回车添加标签"
+                :minRows="1"
+                :maxRows="3"
+                @keydown.enter="(e: KeyboardEvent) => { const target = e.target as HTMLTextAreaElement; const val = target.value.trim(); if (val) { add_tag(val); target.value = '' } }"
+            />
         </div>
 
         <!-- 分类 -->
         <div class="p-3 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
             <label class="text-xs font-medium text-slate-500 mb-1 block">分类</label>
-            <input v-model="form_data.category" type="text" placeholder="分类名称"
-                class="w-full px-2 py-1.5 text-sm rounded-lg border border-slate-200 bg-white focus:border-[var(--c-primary)] focus:outline-none"
-                list="category-options" />
+            <ExpandingInput
+                v-model="form_data.category"
+                placeholder="分类名称"
+                list="category-options"
+            />
             <datalist id="category-options">
                 <option v-for="cat in category_options" :key="cat.value" :value="cat.value" />
             </datalist>

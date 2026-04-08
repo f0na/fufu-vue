@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import MarkdownRender from 'markstream-vue'
+import MarkdownRenderer from '@/components/common/MarkdownRenderer.vue'
 import { usePostEdit } from '@/composables/usePostEdit'
 import { preprocess_markdown_image_size } from '@/utils/markdown'
 import BackToTop from '@/components/common/BackToTop.vue'
@@ -123,14 +123,14 @@ onMounted(() => {
 
       <!-- 预览模式 -->
       <template v-else>
-        <div class="p-6 min-h-[400px] markdown-content prose prose-slate max-w-none">
+        <div class="p-6 min-h-[400px] band-markdown prose prose-slate max-w-none">
           <!-- 如果没有内容，显示提示 -->
           <div v-if="!preview_content" class="text-slate-400 text-center py-12">
             <FileText class="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p class="text-sm">暂无内容，切换到编辑模式开始撰写</p>
           </div>
           <!-- 渲染 Markdown -->
-          <MarkdownRender v-else :content="preview_content" />
+          <MarkdownRenderer v-else :content="preview_content" />
         </div>
       </template>
     </div>
@@ -159,76 +159,3 @@ onMounted(() => {
     <BackToTop />
   </div>
 </template>
-
-<style scoped>
-.markdown-content {
-  --prose-headings: theme('colors.slate.800');
-  --prose-links: theme('colors.primary.DEFAULT');
-  --prose-code: theme('colors.slate.700');
-}
-
-.markdown-content :deep(h1),
-.markdown-content :deep(h2),
-.markdown-content :deep(h3),
-.markdown-content :deep(h4),
-.markdown-content :deep(h5),
-.markdown-content :deep(h6) {
-  color: var(--prose-headings);
-  font-weight: 600;
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
-}
-
-.markdown-content :deep(h1) {
-  font-size: 1.5em;
-}
-
-.markdown-content :deep(h2) {
-  font-size: 1.25em;
-}
-
-.markdown-content :deep(h3) {
-  font-size: 1.125em;
-}
-
-.markdown-content :deep(a) {
-  color: var(--prose-links);
-  text-decoration: none;
-}
-
-.markdown-content :deep(a:hover) {
-  text-decoration: underline;
-}
-
-.markdown-content :deep(code) {
-  background-color: theme('colors.slate.100');
-  padding: 0.125em 0.25em;
-  border-radius: 0.25em;
-  font-size: 0.875em;
-}
-
-.markdown-content :deep(pre) {
-  background-color: theme('colors.slate.900');
-  color: theme('colors.slate.100');
-  padding: 1em;
-  border-radius: 0.5em;
-  overflow-x: auto;
-}
-
-.markdown-content :deep(pre code) {
-  background-color: transparent;
-  padding: 0;
-}
-
-.markdown-content :deep(img) {
-  max-width: 100%;
-  border-radius: 0.5em;
-}
-
-.markdown-content :deep(blockquote) {
-  border-left: 3px solid var(--c-primary);
-  padding-left: 1em;
-  color: theme('colors.slate.500');
-  margin: 1em 0;
-}
-</style>

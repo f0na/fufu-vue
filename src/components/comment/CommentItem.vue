@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import MarkdownRender from 'markstream-vue'
+import MarkdownRenderer from '@/components/common/MarkdownRenderer.vue'
 import type { Comment } from '@/api/types'
 import { preprocess_markdown_image_size } from '@/utils/markdown'
 import CommentForm from './CommentForm.vue'
@@ -107,7 +107,7 @@ const processed_content = computed(() => {
           <span>&nbsp;</span>
         </template>
         <!-- Markdown 格式渲染 -->
-        <MarkdownRender v-if="comment.markdown" :content="processed_content" />
+        <MarkdownRenderer v-if="comment.markdown" :content="processed_content" />
         <!-- 普通文本格式 -->
         <div v-else class="whitespace-pre-wrap">
           {{ comment.content }}

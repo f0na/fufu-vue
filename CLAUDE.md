@@ -1,20 +1,23 @@
 ## 技术选型
-vue3 + unocss + bun
+vue3 + tailwindcss + shadcn-vue + bun
 
 ## 主题
+- 二次元少女乐队
+- 二次元少女乐队
 - 二次元少女乐队
 
 ## 注意事项
 - 你与用户对话应该使用**中文**
 - 页面各部分尽量拆分为**独立的组件**，降低各个组件间的耦合度
-- css尽量使用unocss配置
+- css尽量使用tailwindcss配置
 - 禁止使用紫色
-- 主题、组件颜色选择需要对色弱友好
-- **确保足够对比度（≥4.5:1）**
+- 主题、组件颜色选择需要对色弱友好，使用color-palette技能检查颜色设置
 - 避免高饱和度颜色
 - **不依赖颜色区分元素**
 - 注意适配移动端显示效果
-- 使用playwright截图统一保存到同一个目录下
+- 使用playwright截图统一保存到同一个目录下，在该目录下再细分每一次新的修改都创建一个目录
+- 要多使用`技能`提升生成结果质量
+- 一定要使用`ctx7`,`tavily`等技能搜索相关最新资料来保证项目代码质量
 
 ## 参考文件
 - **网站、链接可以使用ai用浏览器`tavily技能`搜索**
@@ -22,7 +25,6 @@ vue3 + unocss + bun
 - 参考网站样式
     - https://mizuki.mysqil.com/
     - https://github.com/LyraVoid/Mizuki
-- unocss官方教程 https://unocss.dev/guide/
 - 随机二次元图片api
     - https://t.alcy.cc/moez（二次元自适应
     - https://t.alcy.cc/ycy（二次元自适应）

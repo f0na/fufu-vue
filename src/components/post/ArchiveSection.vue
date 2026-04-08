@@ -84,6 +84,9 @@ onMounted(() => {
   load_archive()
   // 同时加载文章列表（用于标签筛选）
   post_store.load_posts(false)
+
+  // 预加载 Monaco 编辑器
+  import('stream-monaco').catch(() => {})
 })
 </script>
 
