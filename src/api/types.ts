@@ -704,13 +704,13 @@ export interface ArchiveGroup {
 
 // 标签统计
 export interface TagCount {
-  name: string
+  tag: string
   count: number
 }
 
 // 分类统计
 export interface CategoryCount {
-  name: string
+  category: string
   count: number
 }
 

@@ -15,7 +15,7 @@ vue3 + tailwindcss + shadcn-vue + bun
 - 避免高饱和度颜色
 - **不依赖颜色区分元素**
 - 注意适配移动端显示效果
-- 使用playwright截图统一保存到同一个目录下，在该目录下再细分每一次新的修改都创建一个目录
+- 使用playwright(可直接使用playwright-cli)截图统一保存到同一个目录下，在该目录下再细分每一次新的修改都创建一个目录
 - 要多使用`技能`提升生成结果质量
 - 一定要使用`ctx7`,`tavily`等技能搜索相关最新资料来保证项目代码质量
 
@@ -42,3 +42,8 @@ vue3 + tailwindcss + shadcn-vue + bun
 - ts使用 `snake_case`
 - 类型定义使用 `PascalCase`
 - css使用 `kebab-case`
+
+## 工作流
+1. 先使用`ctx7`、`playright-cli`、`tavily`等技能搜索最新资料
+2. 然后询问用户关于问题的更多细节
+3. 等待用户确定细节开始执行

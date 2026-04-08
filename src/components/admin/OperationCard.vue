@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { useLinkEdit } from '@/composables/useLinkEdit'
@@ -24,11 +24,11 @@ const router = useRouter()
 const route = useRoute()
 const { logout, loading, can_add, can_edit, can_delete, can_toggle_visibility, user, is_admin } =
   useAuth()
-const { toggle_edit_mode: toggle_link_edit_mode } = useLinkEdit()
-const { toggle_edit_mode: toggle_bangumi_edit_mode } = useBangumiEdit()
-const { toggle_edit_mode: toggle_gallery_edit_mode } = useGalleryEdit()
-const { toggle_edit_mode: toggle_friend_edit_mode } = useFriendEdit()
-const { set_edit_mode: set_post_edit_mode } = usePostEdit()
+const { toggle_edit_mode: toggle_link_edit_mode, reset_edit_mode: reset_link_edit_mode } = useLinkEdit()
+const { toggle_edit_mode: toggle_bangumi_edit_mode, reset_edit_mode: reset_bangumi_edit_mode } = useBangumiEdit()
+const { toggle_edit_mode: toggle_gallery_edit_mode, reset_edit_mode: reset_gallery_edit_mode } = useGalleryEdit()
+const { toggle_edit_mode: toggle_friend_edit_mode, reset_edit_mode: reset_friend_edit_mode } = useFriendEdit()
+const { set_edit_mode: set_post_edit_mode, reset_edit_mode: reset_post_edit_mode } = usePostEdit()
 
 // 角色显示文本
 const role_text = computed(() => {
@@ -159,6 +159,18 @@ function handle_approve() {
 function go_to_profile() {
   // TODO: 跳转到个人信息页
 }
+
+// 监听路由变化，重置所有操作模式
+watch(
+  () => route.path,
+  () => {
+    reset_link_edit_mode()
+    reset_bangumi_edit_mode()
+    reset_gallery_edit_mode()
+    reset_friend_edit_mode()
+    reset_post_edit_mode()
+  }
+)
 </script>
 
 <template>

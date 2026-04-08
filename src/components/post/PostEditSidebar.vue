@@ -57,7 +57,7 @@ const status_options = [
 
 // 分类选项（从缓存获取）
 const category_options = computed(() => {
-    return post_store.categories.map((c) => ({ value: c.name, label: c.name }))
+    return post_store.categories.map((c) => ({ value: c.category, label: c.category }))
 })
 
 // 加载文章数据（编辑模式）
@@ -312,12 +312,10 @@ watch(() => form_data.value.cover, (new_val: string) => {
                     {{ tag }} ×
                 </span>
             </div>
-            <ExpandingTextarea
+            <ExpandingInput
                 :modelValue="''"
                 placeholder="按回车添加标签"
-                :minRows="1"
-                :maxRows="3"
-                @keydown.enter="(e: KeyboardEvent) => { const target = e.target as HTMLTextAreaElement; const val = target.value.trim(); if (val) { add_tag(val); target.value = '' } }"
+                @keydown.enter="(e: KeyboardEvent) => { const target = e.target as HTMLInputElement; const val = target.value.trim(); if (val) { add_tag(val); target.value = '' } }"
             />
         </div>
 

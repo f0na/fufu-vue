@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import MarkdownRenderer from '@/components/common/MarkdownRenderer.vue'
 import MonacoMarkdownEditor from '@/components/common/MonacoMarkdownEditor.vue'
@@ -76,10 +76,24 @@ function handle_insert_heading(level: number) {
   editor_ref.value?.insert_heading(level)
 }
 
+// 处理行首插入（引用、列表等）
+function handle_insert_line_start(prefix: string) {
+  editor_ref.value?.insert_line_start(prefix)
+}
+
 // 切换 Vim 模式
 function toggle_vim_mode() {
   vim_mode.value = !vim_mode.value
 }
+
+// 监听预览模式切换，当切换回编辑模式时重新布局编辑器
+watch(is_preview, (new_val) => {
+  if (!new_val) {
+    nextTick(() => {
+      editor_ref.value?.layout()
+    })
+  }
+})
 
 // 初始化
 onMounted(() => {
@@ -156,6 +170,7 @@ onMounted(() => {
           @format="handle_format"
           @insert="handle_insert"
           @insert-heading="handle_insert_heading"
+          @insert-line-start="handle_insert_line_start"
           @toggle-vim="toggle_vim_mode"
         />
 

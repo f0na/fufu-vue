@@ -82,16 +82,16 @@ function toggle_sort() {
       <div class="flex flex-wrap gap-2">
         <button
           v-for="tag in tags"
-          :key="tag.name"
-          @click="select_tag(tag.name)"
+          :key="tag.tag"
+          @click="select_tag(tag.tag)"
           class="px-2 py-1 text-xs rounded-lg transition-all"
           :class="
-            selected_tag === tag.name
+            selected_tag === tag.tag
               ? 'bg-[var(--c-primary)] text-white'
               : 'bg-[var(--c-primary-bg)] text-slate-600 hover:bg-[var(--c-primary-bg)]/70'
           "
         >
-          {{ tag.name }}
+          {{ tag.tag }}
         </button>
         <button
           v-if="tags.length > 0"

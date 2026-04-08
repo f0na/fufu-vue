@@ -31,6 +31,7 @@ const emits = defineEmits<{
   (e: 'insert', text: string): void
   (e: 'toggle-vim'): void
   (e: 'insert-heading', level: number): void
+  (e: 'insert-line-start', prefix: string): void
 }>()
 
 // 标题下拉菜单
@@ -61,6 +62,11 @@ function insert(text: string) {
   emits('insert', text)
 }
 
+// 行首插入操作（引用、列表等）
+function insert_line_start(prefix: string) {
+  emits('insert-line-start', prefix)
+}
+
 // 工具按钮定义
 const format_tools = [
   { icon: Bold, label: '加粗', prefix: '**', suffix: '**', shortcut: 'Ctrl+B' },
@@ -73,10 +79,14 @@ const insert_tools = [
   { icon: Link, label: '链接', prefix: '[', suffix: '](url)', shortcut: 'Ctrl+K' },
   { icon: Image, label: '图片', prefix: '![', suffix: '](url)' },
   { icon: Code2, label: '代码块', prefix: '```', suffix: '\n```' },
-  { icon: Quote, label: '引用', prefix: '> ', suffix: '' },
-  { icon: List, label: '无序列表', prefix: '- ', suffix: '' },
-  { icon: ListOrdered, label: '有序列表', prefix: '1. ', suffix: '' },
   { icon: Minus, label: '分割线', prefix: '\n---\n', suffix: '' },
+]
+
+// 行首插入工具（引用、列表）
+const line_start_tools = [
+  { icon: Quote, label: '引用', prefix: '> ' },
+  { icon: List, label: '无序列表', prefix: '- ' },
+  { icon: ListOrdered, label: '有序列表', prefix: '1. ' },
 ]
 
 onMounted(() => {
@@ -144,7 +154,21 @@ onUnmounted(() => {
     <button
       v-for="tool in insert_tools"
       :key="tool.label"
-      @click="format(tool.prefix, tool.suffix)"
+      @click="insert(tool.prefix)"
+      class="toolbar-btn"
+      :title="tool.label"
+    >
+      <component :is="tool.icon" class="w-4 h-4" />
+    </button>
+
+    <!-- 分隔线 -->
+    <div class="w-px h-5 bg-slate-200 mx-1" />
+
+    <!-- 行首插入按钮 -->
+    <button
+      v-for="tool in line_start_tools"
+      :key="tool.label"
+      @click="insert_line_start(tool.prefix)"
       class="toolbar-btn"
       :title="tool.label"
     >
