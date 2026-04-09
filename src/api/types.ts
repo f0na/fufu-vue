@@ -115,6 +115,11 @@ export interface Gallery {
   updated_at: string
 }
 
+// 随机相册响应（包含第一张照片URL）
+export interface RandomGallery extends Gallery {
+  first_photo_url: string | null
+}
+
 export interface Photo {
   id: string
   gallery_id: string

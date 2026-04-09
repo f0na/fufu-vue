@@ -12,9 +12,15 @@ import type {
   UploadResponse,
   CreateGalleryRequest,
   UpdateGalleryRequest,
+  RandomGallery,
 } from './types'
 
 // ========== 公开接口 ==========
+
+// 获取随机相册（自动过滤无照片的相册）
+export function fetch_random_gallery(): Promise<RandomGallery> {
+  return get<RandomGallery>('/galleries/random')
+}
 
 // 获取相册列表（分页）
 export interface FetchGalleriesParams {

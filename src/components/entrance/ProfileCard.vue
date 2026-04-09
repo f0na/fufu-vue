@@ -1,14 +1,16 @@
 <script setup lang="ts">
+import { useToast } from '@/composables/useToast'
 import { Mail, Github } from 'lucide-vue-next'
 import BilibiliIcon from '@/components/icons/BilibiliIcon.vue'
 import type { Component } from 'vue'
+
+const { success } = useToast()
 
 interface LocalSocialLink {
   id: string
   name: string
   url: string
   icon_component: Component
-  link_type: 'link' | 'email'
   sort_order: number
 }
 
@@ -17,13 +19,13 @@ const profile_config = {
   name: 'fufu',
   avatar: 'https://www.loliapi.com/acg/pp/',
   greeting: 'Ciallo～(∠・ω< )⌒★',
+  email: 'fufu@example.com',
   social_links: [
     {
       id: '1',
       name: 'B站',
       url: 'https://space.bilibili.com/1018561538',
       icon_component: BilibiliIcon,
-      link_type: 'link' as const,
       sort_order: 0,
     },
     {
@@ -31,23 +33,26 @@ const profile_config = {
       name: 'GitHub',
       url: 'https://github.com/f0na',
       icon_component: Github,
-      link_type: 'link' as const,
       sort_order: 1,
     },
     {
       id: '3',
       name: 'Email',
-      url: 'example@email.com',
+      url: '',
       icon_component: Mail,
-      link_type: 'email' as const,
       sort_order: 2,
     },
   ] as const satisfies readonly LocalSocialLink[],
 }
 
-function handle_link_click(link: LocalSocialLink) {
-  if (link.link_type === 'email') {
-    window.location.href = `mailto:${link.url}`
+async function handle_link_click(link: LocalSocialLink) {
+  if (link.name === 'Email') {
+    try {
+      await navigator.clipboard.writeText(profile_config.email)
+      success('已复制邮箱')
+    } catch {
+      console.error('复制失败')
+    }
   } else if (link.url) {
     window.open(link.url, '_blank', 'noopener,noreferrer')
   }
