@@ -166,12 +166,15 @@ async function save_edit() {
     // 更新本地数据
     const index = watchlist_records.value.findIndex((r) => r.id === editing_record.value!.id)
     if (index !== -1) {
-      watchlist_records.value[index] = {
-        ...watchlist_records.value[index],
-        rating: edit_form.value.rating || null,
-        progress: edit_form.value.progress || null,
-        notes: edit_form.value.notes || null,
-        watch_date: edit_form.value.watch_date || null,
+      const existing = watchlist_records.value[index]
+      if (existing) {
+        watchlist_records.value[index] = {
+          ...existing,
+          rating: edit_form.value.rating || null,
+          progress: edit_form.value.progress || null,
+          notes: edit_form.value.notes || null,
+          watch_date: edit_form.value.watch_date || null,
+        }
       }
     }
 
@@ -344,7 +347,7 @@ watch(edit_mode, (new_mode) => {
           <div class="grid grid-cols-2 gap-3 mb-3">
             <div class="flex flex-col gap-1">
               <label class="text-xs text-slate-500">评分</label>
-              <SimpleNumberInput v-model="add_form.rating" :min="0" :max="10" :step="0.1" />
+              <simple-number-input v-model="add_form.rating" :min="0" :max="10" :step="0.1" />
             </div>
             <div class="flex flex-col gap-1">
               <label class="text-xs text-slate-500">进度</label>
@@ -359,7 +362,7 @@ watch(edit_mode, (new_mode) => {
           <div class="grid grid-cols-2 gap-3 mb-3">
             <div class="flex flex-col gap-1">
               <label class="text-xs text-slate-500">观看日期</label>
-              <DateInput v-model="add_form.watch_date" placeholder="选择日期" />
+              <date-input v-model="add_form.watch_date" placeholder="选择日期" />
             </div>
             <div class="flex flex-col gap-1">
               <label class="text-xs text-slate-500">备注</label>
@@ -405,7 +408,7 @@ watch(edit_mode, (new_mode) => {
               <div class="grid grid-cols-2 gap-3 mb-3">
                 <div class="flex flex-col gap-1">
                   <label class="text-xs text-slate-500">评分</label>
-                  <NumberInput v-model="edit_form.rating" :min="0" :max="10" :step="0.1" />
+                  <number-input v-model="edit_form.rating" :min="0" :max="10" :step="0.1" />
                 </div>
                 <div class="flex flex-col gap-1">
                   <label class="text-xs text-slate-500">进度</label>
@@ -420,7 +423,7 @@ watch(edit_mode, (new_mode) => {
               <div class="grid grid-cols-2 gap-3 mb-3">
                 <div class="flex flex-col gap-1">
                   <label class="text-xs text-slate-500">观看日期</label>
-                  <DateInput v-model="edit_form.watch_date" placeholder="选择日期" />
+                  <date-input v-model="edit_form.watch_date" placeholder="选择日期" />
                 </div>
                 <div class="flex flex-col gap-1">
                   <label class="text-xs text-slate-500">备注</label>
@@ -487,7 +490,7 @@ watch(edit_mode, (new_mode) => {
 
       <!-- 评论区 -->
       <div id="comments-section" class="bg-white rounded-xl shadow-sm border border-[var(--c-border)] p-4">
-        <CommentSection target_type="bangumi" :target_id="bangumi_id" />
+        <comment-section target_type="bangumi" :target_id="bangumi_id" />
       </div>
     </template>
   </div>

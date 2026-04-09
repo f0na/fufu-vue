@@ -136,13 +136,13 @@ onMounted(() => {
       <!-- Markdown 内容 -->
       <div class="bg-white rounded-xl p-6 border border-[var(--c-border)] shadow-sm">
         <div class="band-markdown prose prose-slate max-w-none">
-          <MarkdownRenderer :content="processed_content" />
+          <markdown-renderer :content="processed_content" />
         </div>
       </div>
 
       <!-- 评论区 -->
       <div id="comments-section" v-if="post.comment_allowed">
-        <CommentSection
+        <comment-section
           target_type="post"
           :target_id="post.id"
         />
@@ -162,6 +162,6 @@ onMounted(() => {
     </div>
 
     <!-- 回到顶部 -->
-    <BackToTop />
+    <back-to-top />
   </div>
 </template>

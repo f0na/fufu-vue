@@ -54,22 +54,22 @@ function handle_update(val: AcceptableValue) {
 </script>
 
 <template>
-  <Select
+  <select
     :model-value="to_internal_value(modelValue)"
     @update:model-value="handle_update"
     :disabled="disabled"
   >
-    <SelectTrigger class="w-full">
-      <SelectValue :placeholder="placeholder" />
-    </SelectTrigger>
-    <SelectContent>
-      <SelectItem
+    <select-trigger class="w-full">
+      <select-value :placeholder="placeholder" />
+    </select-trigger>
+    <select-content>
+      <select-item
         v-for="option in options"
         :key="option.value"
         :value="to_internal_value(option.value)"
       >
         {{ option.label }}
-      </SelectItem>
-    </SelectContent>
-  </Select>
+      </select-item>
+    </select-content>
+  </select>
 </template>

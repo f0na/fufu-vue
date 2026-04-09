@@ -222,12 +222,12 @@ onMounted(() => {
 
     <!-- 评论表单 -->
     <div class="p-4 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
-      <CommentForm @submit="(data) => handle_submit(data)" />
+      <comment-form @submit="(data) => handle_submit(data)" />
     </div>
 
     <!-- 评论列表 -->
     <div v-if="comments.length > 0" class="flex flex-col divide-y divide-[var(--c-border)]">
-      <CommentItem
+      <comment-item
         v-for="comment in comments"
         :key="comment.id"
         :comment="comment"
@@ -265,6 +265,6 @@ onMounted(() => {
     </div>
 
     <!-- 回到顶部 -->
-    <BackToTop />
+    <back-to-top />
   </div>
 </template>

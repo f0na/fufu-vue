@@ -85,7 +85,6 @@ const themes = {
         :style="{
           backgroundColor: theme.colors.primary,
           color: theme.colors.bg,
-          ringColor: theme.colors.primary,
         }"
       >
         {{ theme.label }}
@@ -96,7 +95,7 @@ const themes = {
     <div class="max-w-4xl mx-auto py-8 px-4">
       <div class="bg-white rounded-xl p-6 shadow-lg border border-[var(--c-border)] transition-all duration-300">
         <div class="band-markdown prose max-w-none">
-          <MarkdownRenderer :content="demo_content" />
+          <markdown-renderer :content="demo_content" />
         </div>
       </div>
     </div>

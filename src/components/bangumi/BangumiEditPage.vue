@@ -223,7 +223,7 @@ onMounted(() => {
         <label class="text-sm text-slate-600"
           >封面 <span class="text-slate-400">(可选)</span></label
         >
-        <ImageInput
+        <image-input
           ref="image_input_ref"
           v-model="form_data.cover"
           placeholder="输入封面URL或选择文件"
@@ -235,7 +235,7 @@ onMounted(() => {
       <!-- 集数 -->
       <div class="flex flex-col gap-1.5">
         <label class="text-sm text-slate-600">集数 <span class="text-slate-400">(可选，新番可留空)</span></label>
-        <SimpleNumberInput v-model="form_data.episodes" :min="0" :step="1" placeholder="集数" />
+        <simple-number-input v-model="form_data.episodes" :min="0" :step="1" placeholder="集数" />
       </div>
 
       <!-- 简介 -->
@@ -254,13 +254,13 @@ onMounted(() => {
       <!-- 标签 -->
       <div class="flex flex-col gap-1.5">
         <label class="text-sm text-slate-600">标签 <span class="text-slate-400">(可选)</span></label>
-        <SimpleTagsInput v-model="form_data.tags" tag-source="bangumi" placeholder="输入标签，按回车添加" />
+        <simple-tags-input v-model="form_data.tags" tag-source="bangumi" placeholder="输入标签，按回车添加" />
       </div>
 
       <!-- 追番状态 -->
       <div class="flex flex-col gap-1.5">
         <label class="text-sm text-slate-600">追番状态</label>
-        <SimpleSelect v-model="form_data.status" :options="status_options" />
+        <simple-select v-model="form_data.status" :options="status_options" />
       </div>
 
       <!-- 可见性 -->
@@ -298,6 +298,6 @@ onMounted(() => {
     </div>
 
     <!-- 回到顶部 -->
-    <BackToTop />
+    <back-to-top />
   </div>
 </template>

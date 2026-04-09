@@ -33,7 +33,7 @@ const has_value = computed(() => props.modelValue && props.modelValue.trim() !==
 const display_date = computed(() => {
   if (!has_value.value) return ''
   const parts = props.modelValue.split('-')
-  if (parts.length === 3) {
+  if (parts.length === 3 && parts[0] && parts[1] && parts[2]) {
     return `${parts[0]}年${parseInt(parts[1])}月${parseInt(parts[2])}日`
   }
   return props.modelValue
@@ -42,7 +42,7 @@ const display_date = computed(() => {
 const selected_date = computed(() => {
   if (!has_value.value) return null
   const parts = props.modelValue.split('-')
-  if (parts.length === 3) {
+  if (parts.length === 3 && parts[0] && parts[1] && parts[2]) {
     return {
       year: parseInt(parts[0]),
       month: parseInt(parts[1]),

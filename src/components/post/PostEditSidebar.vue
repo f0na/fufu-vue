@@ -335,7 +335,7 @@ watch(() => form_data.value.cover, (new_val: string) => {
         <!-- 状态 -->
         <div class="p-3 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
             <label class="text-xs font-medium text-slate-500 mb-1 block">状态</label>
-            <SimpleSelect v-model="form_data.status" :options="status_options" />
+            <simple-select v-model="form_data.status" :options="status_options" />
         </div>
 
         <!-- 置顶 -->

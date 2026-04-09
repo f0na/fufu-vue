@@ -303,6 +303,6 @@ const mode_hint = computed(() => {
     </div>
 
     <!-- 回到顶部 -->
-    <BackToTop />
+    <back-to-top />
   </div>
 </template>

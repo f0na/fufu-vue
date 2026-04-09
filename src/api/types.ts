@@ -449,6 +449,7 @@ export interface CommentAuthor {
   user_id: string | null
   name: string // 用户名或游客名称
   avatar: string | null // 头像URL
+  admin?: boolean // 是否是管理员
 }
 
 // 评论项（包含回复）

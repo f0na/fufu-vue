@@ -237,7 +237,7 @@ function filter_comments() {
             class="flex-1 px-3 py-2 text-sm rounded-lg border border-[var(--c-border)] focus:border-[var(--c-primary)] focus:ring-2 focus:ring-[var(--c-primary)]/20 focus:outline-none"
           />
           <div class="w-40">
-            <SimpleSelect v-model="word_level" :options="word_level_options" />
+            <simple-select v-model="word_level" :options="word_level_options" />
           </div>
           <button
             @click="handle_add_word"
@@ -258,7 +258,7 @@ function filter_comments() {
           @keyup.enter="search_words"
         />
         <div class="w-32">
-          <SimpleSelect
+          <simple-select
             v-model="word_filter_level"
             :options="word_filter_options"
             @update:model-value="filter_words"
@@ -314,7 +314,7 @@ function filter_comments() {
           @keyup.enter="search_comments"
         />
         <div class="w-32">
-          <SimpleSelect
+          <simple-select
             v-model="comment_filter_status"
             :options="comment_status_options"
             @update:model-value="filter_comments"
@@ -386,6 +386,6 @@ function filter_comments() {
     </div>
 
     <!-- 回到顶部 -->
-    <BackToTop />
+    <back-to-top />
   </div>
 </template>

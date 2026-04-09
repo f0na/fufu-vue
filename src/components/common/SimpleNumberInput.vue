@@ -42,7 +42,7 @@ function handle_update(value: number | undefined) {
 </script>
 
 <template>
-  <NumberField
+  <number-field
     :model-value="modelValue"
     @update:model-value="handle_update"
     :min="min"
@@ -50,14 +50,14 @@ function handle_update(value: number | undefined) {
     :step="step"
     :disabled="disabled"
   >
-    <NumberFieldContent>
-      <NumberFieldDecrement>
+    <number-field-content>
+      <number-field-decrement>
         <Minus class="w-3 h-3" />
-      </NumberFieldDecrement>
-      <NumberFieldInput :placeholder="placeholder" />
-      <NumberFieldIncrement>
+      </number-field-decrement>
+      <number-field-input :placeholder="placeholder" />
+      <number-field-increment>
         <Plus class="w-3 h-3" />
-      </NumberFieldIncrement>
-    </NumberFieldContent>
-  </NumberField>
+      </number-field-increment>
+    </number-field-content>
+  </number-field>
 </template>

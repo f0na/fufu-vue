@@ -97,7 +97,7 @@ function handle_cancel() {
     </div>
 
     <!-- 评论编辑器 -->
-    <CommentEditor
+    <comment-editor
       ref="editor_ref"
       v-model="content"
       v-model:is_markdown="is_markdown"

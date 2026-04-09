@@ -3,5 +3,5 @@ import { Toaster } from '@/components/ui/sonner'
 </script>
 
 <template>
-  <Toaster position="top-center" :expand="true" rich-colors />
+  <toaster position="top-center" :expand="true" rich-colors />
 </template>

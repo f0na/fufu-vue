@@ -156,7 +156,7 @@ onMounted(() => {
         目录预览
       </h3>
       <nav class="text-xs">
-        <TocTree :items="toc" />
+        <toc-tree :items="toc" />
       </nav>
     </div>
 
@@ -165,7 +165,7 @@ onMounted(() => {
       <!-- 编辑模式 -->
       <div v-show="!is_preview">
         <!-- 编辑器工具栏 -->
-        <EditorToolbar
+        <editor-toolbar
           :vim-mode="vim_mode"
           @format="handle_format"
           @insert="handle_insert"
@@ -176,7 +176,7 @@ onMounted(() => {
 
         <!-- Monaco 编辑器 -->
         <div class="overflow-hidden pb-3">
-          <MonacoMarkdownEditor
+          <monaco-markdown-editor
             ref="editor_ref"
             v-model="form_data.content"
             :vim-mode="vim_mode"
@@ -193,11 +193,11 @@ onMounted(() => {
           <p class="text-sm">暂无内容，切换到编辑模式开始撰写</p>
         </div>
         <!-- 渲染 Markdown -->
-        <MarkdownRenderer v-else :content="preview_content" />
+        <markdown-renderer v-else :content="preview_content" />
       </div>
     </div>
 
     <!-- 回到顶部 -->
-    <BackToTop />
+    <back-to-top />
   </div>
 </template>

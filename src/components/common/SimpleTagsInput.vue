@@ -114,18 +114,18 @@ onMounted(() => {
     </div>
 
     <!-- 输入框 -->
-    <TagsInput
+    <tags-input
       :model-value="tags"
       @update:model-value="(vals) => tags = vals.map(String)"
       :disabled="disabled"
       class="w-full"
     >
-      <TagsInputItem v-for="item in tags" :key="item" :value="item">
-        <TagsInputItemText />
-        <TagsInputItemDelete />
-      </TagsInputItem>
-      <TagsInputInput :placeholder="tags.length > 0 ? '添加更多...' : placeholder" />
-    </TagsInput>
+      <tags-input-item v-for="item in tags" :key="item" :value="item">
+        <tags-input-item-text />
+        <tags-input-item-delete />
+      </tags-input-item>
+      <tags-input-input :placeholder="tags.length > 0 ? '添加更多...' : placeholder" />
+    </tags-input>
 
     <!-- 快捷标签 -->
     <div v-if="!disabled && available_tags.length > 0" class="flex flex-wrap gap-2">
