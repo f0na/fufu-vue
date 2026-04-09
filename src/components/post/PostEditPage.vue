@@ -17,6 +17,9 @@ const { form_data, is_preview, toggle_preview, toc, import_markdown_file, reset_
 // Monaco 编辑器引用
 const editor_ref = ref<InstanceType<typeof MonacoMarkdownEditor> | null>(null)
 
+// 编辑器 key，用于强制重新创建
+const editor_key = ref(0)
+
 // Vim 模式
 const vim_mode = ref(false)
 
@@ -97,6 +100,9 @@ watch(is_preview, (new_val) => {
 
 // 初始化
 onMounted(() => {
+  // 强制编辑器重新创建
+  editor_key.value++
+
   // 如果不是编辑模式，重置表单
   if (!route.params.id) {
     reset_form()
@@ -178,6 +184,7 @@ onMounted(() => {
         <div class="overflow-hidden pb-3">
           <monaco-markdown-editor
             ref="editor_ref"
+            :key="editor_key"
             v-model="form_data.content"
             :vim-mode="vim_mode"
             placeholder="在此输入 Markdown 内容..."

@@ -5,7 +5,10 @@
       "Bash(playwright-cli open:*)",
       "Bash(playwright-cli snapshot:*)",
       "Bash(playwright-cli click:*)",
-      "Bash(playwright-cli eval:*)"
+      "Bash(playwright-cli eval:*)",
+      "Bash(playwright-cli goto:*)",
+      "Bash(playwright-cli console:*)",
+      "Bash(playwright-cli screenshot:*)"
     ]
   }
 }

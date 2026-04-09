@@ -5,6 +5,7 @@
  */
 import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useVModel } from '@vueuse/core'
+import type * as Monaco from 'monaco-editor'
 
 const props = defineProps<{
     modelValue: string
@@ -29,44 +30,52 @@ const is_ready = ref(false)
 // Vim 模式状态
 const vim_state = ref<'normal' | 'insert' | 'visual'>('normal')
 
-// Monaco 相关（组件内部状态，每次挂载重新初始化）
-let monaco_instance: typeof import('monaco-editor') | null = null
-let editor_instance: import('monaco-editor').editor.IStandaloneCodeEditor | null = null
+// 编辑器实例（模块级变量）
+let editor_instance: Monaco.editor.IStandaloneCodeEditor | null = null
+let model_instance: Monaco.editor.ITextModel | null = null
+let monaco_instance: typeof Monaco | null = null
 
 // 初始化编辑器
 async function init_editor() {
     if (!editor_container.value) return
 
+    // 重置状态
+    is_ready.value = false
+
     // 如果已有编辑器实例，先销毁
     if (editor_instance) {
-        editor_instance.dispose()
+        try {
+            editor_instance.dispose()
+        } catch (e) {
+            console.warn('Monaco dispose error:', e)
+        }
         editor_instance = null
     }
 
+    // 如果已有模型实例，先销毁
+    if (model_instance) {
+        try {
+            model_instance.dispose()
+        } catch (e) {
+            console.warn('Monaco model dispose error:', e)
+        }
+        model_instance = null
+    }
+
     // 清理容器内残留的 Monaco DOM 元素
-    editor_container.value.innerHTML = ''
+    if (editor_container.value) {
+        editor_container.value.innerHTML = ''
+    }
 
     try {
         // 动态加载 Monaco
-        monaco_instance = await import('monaco-editor')
+        const monaco = await import('monaco-editor')
 
-        // 定义浅色主题
-        monaco_instance.editor.defineTheme('custom-light', {
-            base: 'vs',
-            inherit: true,
-            rules: [],
-            colors: {
-                'editor.background': '#ffffff',
-                'editor.foreground': '#1e293b',
-                'editorLineNumber.foreground': '#fb7185',
-            }
-        })
+        // 创建新的模型，避免与 markstream-vue 冲突
+        model_instance = monaco.editor.createModel(content.value, 'markdown')
 
-        // 创建编辑器
-        editor_instance = monaco_instance.editor.create(editor_container.value, {
-            value: content.value,
-            language: 'markdown',
-            theme: 'custom-light',
+        // 创建编辑器（不指定主题，让 Monaco 使用默认值）
+        editor_instance = monaco.editor.create(editor_container.value, {
             tabSize: 4,
             insertSpaces: true,
             wordWrap: 'on',
@@ -89,7 +98,11 @@ async function init_editor() {
             padding: { top: 12, bottom: 12 },
             readOnly: props.disabled,
             automaticLayout: true,
+            model: model_instance,
         })
+
+        // 保存 monaco 实例引用
+        monaco_instance = monaco
 
         // 注册自定义快捷键
         register_custom_actions()
@@ -411,15 +424,35 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+    // 重置状态
+    is_ready.value = false
+    vim_state.value = 'normal'
+
     // 移除滚轮事件监听
     if (editor_container.value) {
         editor_container.value.removeEventListener('wheel', handle_wheel)
     }
+
     // 销毁编辑器实例
     if (editor_instance) {
-        editor_instance.dispose()
+        try {
+            editor_instance.dispose()
+        } catch (e) {
+            console.warn('Monaco dispose error on unmount:', e)
+        }
         editor_instance = null
     }
+
+    // 销毁模型实例
+    if (model_instance) {
+        try {
+            model_instance.dispose()
+        } catch (e) {
+            console.warn('Monaco model dispose error:', e)
+        }
+        model_instance = null
+    }
+
     monaco_instance = null
 })
 
