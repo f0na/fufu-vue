@@ -24,10 +24,14 @@ const router = useRouter()
 const route = useRoute()
 const { logout, loading, can_add, can_edit, can_delete, can_toggle_visibility, user, is_admin } =
   useAuth()
-const { toggle_edit_mode: toggle_link_edit_mode, reset_edit_mode: reset_link_edit_mode } = useLinkEdit()
-const { toggle_edit_mode: toggle_bangumi_edit_mode, reset_edit_mode: reset_bangumi_edit_mode } = useBangumiEdit()
-const { toggle_edit_mode: toggle_gallery_edit_mode, reset_edit_mode: reset_gallery_edit_mode } = useGalleryEdit()
-const { toggle_edit_mode: toggle_friend_edit_mode, reset_edit_mode: reset_friend_edit_mode } = useFriendEdit()
+const { toggle_edit_mode: toggle_link_edit_mode, reset_edit_mode: reset_link_edit_mode } =
+  useLinkEdit()
+const { toggle_edit_mode: toggle_bangumi_edit_mode, reset_edit_mode: reset_bangumi_edit_mode } =
+  useBangumiEdit()
+const { toggle_edit_mode: toggle_gallery_edit_mode, reset_edit_mode: reset_gallery_edit_mode } =
+  useGalleryEdit()
+const { toggle_edit_mode: toggle_friend_edit_mode, reset_edit_mode: reset_friend_edit_mode } =
+  useFriendEdit()
 const { set_edit_mode: set_post_edit_mode, reset_edit_mode: reset_post_edit_mode } = usePostEdit()
 
 // 角色显示文本
@@ -39,39 +43,46 @@ const role_text = computed(() => {
 const is_links_page = computed(() => route.name === 'links')
 
 // 是否在番剧页（包括列表页和详情页）
-const is_bangumi_page = computed(() =>
-  route.name === 'bangumi' ||
-  route.name === 'bangumi-detail' ||
-  route.name === 'bangumi-add' ||
-  route.name === 'bangumi-edit'
+const is_bangumi_page = computed(
+  () =>
+    route.name === 'bangumi' ||
+    route.name === 'bangumi-detail' ||
+    route.name === 'bangumi-add' ||
+    route.name === 'bangumi-edit',
 )
 
 // 是否在相册页
-const is_gallery_page = computed(() =>
-  route.name === 'gallery-list' ||
-  route.name === 'gallery-add' ||
-  route.name === 'gallery-edit'
+const is_gallery_page = computed(
+  () =>
+    route.name === 'gallery-list' || route.name === 'gallery-add' || route.name === 'gallery-edit',
 )
 
 // 是否在友人帐页
-const is_friends_page = computed(() =>
-  route.name === 'friends' ||
-  route.name === 'friends-add' ||
-  route.name === 'friends-edit' ||
-  route.name === 'friends-approve'
+const is_friends_page = computed(
+  () =>
+    route.name === 'friends' ||
+    route.name === 'friends-add' ||
+    route.name === 'friends-edit' ||
+    route.name === 'friends-approve',
 )
 
 // 是否在文章页
-const is_posts_page = computed(() =>
-  route.name === 'posts' ||
-  route.name === 'posts-add' ||
-  route.name === 'posts-edit' ||
-  route.name === 'posts-detail'
+const is_posts_page = computed(
+  () =>
+    route.name === 'posts' ||
+    route.name === 'posts-add' ||
+    route.name === 'posts-edit' ||
+    route.name === 'posts-detail',
 )
 
 // 是否显示管理按钮
 const show_manage_buttons = computed(
-  () => is_links_page.value || is_bangumi_page.value || is_gallery_page.value || is_friends_page.value || is_posts_page.value,
+  () =>
+    is_links_page.value ||
+    is_bangumi_page.value ||
+    is_gallery_page.value ||
+    is_friends_page.value ||
+    is_posts_page.value,
 )
 
 async function handle_logout() {
@@ -169,7 +180,7 @@ watch(
     reset_gallery_edit_mode()
     reset_friend_edit_mode()
     reset_post_edit_mode()
-  }
+  },
 )
 </script>
 

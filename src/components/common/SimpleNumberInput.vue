@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { NumberField, NumberFieldContent, NumberFieldDecrement, NumberFieldIncrement, NumberFieldInput } from '@/components/ui/number-field'
+import {
+  NumberField,
+  NumberFieldContent,
+  NumberFieldDecrement,
+  NumberFieldIncrement,
+  NumberFieldInput,
+} from '@/components/ui/number-field'
 import { Minus, Plus } from 'lucide-vue-next'
 
 const props = withDefaults(
@@ -42,7 +48,7 @@ function handle_update(value: number | undefined) {
 </script>
 
 <template>
-  <number-field
+  <NumberField
     :model-value="modelValue"
     @update:model-value="handle_update"
     :min="min"
@@ -50,14 +56,14 @@ function handle_update(value: number | undefined) {
     :step="step"
     :disabled="disabled"
   >
-    <number-field-content>
-      <number-field-decrement>
+    <NumberFieldContent>
+      <NumberFieldDecrement>
         <Minus class="w-3 h-3" />
-      </number-field-decrement>
-      <number-field-input :placeholder="placeholder" />
-      <number-field-increment>
+      </NumberFieldDecrement>
+      <NumberFieldInput :placeholder="placeholder" />
+      <NumberFieldIncrement>
         <Plus class="w-3 h-3" />
-      </number-field-increment>
-    </number-field-content>
-  </number-field>
+      </NumberFieldIncrement>
+    </NumberFieldContent>
+  </NumberField>
 </template>

@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
-import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input'
+import {
+  TagsInput,
+  TagsInputInput,
+  TagsInputItem,
+  TagsInputItemDelete,
+  TagsInputItemText,
+} from '@/components/ui/tags-input'
 import { X } from 'lucide-vue-next'
 
 export type TagSource = 'bangumi' | 'link' | 'gallery'
@@ -114,18 +120,18 @@ onMounted(() => {
     </div>
 
     <!-- 输入框 -->
-    <tags-input
+    <TagsInput
       :model-value="tags"
-      @update:model-value="(vals) => tags = vals.map(String)"
+      @update:model-value="(vals) => (tags = vals.map(String))"
       :disabled="disabled"
       class="w-full"
     >
-      <tags-input-item v-for="item in tags" :key="item" :value="item">
-        <tags-input-item-text />
-        <tags-input-item-delete />
-      </tags-input-item>
-      <tags-input-input :placeholder="tags.length > 0 ? '添加更多...' : placeholder" />
-    </tags-input>
+      <TagsInputItem v-for="item in tags" :key="item" :value="item">
+        <TagsInputItemText />
+        <TagsInputItemDelete />
+      </TagsInputItem>
+      <TagsInputInput :placeholder="tags.length > 0 ? '添加更多...' : placeholder" />
+    </TagsInput>
 
     <!-- 快捷标签 -->
     <div v-if="!disabled && available_tags.length > 0" class="flex flex-wrap gap-2">

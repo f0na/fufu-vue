@@ -99,7 +99,9 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="editor-toolbar flex items-center gap-1 px-2 py-1.5 bg-white border-b border-[var(--c-border)] rounded-t-lg">
+  <div
+    class="editor-toolbar flex items-center gap-1 px-2 py-1.5 bg-white border-b border-[var(--c-border)] rounded-t-lg"
+  >
     <!-- 标题按钮 -->
     <div ref="heading_menu_ref" class="relative">
       <button
@@ -185,7 +187,7 @@ onUnmounted(() => {
       :class="vimMode ? 'bg-[var(--c-primary)] text-white hover:bg-[var(--c-primary-light)]' : ''"
       :title="vimMode ? '关闭 Vim 模式' : '开启 Vim 模式'"
     >
-      <Keyboard class="w-4 h-4" />
+      <keyboard class="w-4 h-4" />
       <span class="text-xs">Vim</span>
     </button>
   </div>

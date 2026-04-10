@@ -12,6 +12,6 @@ const props = defineProps<{
       {{ item.text }}
     </div>
     <!-- 递归渲染子项 -->
-    <toc-tree v-if="item.children.length > 0" :items="item.children" />
+    <TocTree v-if="item.children.length > 0" :items="item.children" />
   </template>
 </template>

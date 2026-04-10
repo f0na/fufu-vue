@@ -20,7 +20,7 @@ function handle_enter() {
 
 <template>
   <div class="relative w-full h-full overflow-hidden md:w-screen md:h-screen">
-    <background-image />
+    <BackgroundImage />
 
     <!-- 内容层 -->
     <div
@@ -33,25 +33,25 @@ function handle_enter() {
           class="transition-all duration-700"
           :class="is_entering ? '-translate-y-[120%] opacity-0' : 'translate-y-0 opacity-100'"
         >
-          <profile-card />
+          <ProfileCard />
         </div>
         <div
           class="transition-all duration-700 delay-100"
           :class="is_entering ? 'scale-0 opacity-0' : 'scale-100 opacity-100'"
         >
-          <random-gallery />
+          <RandomGallery />
         </div>
         <div
           class="transition-all duration-700 delay-200"
           :class="is_entering ? 'scale-0 opacity-0' : 'scale-100 opacity-100'"
         >
-          <clock-card />
+          <ClockCard />
         </div>
         <div
           class="transition-all duration-700 delay-300"
           :class="is_entering ? 'translate-y-[120%] opacity-0' : 'translate-y-0 opacity-100'"
         >
-          <enter-button @click="handle_enter" />
+          <EnterButton @click="handle_enter" />
         </div>
       </div>
 
@@ -70,7 +70,7 @@ function handle_enter() {
                   : 'translate-x-0 translate-y-0 opacity-100'
               "
             >
-              <profile-card />
+              <ProfileCard />
             </div>
           </div>
 
@@ -84,7 +84,7 @@ function handle_enter() {
                   : 'translate-x-0 translate-y-0 opacity-100'
               "
             >
-              <random-gallery />
+              <RandomGallery />
             </div>
           </div>
 
@@ -98,7 +98,7 @@ function handle_enter() {
                   : 'translate-x-0 translate-y-0 opacity-100'
               "
             >
-              <enter-button @click="handle_enter" />
+              <EnterButton @click="handle_enter" />
             </div>
           </div>
 
@@ -112,7 +112,7 @@ function handle_enter() {
                   : 'translate-x-0 translate-y-0 opacity-100'
               "
             >
-              <clock-card />
+              <ClockCard />
             </div>
           </div>
         </div>

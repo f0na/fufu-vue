@@ -272,10 +272,7 @@ const mode_hint = computed(() => {
         </div>
 
         <!-- 底部信息：标签 -->
-        <div
-          v-if="item.tags && item.tags.length > 0"
-          class="mt-2 text-xs text-slate-400 truncate"
-        >
+        <div v-if="item.tags && item.tags.length > 0" class="mt-2 text-xs text-slate-400 truncate">
           {{ item.tags.join(' / ') }}
         </div>
       </div>
@@ -303,6 +300,6 @@ const mode_hint = computed(() => {
     </div>
 
     <!-- 回到顶部 -->
-    <back-to-top />
+    <BackToTop />
   </div>
 </template>

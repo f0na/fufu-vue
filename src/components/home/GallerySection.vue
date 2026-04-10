@@ -6,7 +6,12 @@ import { useGalleryEdit } from '@/composables/useGalleryEdit'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
 import { useConfirm } from '@/composables/useConfirm'
-import { fetch_galleries, get_admin_galleries, delete_gallery, toggle_gallery_visibility } from '@/api/gallery'
+import {
+  fetch_galleries,
+  get_admin_galleries,
+  delete_gallery,
+  toggle_gallery_visibility,
+} from '@/api/gallery'
 import type { Gallery } from '@/api/types'
 import BackToTop from '@/components/common/BackToTop.vue'
 import { Image as ImageIcon, Loader2, Images } from 'lucide-vue-next'
@@ -277,6 +282,6 @@ onUnmounted(() => {
     </div>
 
     <!-- 回到顶部 -->
-    <back-to-top />
+    <BackToTop />
   </div>
 </template>

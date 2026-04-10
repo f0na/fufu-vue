@@ -91,6 +91,11 @@ function check_mobile() {
   is_mobile.value = window.innerWidth < 768
 }
 
+function handle_home_click() {
+  router.push('/home')
+  show_more_menu.value = false
+}
+
 function handle_menu_click(key: string) {
   const item = menu_items.value.find((m) => m.key === key)
   if (item?.route) {
@@ -204,7 +209,7 @@ onUnmounted(() => {
     <div class="bg-white border-t border-[var(--c-border)] shadow-sm">
       <div class="flex items-center justify-around py-2">
         <!-- 首页 -->
-        <button @click="router.push('/home'); show_more_menu = false" class="flex flex-col items-center gap-0.5 px-3 py-1">
+        <button @click="handle_home_click" class="flex flex-col items-center gap-0.5 px-3 py-1">
           <Home class="w-5 h-5 text-[var(--c-primary)]" />
           <span class="text-xs text-[var(--c-primary)]">首页</span>
         </button>
@@ -262,13 +267,13 @@ onUnmounted(() => {
     </div>
 
     <!-- 移动端下拉 -->
-    <Transition v-if="is_mobile" name="fade">
+    <transition v-if="is_mobile" name="fade">
       <div
         v-if="show_more_menu"
         class="fixed inset-0 z-[60] bg-black/20"
         @click="show_more_menu = false"
       >
-        <Transition name="slide-up">
+        <transition name="slide-up">
           <div
             v-if="show_more_menu"
             class="absolute bottom-14 left-2 right-2 bg-white rounded-xl shadow-lg border border-[var(--c-border)] p-3"
@@ -293,9 +298,9 @@ onUnmounted(() => {
               </button>
             </div>
           </div>
-        </Transition>
+        </transition>
       </div>
-    </Transition>
+    </transition>
   </Teleport>
 </template>
 

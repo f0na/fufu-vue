@@ -5,7 +5,7 @@ import type { Comment } from '@/api/types'
 /**
  * 全局数据缓存 Store
  */
-export const useDataCacheStore = defineStore('dataCache', () => {
+export const useDataCacheStore = defineStore('data_cache', () => {
   // 评论缓存 - 按 target_id 分组
   const comment_cache = ref<Map<string, Comment[]>>(new Map())
 

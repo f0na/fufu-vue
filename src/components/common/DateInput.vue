@@ -64,7 +64,8 @@ const calendar_days = computed(() => {
   const days_in_month = get_days_in_month(current_year.value, current_month.value)
   const first_day = get_first_day_of_month(current_year.value, current_month.value)
 
-  const days: Array<{ day: number; is_current: boolean; is_selected: boolean; is_today: boolean }> = []
+  const days: Array<{ day: number; is_current: boolean; is_selected: boolean; is_today: boolean }> =
+    []
 
   for (let i = 0; i < first_day; i++) {
     days.push({ day: 0, is_current: false, is_selected: false, is_today: false })
@@ -205,7 +206,10 @@ onMounted(() => {
       ]"
     >
       <div class="flex items-center gap-2">
-        <Calendar class="w-4 h-4 shrink-0" :class="has_value ? 'text-[var(--c-primary)]' : 'text-slate-400'" />
+        <Calendar
+          class="w-4 h-4 shrink-0"
+          :class="has_value ? 'text-[var(--c-primary)]' : 'text-slate-400'"
+        />
         <span :class="has_value ? 'text-slate-700' : 'text-slate-400'">
           {{ display_date || placeholder }}
         </span>
@@ -219,7 +223,7 @@ onMounted(() => {
     </button>
 
     <!-- 日历弹出 -->
-    <Transition
+    <transition
       enter-active-class="transition ease-out duration-100"
       enter-from-class="opacity-0 scale-95"
       enter-to-class="opacity-100 scale-100"
@@ -252,7 +256,11 @@ onMounted(() => {
 
         <!-- 星期标题 -->
         <div class="grid grid-cols-7 gap-1 mb-2">
-          <div v-for="day in ['日', '一', '二', '三', '四', '五', '六']" :key="day" class="text-center text-xs text-slate-500 py-1">
+          <div
+            v-for="day in ['日', '一', '二', '三', '四', '五', '六']"
+            :key="day"
+            class="text-center text-xs text-slate-500 py-1"
+          >
             {{ day }}
           </div>
         </div>
@@ -296,6 +304,6 @@ onMounted(() => {
           </button>
         </div>
       </div>
-    </Transition>
+    </transition>
   </div>
 </template>

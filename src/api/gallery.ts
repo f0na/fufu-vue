@@ -102,7 +102,10 @@ export function update_photos_layout(
 }
 
 // 更新单张照片
-export function update_photo(photo_id: string, data: Omit<Partial<PhotoUpdate>, 'id'>): Promise<Photo> {
+export function update_photo(
+  photo_id: string,
+  data: Omit<Partial<PhotoUpdate>, 'id'>,
+): Promise<Photo> {
   return patch<Photo>(`/admin/photos/${photo_id}`, { id: photo_id, ...data })
 }
 

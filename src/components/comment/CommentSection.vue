@@ -114,13 +114,16 @@ onUnmounted(() => {
 })
 
 // 提交评论（支持顶级评论和回复）
-async function handle_submit(data: {
-  content: string
-  markdown: boolean
-  guest_name?: string
-  guest_email?: string
-  guest_avatar?: string
-}, comment_id?: string) {
+async function handle_submit(
+  data: {
+    content: string
+    markdown: boolean
+    guest_name?: string
+    guest_email?: string
+    guest_avatar?: string
+  },
+  comment_id?: string,
+) {
   try {
     const request_data: {
       target_type: CommentTarget
@@ -215,19 +218,17 @@ onMounted(() => {
   <div class="flex flex-col gap-4">
     <!-- 标题 -->
     <div class="flex items-center justify-between">
-      <h3 class="text-base font-medium text-slate-700">
-        评论
-      </h3>
+      <h3 class="text-base font-medium text-slate-700">评论</h3>
     </div>
 
     <!-- 评论表单 -->
     <div class="p-4 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
-      <comment-form @submit="(data) => handle_submit(data)" />
+      <CommentForm @submit="(data) => handle_submit(data)" />
     </div>
 
     <!-- 评论列表 -->
     <div v-if="comments.length > 0" class="flex flex-col divide-y divide-[var(--c-border)]">
-      <comment-item
+      <CommentItem
         v-for="comment in comments"
         :key="comment.id"
         :comment="comment"
@@ -265,6 +266,6 @@ onMounted(() => {
     </div>
 
     <!-- 回到顶部 -->
-    <back-to-top />
+    <BackToTop />
   </div>
 </template>

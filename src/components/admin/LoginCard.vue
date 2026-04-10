@@ -100,7 +100,7 @@ function handle_github_login() {
       :disabled="loading"
       class="w-full px-4 py-2 bg-gray-700 text-white rounded hover:opacity-80 disabled:opacity-50 transition-opacity flex items-center justify-center gap-2"
     >
-      <Github class="w-5 h-5" />
+      <github class="w-5 h-5" />
       GitHub 登录
     </button>
   </div>

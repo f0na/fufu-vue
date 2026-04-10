@@ -78,7 +78,9 @@ onMounted(() => {
       </div>
 
       <!-- 标签 -->
-      <div class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-rose-500/50 text-xs text-white">
+      <div
+        class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-rose-500/50 text-xs text-white"
+      >
         {{ current_gallery.title }}
       </div>
     </template>

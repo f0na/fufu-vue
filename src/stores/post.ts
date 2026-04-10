@@ -5,7 +5,14 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { Post, PostDetail, ArchiveGroup, TagCount, CategoryCount } from '@/api/types'
-import { get_posts, get_admin_posts, get_archive, get_tags, get_categories, get_post } from '@/api/post'
+import {
+  get_posts,
+  get_admin_posts,
+  get_archive,
+  get_tags,
+  get_categories,
+  get_post,
+} from '@/api/post'
 
 export const usePostStore = defineStore('post', () => {
   // 文章列表缓存

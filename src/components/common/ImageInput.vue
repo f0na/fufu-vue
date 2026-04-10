@@ -107,8 +107,8 @@ function handle_blur() {
 }
 
 defineExpose({
-  pendingFile: selected_file,
-  clearLocalPreview: clear_local_preview,
+  pending_file: selected_file,
+  clear_local_preview: clear_local_preview,
 })
 </script>
 

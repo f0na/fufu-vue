@@ -9,6 +9,9 @@ import type {
   UploadResponse,
   CreateSocialLinkRequest,
   UpdateSocialLinkRequest,
+  UploadedFile,
+  PaginatedData,
+  FileTypeFilter,
 } from './types'
 
 // 获取用户信息（管理视角）
@@ -37,6 +40,11 @@ export async function upload_avatar(file: File): Promise<UploadResponse> {
 
 // ========== 社交链接管理 ==========
 
+// 获取社交链接列表
+export function get_social_links(): Promise<SocialLink[]> {
+  return get<SocialLink[]>('/admin/user/social-links')
+}
+
 // 创建社交链接
 export function create_social_link(data: CreateSocialLinkRequest): Promise<SocialLink> {
   return post('/admin/user/social-links', data)
@@ -50,4 +58,15 @@ export function update_social_link(id: string, data: UpdateSocialLinkRequest): P
 // 删除社交链接
 export function delete_social_link(id: string): Promise<void> {
   return del(`/admin/user/social-links/${id}`)
+}
+
+// ========== 文件管理 ==========
+
+// 获取已上传文件列表
+export function get_files(params?: {
+  file_type?: FileTypeFilter
+  page?: number
+  per_page?: number
+}): Promise<PaginatedData<UploadedFile>> {
+  return get<PaginatedData<UploadedFile>>('/admin/files', { params })
 }

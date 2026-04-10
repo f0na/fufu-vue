@@ -153,7 +153,7 @@ onMounted(() => {
           @click="remove_tag(tag)"
           class="hover:bg-white/20 rounded transition-colors"
         >
-          <X class="w-3 h-3" />
+          <x class="w-3 h-3" />
         </button>
       </span>
     </div>

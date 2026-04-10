@@ -8,7 +8,16 @@ import { useToast } from '@/composables/useToast'
 import { preprocess_markdown_image_size } from '@/utils/markdown'
 import CommentSection from '@/components/comment/CommentSection.vue'
 import BackToTop from '@/components/common/BackToTop.vue'
-import { Loader2, Pin, Calendar, Eye, Heart, MessageCircle, Folder, FileText } from 'lucide-vue-next'
+import {
+  Loader2,
+  Pin,
+  Calendar,
+  Eye,
+  Heart,
+  MessageCircle,
+  Folder,
+  FileText,
+} from 'lucide-vue-next'
 
 const router = useRouter()
 const route = useRoute()
@@ -129,23 +138,23 @@ onMounted(() => {
       </div>
 
       <!-- 封面图 -->
-      <div v-if="post.cover" class="rounded-xl overflow-hidden border border-[var(--c-border)] shadow-sm">
+      <div
+        v-if="post.cover"
+        class="rounded-xl overflow-hidden border border-[var(--c-border)] shadow-sm"
+      >
         <img :src="post.cover" :alt="post.title" class="w-full object-cover max-h-64" />
       </div>
 
       <!-- Markdown 内容 -->
       <div class="bg-white rounded-xl p-6 border border-[var(--c-border)] shadow-sm">
         <div class="band-markdown prose prose-slate max-w-none">
-          <markdown-renderer :content="processed_content" />
+          <MarkdownRenderer :content="processed_content" />
         </div>
       </div>
 
       <!-- 评论区 -->
       <div id="comments-section" v-if="post.comment_allowed">
-        <comment-section
-          target_type="post"
-          :target_id="post.id"
-        />
+        <CommentSection target_type="post" :target_id="post.id" />
       </div>
     </template>
 
@@ -162,6 +171,6 @@ onMounted(() => {
     </div>
 
     <!-- 回到顶部 -->
-    <back-to-top />
+    <BackToTop />
   </div>
 </template>

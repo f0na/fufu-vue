@@ -187,7 +187,7 @@
 
 .band-markdown pre .token.function,
 .band-markdown pre .token.class-name {
-  color: #7c3aed;
+  color: #0369a1;
 }
 
 .band-markdown pre .token.operator {
@@ -203,11 +203,11 @@
    ============================================ */
 
 /* 移除所有代码块相关容器的边框 */
-[data-theme="mygo"] .band-markdown .code-block-container,
-[data-theme="mygo"] .band-markdown .code-block-wrapper,
-[data-theme="mygo"] .band-markdown .code-block,
-[data-theme="mygo"] .band-markdown .code-node,
-[data-theme="mygo"] .band-markdown pre {
+[data-theme='mygo'] .band-markdown .code-block-container,
+[data-theme='mygo'] .band-markdown .code-block-wrapper,
+[data-theme='mygo'] .band-markdown .code-block,
+[data-theme='mygo'] .band-markdown .code-node,
+[data-theme='mygo'] .band-markdown pre {
   background: #fff5f6;
   border: 0 !important;
   border-width: 0 !important;
@@ -215,50 +215,50 @@
 }
 
 /* MyGO 主题 - 代码块头部 */
-[data-theme="mygo"] .band-markdown .code-block-header {
+[data-theme='mygo'] .band-markdown .code-block-header {
   border-bottom-color: rgba(255, 136, 153, 0.2);
 }
 
-[data-theme="mygo"] .band-markdown .code-header-title {
+[data-theme='mygo'] .band-markdown .code-header-title {
   color: #c53030;
 }
 
-[data-theme="mygo"] .band-markdown .code-header-main .icon-slot {
+[data-theme='mygo'] .band-markdown .code-header-main .icon-slot {
   color: #c53030;
 }
 
-[data-theme="mygo"] .band-markdown .code-action-btn:hover {
+[data-theme='mygo'] .band-markdown .code-action-btn:hover {
   background: rgba(255, 136, 153, 0.15);
   color: #c53030;
 }
 
-[data-theme="mygo"] .band-markdown code:not(pre code) {
+[data-theme='mygo'] .band-markdown code:not(pre code) {
   background: #fff5f6;
   color: #c53030;
 }
 
 /* Monaco 编辑器 */
-[data-theme="mygo"] .band-markdown .monaco-editor,
-[data-theme="mygo"] .band-markdown .monaco-editor-background,
-[data-theme="mygo"] .band-markdown .monaco-editor .margin {
+[data-theme='mygo'] .band-markdown .monaco-editor,
+[data-theme='mygo'] .band-markdown .monaco-editor-background,
+[data-theme='mygo'] .band-markdown .monaco-editor .margin {
   background: #fff5f6 !important;
 }
 
 /* 移除 Monaco 边框 */
-[data-theme="mygo"] .band-markdown .monaco-editor,
-[data-theme="mygo"] .band-markdown .monaco-editor .overflow-guard,
-[data-theme="mygo"] .band-markdown .code-editor-container,
-[data-theme="mygo"] .band-markdown .code-editor-layer {
+[data-theme='mygo'] .band-markdown .monaco-editor,
+[data-theme='mygo'] .band-markdown .monaco-editor .overflow-guard,
+[data-theme='mygo'] .band-markdown .code-editor-container,
+[data-theme='mygo'] .band-markdown .code-editor-layer {
   border: 0 !important;
   outline: none !important;
   box-shadow: none !important;
 }
 
-[data-theme="mygo"] .band-markdown .monaco-editor .line-numbers {
+[data-theme='mygo'] .band-markdown .monaco-editor .line-numbers {
   color: #ff8899 !important;
 }
 
-[data-theme="mygo"] .band-markdown .monaco-editor .current-line {
+[data-theme='mygo'] .band-markdown .monaco-editor .current-line {
   background: rgba(255, 136, 153, 0.1) !important;
 }
 
@@ -267,11 +267,11 @@
    ============================================ */
 
 /* 移除所有代码块相关容器的边框 */
-[data-theme="avemujica"] .band-markdown .code-block-container,
-[data-theme="avemujica"] .band-markdown .code-block-wrapper,
-[data-theme="avemujica"] .band-markdown .code-block,
-[data-theme="avemujica"] .band-markdown .code-node,
-[data-theme="avemujica"] .band-markdown pre {
+[data-theme='avemujica'] .band-markdown .code-block-container,
+[data-theme='avemujica'] .band-markdown .code-block-wrapper,
+[data-theme='avemujica'] .band-markdown .code-block,
+[data-theme='avemujica'] .band-markdown .code-node,
+[data-theme='avemujica'] .band-markdown pre {
   background: #f5f9fa;
   border: 0 !important;
   border-width: 0 !important;
@@ -279,50 +279,50 @@
 }
 
 /* Ave Mujica 主题 - 代码块头部 */
-[data-theme="avemujica"] .band-markdown .code-block-header {
+[data-theme='avemujica'] .band-markdown .code-block-header {
   border-bottom-color: rgba(90, 143, 168, 0.2);
 }
 
-[data-theme="avemujica"] .band-markdown .code-header-title {
+[data-theme='avemujica'] .band-markdown .code-header-title {
   color: #0e7490;
 }
 
-[data-theme="avemujica"] .band-markdown .code-header-main .icon-slot {
+[data-theme='avemujica'] .band-markdown .code-header-main .icon-slot {
   color: #0e7490;
 }
 
-[data-theme="avemujica"] .band-markdown .code-action-btn:hover {
+[data-theme='avemujica'] .band-markdown .code-action-btn:hover {
   background: rgba(90, 143, 168, 0.15);
   color: #0e7490;
 }
 
-[data-theme="avemujica"] .band-markdown code:not(pre code) {
+[data-theme='avemujica'] .band-markdown code:not(pre code) {
   background: #f5f9fa;
   color: #0e7490;
 }
 
 /* Monaco 编辑器 */
-[data-theme="avemujica"] .band-markdown .monaco-editor,
-[data-theme="avemujica"] .band-markdown .monaco-editor-background,
-[data-theme="avemujica"] .band-markdown .monaco-editor .margin {
+[data-theme='avemujica'] .band-markdown .monaco-editor,
+[data-theme='avemujica'] .band-markdown .monaco-editor-background,
+[data-theme='avemujica'] .band-markdown .monaco-editor .margin {
   background: #f5f9fa !important;
 }
 
 /* 移除 Monaco 边框 */
-[data-theme="avemujica"] .band-markdown .monaco-editor,
-[data-theme="avemujica"] .band-markdown .monaco-editor .overflow-guard,
-[data-theme="avemujica"] .band-markdown .code-editor-container,
-[data-theme="avemujica"] .band-markdown .code-editor-layer {
+[data-theme='avemujica'] .band-markdown .monaco-editor,
+[data-theme='avemujica'] .band-markdown .monaco-editor .overflow-guard,
+[data-theme='avemujica'] .band-markdown .code-editor-container,
+[data-theme='avemujica'] .band-markdown .code-editor-layer {
   border: 0 !important;
   outline: none !important;
   box-shadow: none !important;
 }
 
-[data-theme="avemujica"] .band-markdown .monaco-editor .line-numbers {
+[data-theme='avemujica'] .band-markdown .monaco-editor .line-numbers {
   color: #5a8fa8 !important;
 }
 
-[data-theme="avemujica"] .band-markdown .monaco-editor .current-line {
+[data-theme='avemujica'] .band-markdown .monaco-editor .current-line {
   background: rgba(90, 143, 168, 0.1) !important;
 }
 

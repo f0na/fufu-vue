@@ -197,9 +197,7 @@ onMounted(() => {
     <div v-else class="flex flex-col gap-6">
       <!-- 站点名称 -->
       <div class="flex flex-col gap-1.5">
-        <label class="text-sm text-slate-600"
-          >站点名称 <span class="text-red-500">*</span></label
-        >
+        <label class="text-sm text-slate-600">站点名称 <span class="text-red-500">*</span></label>
         <input
           v-model="form_data.name"
           type="text"
@@ -211,9 +209,7 @@ onMounted(() => {
 
       <!-- 网站链接 -->
       <div class="flex flex-col gap-1.5">
-        <label class="text-sm text-slate-600"
-          >网站链接 <span class="text-red-500">*</span></label
-        >
+        <label class="text-sm text-slate-600">网站链接 <span class="text-red-500">*</span></label>
         <input
           v-model="form_data.url"
           type="url"
@@ -314,6 +310,6 @@ onMounted(() => {
     </div>
 
     <!-- 回到顶部 -->
-    <back-to-top />
+    <BackToTop />
   </div>
 </template>

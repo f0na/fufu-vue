@@ -16,7 +16,17 @@ const is_replying = computed(() => props.replying_id === props.comment.id)
 
 const emit = defineEmits<{
   (e: 'reply', comment: Comment): void
-  (e: 'submit', data: { content: string; markdown: boolean; guest_name?: string; guest_email?: string; guest_avatar?: string }, comment_id: string): void
+  (
+    e: 'submit',
+    data: {
+      content: string
+      markdown: boolean
+      guest_name?: string
+      guest_email?: string
+      guest_avatar?: string
+    },
+    comment_id: string,
+  ): void
   (e: 'cancel'): void
 }>()
 
@@ -47,7 +57,13 @@ function handle_reply() {
 }
 
 // 提交回复
-function handle_submit(data: { content: string; markdown: boolean; guest_name?: string; guest_email?: string; guest_avatar?: string }) {
+function handle_submit(data: {
+  content: string
+  markdown: boolean
+  guest_name?: string
+  guest_email?: string
+  guest_avatar?: string
+}) {
   emit('submit', data, props.comment.id)
 }
 
@@ -107,7 +123,7 @@ const processed_content = computed(() => {
           <span>&nbsp;</span>
         </template>
         <!-- Markdown 格式渲染 -->
-        <markdown-renderer v-if="comment.markdown" :content="processed_content" />
+        <MarkdownRenderer v-if="comment.markdown" :content="processed_content" />
         <!-- 普通文本格式 -->
         <div v-else class="whitespace-pre-wrap">
           {{ comment.content }}
@@ -126,8 +142,11 @@ const processed_content = computed(() => {
       </div>
 
       <!-- 内嵌回复表单 -->
-      <div v-if="is_replying" class="mt-3 p-3 rounded-xl bg-slate-50 border border-[var(--c-border)]">
-        <comment-form
+      <div
+        v-if="is_replying"
+        class="mt-3 p-3 rounded-xl bg-slate-50 border border-[var(--c-border)]"
+      >
+        <CommentForm
           :reply_to_name="comment.author.name"
           @submit="handle_submit"
           @cancel="handle_cancel"
@@ -139,7 +158,7 @@ const processed_content = computed(() => {
         v-if="!is_reply && comment.replies.length > 0"
         class="mt-3 pl-3 border-l-2 border-[var(--c-border)]"
       >
-        <comment-item
+        <CommentItem
           v-for="reply in comment.replies"
           :key="reply.id"
           :comment="reply"

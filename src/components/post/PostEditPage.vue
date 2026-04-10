@@ -12,7 +12,8 @@ import { ArrowLeft, Upload, Eye, FileText, List } from 'lucide-vue-next'
 
 const router = useRouter()
 const route = useRoute()
-const { form_data, is_preview, toggle_preview, toc, import_markdown_file, reset_form } = usePostEdit()
+const { form_data, is_preview, toggle_preview, toc, import_markdown_file, reset_form } =
+  usePostEdit()
 
 // Monaco 编辑器引用
 const editor_ref = ref<InstanceType<typeof MonacoMarkdownEditor> | null>(null)
@@ -113,7 +114,9 @@ onMounted(() => {
 <template>
   <div class="flex flex-col gap-4">
     <!-- 顶部工具栏 -->
-    <div class="flex items-center justify-between px-4 py-2 rounded-lg bg-white border border-[var(--c-border)] shadow-sm">
+    <div
+      class="flex items-center justify-between px-4 py-2 rounded-lg bg-white border border-[var(--c-border)] shadow-sm"
+    >
       <!-- 返回按钮 -->
       <button
         @click="go_back"
@@ -145,9 +148,11 @@ onMounted(() => {
         <button
           @click="handle_toggle_preview"
           class="flex items-center gap-1 px-2 py-1 text-xs rounded-lg transition-colors"
-          :class="is_preview
-            ? 'bg-[var(--c-primary)] text-white'
-            : 'bg-[var(--c-primary-bg)] text-[var(--c-primary)] hover:bg-[var(--c-primary-bg)]/70'"
+          :class="
+            is_preview
+              ? 'bg-[var(--c-primary)] text-white'
+              : 'bg-[var(--c-primary-bg)] text-[var(--c-primary)] hover:bg-[var(--c-primary-bg)]/70'
+          "
         >
           <Eye class="w-3 h-3" />
           {{ is_preview ? '编辑' : '预览' }}
@@ -156,13 +161,16 @@ onMounted(() => {
     </div>
 
     <!-- 目录预览（仅在编辑模式下显示，放在编辑区上面） -->
-    <div v-if="!is_preview && toc.length > 0" class="p-4 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
+    <div
+      v-if="!is_preview && toc.length > 0"
+      class="p-4 rounded-xl bg-white border border-[var(--c-border)] shadow-sm"
+    >
       <h3 class="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1">
         <List class="w-3 h-3" />
         目录预览
       </h3>
       <nav class="text-xs">
-        <toc-tree :items="toc" />
+        <TocTree :items="toc" />
       </nav>
     </div>
 
@@ -171,7 +179,7 @@ onMounted(() => {
       <!-- 编辑模式 -->
       <div v-show="!is_preview">
         <!-- 编辑器工具栏 -->
-        <editor-toolbar
+        <EditorToolbar
           :vim-mode="vim_mode"
           @format="handle_format"
           @insert="handle_insert"
@@ -182,7 +190,7 @@ onMounted(() => {
 
         <!-- Monaco 编辑器 -->
         <div class="overflow-hidden pb-3">
-          <monaco-markdown-editor
+          <MonacoMarkdownEditor
             ref="editor_ref"
             :key="editor_key"
             v-model="form_data.content"
@@ -200,11 +208,11 @@ onMounted(() => {
           <p class="text-sm">暂无内容，切换到编辑模式开始撰写</p>
         </div>
         <!-- 渲染 Markdown -->
-        <markdown-renderer v-else :content="preview_content" />
+        <MarkdownRenderer v-else :content="preview_content" />
       </div>
     </div>
 
     <!-- 回到顶部 -->
-    <back-to-top />
+    <BackToTop />
   </div>
 </template>

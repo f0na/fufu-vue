@@ -122,7 +122,7 @@ defineExpose({
     >
       <div class="text-xs text-slate-400 mb-1">预览</div>
       <!-- Markdown 模式渲染 -->
-      <markdown-renderer
+      <MarkdownRenderer
         v-if="edit_mode === 'markdown'"
         :content="preview_content"
         class="comment-preview"

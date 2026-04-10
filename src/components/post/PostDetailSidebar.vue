@@ -132,9 +132,13 @@ function handle_search(e: KeyboardEvent) {
 }
 
 // 监听路由变化加载文章
-watch(() => route.params.id, () => {
-  load_post()
-}, { immediate: true })
+watch(
+  () => route.params.id,
+  () => {
+    load_post()
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -169,7 +173,9 @@ watch(() => route.params.id, () => {
         <button
           @click="handle_like"
           class="flex items-center gap-2 text-xs transition-all"
-          :class="is_liked ? 'text-[var(--c-primary)]' : 'text-slate-600 hover:text-[var(--c-primary)]'"
+          :class="
+            is_liked ? 'text-[var(--c-primary)]' : 'text-slate-600 hover:text-[var(--c-primary)]'
+          "
         >
           <Heart class="w-3.5 h-3.5" :class="is_liked ? 'fill-current' : ''" />
           <span>{{ like_count }}</span>
@@ -187,7 +193,10 @@ watch(() => route.params.id, () => {
     </div>
 
     <!-- 摘要 -->
-    <div v-if="post?.summary" class="p-3 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
+    <div
+      v-if="post?.summary"
+      class="p-3 rounded-xl bg-white border border-[var(--c-border)] shadow-sm"
+    >
       <h3 class="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1">
         <FileText class="w-3 h-3" />
         摘要
@@ -196,7 +205,10 @@ watch(() => route.params.id, () => {
     </div>
 
     <!-- 目录 -->
-    <div v-if="toc_items.length > 0" class="p-3 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
+    <div
+      v-if="toc_items.length > 0"
+      class="p-3 rounded-xl bg-white border border-[var(--c-border)] shadow-sm"
+    >
       <h3 class="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1">
         <List class="w-3 h-3" />
         目录

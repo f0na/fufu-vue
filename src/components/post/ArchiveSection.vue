@@ -42,18 +42,22 @@ const filtered_archive = computed(() => {
 
   // 按标签筛选（需要过滤每个月份的文章）
   if (selected_tag.value) {
-    archive = archive.map((group) => ({
-      ...group,
-      months: group.months.map((month) => ({
-        ...month,
-        posts: month.posts.filter((post) => {
-          // 需要从 posts 列表中获取文章详情来判断标签
-          // 由于归档数据不包含标签，这里需要简化处理或从 store 中查找
-          const full_post = post_store.posts.find((p) => p.id === post.id)
-          return full_post?.tags.includes(selected_tag.value) ?? false
-        }),
-      })).filter((month) => month.posts.length > 0),
-    })).filter((group) => group.months.length > 0)
+    archive = archive
+      .map((group) => ({
+        ...group,
+        months: group.months
+          .map((month) => ({
+            ...month,
+            posts: month.posts.filter((post) => {
+              // 需要从 posts 列表中获取文章详情来判断标签
+              // 由于归档数据不包含标签，这里需要简化处理或从 store 中查找
+              const full_post = post_store.posts.find((p) => p.id === post.id)
+              return full_post?.tags.includes(selected_tag.value) ?? false
+            }),
+          }))
+          .filter((month) => month.posts.length > 0),
+      }))
+      .filter((group) => group.months.length > 0)
   }
 
   // 排序
@@ -130,7 +134,9 @@ onMounted(() => {
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2">
                   <span class="text-xs text-slate-400">{{ format_date(post.published_at) }}</span>
-                  <span class="text-sm text-slate-700 group-hover:text-[var(--c-primary)] transition-colors">
+                  <span
+                    class="text-sm text-slate-700 group-hover:text-[var(--c-primary)] transition-colors"
+                  >
                     {{ post.title }}
                   </span>
                 </div>
@@ -148,6 +154,6 @@ onMounted(() => {
     </template>
 
     <!-- 回到顶部 -->
-    <back-to-top />
+    <BackToTop />
   </div>
 </template>

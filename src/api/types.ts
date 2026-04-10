@@ -291,6 +291,21 @@ export interface FileInfo {
   data: string
 }
 
+// 已上传文件信息（管理员视角）
+export interface UploadedFile {
+  id: string
+  url: string
+  key: string
+  original_filename: string
+  file_size: number
+  mime_type: string
+  file_type: 'cover' | 'markdown' | 'gallery'
+  created_at: string
+}
+
+// 文件类型筛选
+export type FileTypeFilter = 'cover' | 'markdown' | 'gallery'
+
 // ========== 邮件相关 ==========
 
 export interface EmailData {

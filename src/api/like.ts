@@ -2,7 +2,13 @@
  * 点赞 API（通用）
  */
 import { get, post } from './request'
-import type { LikeTarget, LikeRequest, LikeResponse, LikeCheckResponse, LikeCountResponse } from './types'
+import type {
+  LikeTarget,
+  LikeRequest,
+  LikeResponse,
+  LikeCheckResponse,
+  LikeCountResponse,
+} from './types'
 
 /**
  * 点赞/取消点赞（toggle）

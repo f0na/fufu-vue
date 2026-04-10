@@ -39,7 +39,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <Transition name="fade">
+  <transition name="fade">
     <button
       v-if="show_button"
       @click="scroll_to_top"
@@ -48,7 +48,7 @@ onUnmounted(() => {
     >
       <ArrowUp class="w-5 h-5" />
     </button>
-  </Transition>
+  </transition>
 </template>
 
 <style scoped>

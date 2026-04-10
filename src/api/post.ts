@@ -41,10 +41,7 @@ export function get_post(id_or_slug: string): Promise<PostDetail> {
 /**
  * 获取归档列表
  */
-export function get_archive(params?: {
-  year?: number
-  tag?: string
-}): Promise<ArchiveGroup[]> {
+export function get_archive(params?: { year?: number; tag?: string }): Promise<ArchiveGroup[]> {
   return get<ArchiveGroup[]>('/posts/archive', { params })
 }
 

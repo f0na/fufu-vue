@@ -79,9 +79,11 @@ const themes = {
         :key="theme.name"
         @click="set_theme(theme.name)"
         class="px-3 py-1.5 rounded-lg text-sm font-medium shadow-md transition-all duration-300"
-        :class="current_theme.name === theme.name
-          ? 'ring-2 ring-offset-2'
-          : 'opacity-70 hover:opacity-100'"
+        :class="
+          current_theme.name === theme.name
+            ? 'ring-2 ring-offset-2'
+            : 'opacity-70 hover:opacity-100'
+        "
         :style="{
           backgroundColor: theme.colors.primary,
           color: theme.colors.bg,
@@ -93,9 +95,11 @@ const themes = {
 
     <!-- 内容区 -->
     <div class="max-w-4xl mx-auto py-8 px-4">
-      <div class="bg-white rounded-xl p-6 shadow-lg border border-[var(--c-border)] transition-all duration-300">
+      <div
+        class="bg-white rounded-xl p-6 shadow-lg border border-[var(--c-border)] transition-all duration-300"
+      >
         <div class="band-markdown prose max-w-none">
-          <markdown-renderer :content="demo_content" />
+          <MarkdownRenderer :content="demo_content" />
         </div>
       </div>
     </div>

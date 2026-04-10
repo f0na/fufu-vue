@@ -58,22 +58,22 @@ defineExpose({
 </script>
 
 <template>
-  <alert-dialog v-model:open="visible">
-    <alert-dialog-content>
-      <alert-dialog-header>
-        <alert-dialog-title>{{ options.title }}</alert-dialog-title>
-        <alert-dialog-description>{{ options.message }}</alert-dialog-description>
-      </alert-dialog-header>
-      <alert-dialog-footer>
-        <alert-dialog-cancel @click="handle_cancel">
+  <AlertDialog v-model:open="visible">
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>{{ options.title }}</AlertDialogTitle>
+        <AlertDialogDescription>{{ options.message }}</AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel @click="handle_cancel">
           {{ options.cancel_text }}
-        </alert-dialog-cancel>
-        <alert-dialog-action as-child>
+        </AlertDialogCancel>
+        <AlertDialogAction as-child>
           <Button :variant="options.danger ? 'destructive' : 'default'" @click="handle_confirm">
             {{ options.confirm_text }}
           </Button>
-        </alert-dialog-action>
-      </alert-dialog-footer>
-    </alert-dialog-content>
-  </alert-dialog>
+        </AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
 </template>

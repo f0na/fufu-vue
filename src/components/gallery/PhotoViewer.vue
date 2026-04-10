@@ -24,7 +24,7 @@ const emit = defineEmits<{
 const is_visible = computed(() => props.photo !== null)
 
 // 处理图片 URL，添加自动校正 EXIF 方向参数
-const processed_src = computed(() => props.photo ? add_auto_orient(props.photo.src) : '')
+const processed_src = computed(() => (props.photo ? add_auto_orient(props.photo.src) : ''))
 
 function handle_close() {
   emit('close')
@@ -33,14 +33,14 @@ function handle_close() {
 
 <template>
   <Teleport to="body">
-    <Transition name="fade">
+    <transition name="fade">
       <div
         v-if="is_visible"
         class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60"
         @click.self="handle_close"
       >
         <!-- 照片容器 -->
-        <Transition name="zoom">
+        <transition name="zoom">
           <div v-if="photo" class="bg-white p-4 shadow-2xl" @click.self>
             <img
               :src="processed_src"
@@ -49,17 +49,17 @@ function handle_close() {
               draggable="false"
             />
           </div>
-        </Transition>
+        </transition>
 
         <!-- 关闭按钮 -->
         <button
           class="absolute top-4 right-4 w-12 h-12 flex items-center justify-center bg-white/20 hover:bg-white/40 rounded-full transition-colors"
           @click="handle_close"
         >
-          <X class="w-6 h-6 text-white" />
+          <x class="w-6 h-6 text-white" />
         </button>
       </div>
-    </Transition>
+    </transition>
   </Teleport>
 </template>
 

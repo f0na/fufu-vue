@@ -291,7 +291,10 @@ watch(edit_mode, (new_mode) => {
               :alt="bangumi_info.title"
               class="w-full h-full object-cover"
             />
-            <div v-else class="w-full h-full bg-[var(--c-primary-bg)] flex items-center justify-center">
+            <div
+              v-else
+              class="w-full h-full bg-[var(--c-primary-bg)] flex items-center justify-center"
+            >
               <ImageIcon class="text-slate-300 w-6 h-6" />
             </div>
           </div>
@@ -307,7 +310,10 @@ watch(edit_mode, (new_mode) => {
           </div>
 
           <!-- 标签 -->
-          <div v-if="bangumi_info.tags && bangumi_info.tags.length > 0" class="flex flex-wrap gap-1.5 mb-3">
+          <div
+            v-if="bangumi_info.tags && bangumi_info.tags.length > 0"
+            class="flex flex-wrap gap-1.5 mb-3"
+          >
             <span
               v-for="tag in bangumi_info.tags"
               :key="tag"
@@ -327,12 +333,17 @@ watch(edit_mode, (new_mode) => {
       <!-- 追番记录列表 -->
       <div>
         <div class="flex items-center justify-between mb-3">
-          <h2 class="text-sm font-medium text-slate-700">追番记录 ({{ filtered_records.length }})</h2>
+          <h2 class="text-sm font-medium text-slate-700">
+            追番记录 ({{ filtered_records.length }})
+          </h2>
           <button
             @click="show_watchlist_section = !show_watchlist_section"
             class="text-xs text-slate-500 hover:text-[var(--c-primary)] transition-colors flex items-center gap-1"
           >
-            <ChevronUp class="w-4 h-4 transition-transform" :class="show_watchlist_section ? '' : '-rotate-180'" />
+            <ChevronUp
+              class="w-4 h-4 transition-transform"
+              :class="show_watchlist_section ? '' : '-rotate-180'"
+            />
             {{ show_watchlist_section ? '隐藏' : '显示' }}
           </button>
         </div>
@@ -344,153 +355,160 @@ watch(edit_mode, (new_mode) => {
             v-if="edit_mode === 'add'"
             class="mb-4 p-4 bg-[var(--c-primary-bg)]/30 rounded-xl border border-[var(--c-primary)]/20"
           >
-          <div class="grid grid-cols-2 gap-3 mb-3">
-            <div class="flex flex-col gap-1">
-              <label class="text-xs text-slate-500">评分</label>
-              <simple-number-input v-model="add_form.rating" :min="0" :max="10" :step="0.1" />
+            <div class="grid grid-cols-2 gap-3 mb-3">
+              <div class="flex flex-col gap-1">
+                <label class="text-xs text-slate-500">评分</label>
+                <SimpleNumberInput v-model="add_form.rating" :min="0" :max="10" :step="0.1" />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="text-xs text-slate-500">进度</label>
+                <input
+                  v-model="add_form.progress"
+                  type="text"
+                  placeholder="如: 1-12, SP1"
+                  class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white focus:border-[var(--c-primary)] focus:ring-2 focus:ring-[var(--c-primary)]/20 focus:outline-none"
+                />
+              </div>
             </div>
-            <div class="flex flex-col gap-1">
-              <label class="text-xs text-slate-500">进度</label>
-              <input
-                v-model="add_form.progress"
-                type="text"
-                placeholder="如: 1-12, SP1"
-                class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white focus:border-[var(--c-primary)] focus:ring-2 focus:ring-[var(--c-primary)]/20 focus:outline-none"
-              />
+            <div class="grid grid-cols-2 gap-3 mb-3">
+              <div class="flex flex-col gap-1">
+                <label class="text-xs text-slate-500">观看日期</label>
+                <DateInput v-model="add_form.watch_date" placeholder="选择日期" />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="text-xs text-slate-500">备注</label>
+                <input
+                  v-model="add_form.notes"
+                  type="text"
+                  placeholder="感想或备注"
+                  class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white focus:border-[var(--c-primary)] focus:ring-2 focus:ring-[var(--c-primary)]/20 focus:outline-none"
+                />
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button
+                @click="set_edit_mode('none')"
+                class="px-4 py-2 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-white transition-colors"
+              >
+                取消
+              </button>
+              <button
+                @click="save_add"
+                :disabled="add_loading"
+                class="px-4 py-2 text-sm rounded-lg bg-[var(--c-primary)] text-white hover:shadow-md transition-all disabled:opacity-50"
+              >
+                {{ add_loading ? '添加中...' : '添加' }}
+              </button>
             </div>
           </div>
-          <div class="grid grid-cols-2 gap-3 mb-3">
-            <div class="flex flex-col gap-1">
-              <label class="text-xs text-slate-500">观看日期</label>
-              <date-input v-model="add_form.watch_date" placeholder="选择日期" />
-            </div>
-            <div class="flex flex-col gap-1">
-              <label class="text-xs text-slate-500">备注</label>
-              <input
-                v-model="add_form.notes"
-                type="text"
-                placeholder="感想或备注"
-                class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white focus:border-[var(--c-primary)] focus:ring-2 focus:ring-[var(--c-primary)]/20 focus:outline-none"
-              />
-            </div>
-          </div>
-          <div class="flex gap-2">
-            <button
-              @click="set_edit_mode('none')"
-              class="px-4 py-2 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-white transition-colors"
-            >
-              取消
-            </button>
-            <button
-              @click="save_add"
-              :disabled="add_loading"
-              class="px-4 py-2 text-sm rounded-lg bg-[var(--c-primary)] text-white hover:shadow-md transition-all disabled:opacity-50"
-            >
-              {{ add_loading ? '添加中...' : '添加' }}
-            </button>
-          </div>
-        </div>
 
-        <!-- 记录卡片 -->
-        <div v-if="filtered_records.length > 0" class="space-y-3">
-          <div
-            v-for="record in filtered_records"
-            :key="record.id"
-            class="p-4 bg-white rounded-xl border border-[var(--c-border)] shadow-sm transition-all"
-            :class="{
-              'opacity-50': !record.visible,
-              'cursor-pointer hover:shadow-md ring-2 ring-[var(--c-primary)]': edit_mode !== 'none' && edit_mode !== 'add',
-            }"
-            @click="handle_record_click(record)"
-          >
-            <!-- 编辑模式 -->
-            <template v-if="editing_record?.id === record.id">
-              <div class="grid grid-cols-2 gap-3 mb-3">
-                <div class="flex flex-col gap-1">
-                  <label class="text-xs text-slate-500">评分</label>
-                  <number-input v-model="edit_form.rating" :min="0" :max="10" :step="0.1" />
+          <!-- 记录卡片 -->
+          <div v-if="filtered_records.length > 0" class="space-y-3">
+            <div
+              v-for="record in filtered_records"
+              :key="record.id"
+              class="p-4 bg-white rounded-xl border border-[var(--c-border)] shadow-sm transition-all"
+              :class="{
+                'opacity-50': !record.visible,
+                'cursor-pointer hover:shadow-md ring-2 ring-[var(--c-primary)]':
+                  edit_mode !== 'none' && edit_mode !== 'add',
+              }"
+              @click="handle_record_click(record)"
+            >
+              <!-- 编辑模式 -->
+              <template v-if="editing_record?.id === record.id">
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                  <div class="flex flex-col gap-1">
+                    <label class="text-xs text-slate-500">评分</label>
+                    <SimpleNumberInput v-model="edit_form.rating" :min="0" :max="10" :step="0.1" />
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <label class="text-xs text-slate-500">进度</label>
+                    <input
+                      v-model="edit_form.progress"
+                      type="text"
+                      placeholder="如: 1-12, SP1"
+                      class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white focus:border-[var(--c-primary)] focus:ring-2 focus:ring-[var(--c-primary)]/20 focus:outline-none"
+                    />
+                  </div>
                 </div>
-                <div class="flex flex-col gap-1">
-                  <label class="text-xs text-slate-500">进度</label>
-                  <input
-                    v-model="edit_form.progress"
-                    type="text"
-                    placeholder="如: 1-12, SP1"
-                    class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white focus:border-[var(--c-primary)] focus:ring-2 focus:ring-[var(--c-primary)]/20 focus:outline-none"
-                  />
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                  <div class="flex flex-col gap-1">
+                    <label class="text-xs text-slate-500">观看日期</label>
+                    <DateInput v-model="edit_form.watch_date" placeholder="选择日期" />
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <label class="text-xs text-slate-500">备注</label>
+                    <input
+                      v-model="edit_form.notes"
+                      type="text"
+                      placeholder="感想或备注"
+                      class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white focus:border-[var(--c-primary)] focus:ring-2 focus:ring-[var(--c-primary)]/20 focus:outline-none"
+                    />
+                  </div>
                 </div>
-              </div>
-              <div class="grid grid-cols-2 gap-3 mb-3">
-                <div class="flex flex-col gap-1">
-                  <label class="text-xs text-slate-500">观看日期</label>
-                  <date-input v-model="edit_form.watch_date" placeholder="选择日期" />
+                <div class="flex gap-2">
+                  <button
+                    @click.stop="cancel_edit"
+                    class="px-3 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50 transition-colors"
+                  >
+                    取消
+                  </button>
+                  <button
+                    @click.stop="save_edit"
+                    :disabled="edit_loading"
+                    class="px-3 py-1.5 text-sm rounded-lg bg-[var(--c-primary)] text-white hover:shadow-md transition-all disabled:opacity-50"
+                  >
+                    {{ edit_loading ? '保存中...' : '保存' }}
+                  </button>
                 </div>
-                <div class="flex flex-col gap-1">
-                  <label class="text-xs text-slate-500">备注</label>
-                  <input
-                    v-model="edit_form.notes"
-                    type="text"
-                    placeholder="感想或备注"
-                    class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white focus:border-[var(--c-primary)] focus:ring-2 focus:ring-[var(--c-primary)]/20 focus:outline-none"
-                  />
-                </div>
-              </div>
-              <div class="flex gap-2">
-                <button
-                  @click.stop="cancel_edit"
-                  class="px-3 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50 transition-colors"
-                >
-                  取消
-                </button>
-                <button
-                  @click.stop="save_edit"
-                  :disabled="edit_loading"
-                  class="px-3 py-1.5 text-sm rounded-lg bg-[var(--c-primary)] text-white hover:shadow-md transition-all disabled:opacity-50"
-                >
-                  {{ edit_loading ? '保存中...' : '保存' }}
-                </button>
-              </div>
-            </template>
+              </template>
 
-            <!-- 查看模式 -->
-            <template v-else>
-              <div class="flex items-start justify-between gap-3">
-                <div class="flex-1">
-                  <div class="flex items-center gap-2 mb-2">
-                    <span
-                      v-if="record.rating"
-                      class="px-2 py-0.5 text-xs rounded-lg bg-amber-100 text-amber-700 font-medium"
+              <!-- 查看模式 -->
+              <template v-else>
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-2">
+                      <span
+                        v-if="record.rating"
+                        class="px-2 py-0.5 text-xs rounded-lg bg-amber-100 text-amber-700 font-medium"
+                      >
+                        {{ record.rating }} 分
+                      </span>
+                      <span v-if="!record.visible" class="text-xs text-slate-400">(已隐藏)</span>
+                    </div>
+                    <div v-if="record.progress" class="text-sm text-slate-600 mb-1">
+                      进度: {{ record.progress }}
+                    </div>
+                    <div v-if="record.watch_date" class="text-xs text-slate-500 mb-1">
+                      观看日期: {{ record.watch_date }}
+                    </div>
+                    <div
+                      v-if="record.notes"
+                      class="text-sm text-slate-600 bg-slate-50 rounded-lg p-2 mt-2"
                     >
-                      {{ record.rating }} 分
-                    </span>
-                    <span v-if="!record.visible" class="text-xs text-slate-400">(已隐藏)</span>
-                  </div>
-                  <div v-if="record.progress" class="text-sm text-slate-600 mb-1">
-                    进度: {{ record.progress }}
-                  </div>
-                  <div v-if="record.watch_date" class="text-xs text-slate-500 mb-1">
-                    观看日期: {{ record.watch_date }}
-                  </div>
-                  <div v-if="record.notes" class="text-sm text-slate-600 bg-slate-50 rounded-lg p-2 mt-2">
-                    {{ record.notes }}
+                      {{ record.notes }}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </template>
+              </template>
+            </div>
           </div>
-        </div>
 
-        <!-- 空状态 -->
-        <div v-else-if="show_watchlist_section" class="py-8 text-center text-slate-400">
-          <Inbox class="w-8 h-8 mx-auto mb-2 opacity-50" />
-          <p class="text-sm">暂无追番记录</p>
+          <!-- 空状态 -->
+          <div v-else-if="show_watchlist_section" class="py-8 text-center text-slate-400">
+            <Inbox class="w-8 h-8 mx-auto mb-2 opacity-50" />
+            <p class="text-sm">暂无追番记录</p>
+          </div>
         </div>
       </div>
-    </div>
 
       <!-- 评论区 -->
-      <div id="comments-section" class="bg-white rounded-xl shadow-sm border border-[var(--c-border)] p-4">
-        <comment-section target_type="bangumi" :target_id="bangumi_id" />
+      <div
+        id="comments-section"
+        class="bg-white rounded-xl shadow-sm border border-[var(--c-border)] p-4"
+      >
+        <CommentSection target_type="bangumi" :target_id="bangumi_id" />
       </div>
     </template>
   </div>

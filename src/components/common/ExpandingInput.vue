@@ -55,25 +55,37 @@ const expand_width = computed(() => props.expandWidth ?? 280)
       :disabled="disabled"
       :list="list"
       data-slot="expanding-input"
-      :class="cn(
-        'absolute top-0 left-0',
-        'px-2 py-1.5 text-sm rounded-lg',
-        'border bg-white',
-        'border-slate-200',
-        'focus:border-[var(--c-primary)] focus:ring-2 focus:ring-[var(--c-primary)]/20',
-        'focus:outline-none',
-        'transition-all duration-300',
-        'placeholder:text-slate-400',
-        'disabled:opacity-50 disabled:cursor-not-allowed',
-        'shadow-sm',
-        props.class
-      )"
+      :class="
+        cn(
+          'absolute top-0 left-0',
+          'px-2 py-1.5 text-sm rounded-lg',
+          'border bg-white',
+          'border-slate-200',
+          'focus:border-[var(--c-primary)] focus:ring-2 focus:ring-[var(--c-primary)]/20',
+          'focus:outline-none',
+          'transition-all duration-300',
+          'placeholder:text-slate-400',
+          'disabled:opacity-50 disabled:cursor-not-allowed',
+          'shadow-sm',
+          props.class,
+        )
+      "
       :style="{
         width: is_focused ? `${expand_width}px` : '100%',
-        zIndex: is_focused ? 50 : 1
+        zIndex: is_focused ? 50 : 1,
       }"
-      @focus="(e) => { is_focused = true; emits('focus', e) }"
-      @blur="(e) => { is_focused = false; emits('blur', e) }"
+      @focus="
+        (e) => {
+          is_focused = true
+          emits('focus', e)
+        }
+      "
+      @blur="
+        (e) => {
+          is_focused = false
+          emits('blur', e)
+        }
+      "
       @keydown="(e) => emits('keydown', e)"
     />
   </div>

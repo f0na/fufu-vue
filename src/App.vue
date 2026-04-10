@@ -39,7 +39,7 @@ watch(
 </script>
 
 <template>
-  <router-view />
-  <toast />
-  <confirm-modal ref="confirm_modal_ref" />
+  <RouterView />
+  <Toast />
+  <ConfirmModal ref="confirm_modal_ref" />
 </template>

@@ -243,13 +243,18 @@ watch(
           <!-- 左侧内容 -->
           <div class="flex-1 min-w-0">
             <!-- 置顶标记 -->
-            <div v-if="post.top" class="flex items-center gap-1 mb-2 text-xs text-[var(--c-primary)]">
+            <div
+              v-if="post.top"
+              class="flex items-center gap-1 mb-2 text-xs text-[var(--c-primary)]"
+            >
               <Pin class="w-3 h-3" />
               <span>置顶</span>
             </div>
 
             <!-- 标题 -->
-            <h3 class="text-base font-medium text-slate-700 group-hover:text-[var(--c-primary)] transition-colors mb-2">
+            <h3
+              class="text-base font-medium text-slate-700 group-hover:text-[var(--c-primary)] transition-colors mb-2"
+            >
               {{ post.title }}
             </h3>
 
@@ -289,10 +294,7 @@ watch(
 
             <!-- 状态标记（管理模式下） -->
             <div v-if="edit_mode !== 'none' && post.status !== 'published'" class="mt-2">
-              <span
-                class="px-2 py-1 text-xs rounded-lg"
-                :class="status_map[post.status]?.class"
-              >
+              <span class="px-2 py-1 text-xs rounded-lg" :class="status_map[post.status]?.class">
                 {{ status_map[post.status]?.label }}
               </span>
             </div>
@@ -300,11 +302,7 @@ watch(
 
           <!-- 右侧封面图 -->
           <div v-if="post.cover" class="w-24 h-24 rounded-lg overflow-hidden shrink-0">
-            <img
-              :src="post.cover"
-              :alt="post.title"
-              class="w-full h-full object-cover"
-            />
+            <img :src="post.cover" :alt="post.title" class="w-full h-full object-cover" />
           </div>
         </div>
       </div>
@@ -332,6 +330,6 @@ watch(
     </div>
 
     <!-- 回到顶部 -->
-    <back-to-top />
+    <BackToTop />
   </div>
 </template>

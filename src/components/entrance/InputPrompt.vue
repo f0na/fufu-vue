@@ -15,10 +15,7 @@ const input_value = ref('')
 </script>
 
 <template>
-  <div
-    class="fixed inset-0 flex items-center justify-center z-[110]"
-    @click.self="emit('cancel')"
-  >
+  <div class="fixed inset-0 flex items-center justify-center z-[110]" @click.self="emit('cancel')">
     <div class="flex flex-col gap-4 p-5 rounded-xl bg-white border border-slate-200 shadow-lg w-72">
       <!-- 标题 -->
       <h3 class="text-lg font-bold text-slate-700">{{ title }}</h3>
@@ -36,10 +33,7 @@ const input_value = ref('')
 
       <!-- 按钮 -->
       <div class="flex gap-3">
-        <button
-          @click="emit('cancel')"
-          class="px-4 py-2 rounded-lg bg-slate-100 text-slate-600"
-        >
+        <button @click="emit('cancel')" class="px-4 py-2 rounded-lg bg-slate-100 text-slate-600">
           取消
         </button>
         <button

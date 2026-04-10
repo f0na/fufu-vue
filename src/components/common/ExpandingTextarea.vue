@@ -42,7 +42,9 @@ function auto_resize() {
   textarea.style.height = 'auto'
 
   const line_height = parseInt(getComputedStyle(textarea).lineHeight) || 20
-  const padding = parseInt(getComputedStyle(textarea).paddingTop) + parseInt(getComputedStyle(textarea).paddingBottom) || 0
+  const padding =
+    parseInt(getComputedStyle(textarea).paddingTop) +
+      parseInt(getComputedStyle(textarea).paddingBottom) || 0
 
   const content_lines = Math.ceil(textarea.scrollHeight / line_height)
   const target_lines = Math.min(content_lines, is_focused.value ? max_rows.value : min_rows.value)
@@ -95,21 +97,23 @@ onMounted(() => {
       v-model="modelValue"
       :placeholder="placeholder"
       data-slot="expanding-textarea"
-      :class="cn(
-        'absolute top-0 left-0',
-        'px-2 py-1.5 text-sm rounded-lg',
-        'border bg-white',
-        'border-slate-200',
-        'focus:border-[var(--c-primary)] focus:ring-2 focus:ring-[var(--c-primary)]/20',
-        'focus:outline-none',
-        'transition-all duration-300',
-        'resize-none overflow-hidden',
-        'placeholder:text-slate-400',
-        'shadow-sm'
-      )"
+      :class="
+        cn(
+          'absolute top-0 left-0',
+          'px-2 py-1.5 text-sm rounded-lg',
+          'border bg-white',
+          'border-slate-200',
+          'focus:border-[var(--c-primary)] focus:ring-2 focus:ring-[var(--c-primary)]/20',
+          'focus:outline-none',
+          'transition-all duration-300',
+          'resize-none overflow-hidden',
+          'placeholder:text-slate-400',
+          'shadow-sm',
+        )
+      "
       :style="{
         width: is_focused ? `${expand_width}px` : '100%',
-        zIndex: is_focused ? 50 : 1
+        zIndex: is_focused ? 50 : 1,
       }"
       @focus="handle_focus"
       @blur="handle_blur"

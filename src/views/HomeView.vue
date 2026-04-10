@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter, useRoute, RouterView } from 'vue-router'
 import NavMenu from '@/components/common/NavMenu.vue'
 import HeaderBanner from '@/components/home/HeaderBanner.vue'
 import ProfileWidget from '@/components/home/ProfileWidget.vue'
@@ -36,11 +36,12 @@ function handle_secret_click() {
 
 // 路由 key，用于强制刷新 router-view
 const route_key = computed(() => route.fullPath)
-const is_bangumi_page = computed(() =>
-  route.name === 'bangumi' ||
-  route.name === 'bangumi-detail' ||
-  route.name === 'bangumi-add' ||
-  route.name === 'bangumi-edit'
+const is_bangumi_page = computed(
+  () =>
+    route.name === 'bangumi' ||
+    route.name === 'bangumi-detail' ||
+    route.name === 'bangumi-add' ||
+    route.name === 'bangumi-edit',
 )
 
 // 是否是番剧列表页
@@ -56,11 +57,12 @@ const is_links_page = computed(() => route.name === 'links')
 const is_gallery_page = computed(() => route.name === 'gallery-list')
 
 // 是否是友人帐页
-const is_friends_page = computed(() =>
-  route.name === 'friends' ||
-  route.name === 'friends-add' ||
-  route.name === 'friends-edit' ||
-  route.name === 'friends-approve'
+const is_friends_page = computed(
+  () =>
+    route.name === 'friends' ||
+    route.name === 'friends-add' ||
+    route.name === 'friends-edit' ||
+    route.name === 'friends-approve',
 )
 
 // 是否是文章列表页
@@ -70,10 +72,7 @@ const is_posts_list = computed(() => route.name === 'posts')
 const is_posts_detail = computed(() => route.name === 'posts-detail')
 
 // 是否是文章编辑页
-const is_posts_edit = computed(() =>
-  route.name === 'posts-add' ||
-  route.name === 'posts-edit'
-)
+const is_posts_edit = computed(() => route.name === 'posts-add' || route.name === 'posts-edit')
 
 // 是否是归档页
 const is_archive_page = computed(() => route.name === 'archive')
@@ -156,79 +155,79 @@ onUnmounted(() => {
 <template>
   <div class="min-h-screen flex flex-col bg-[var(--c-bg)]">
     <!-- 导航菜单 -->
-    <nav-menu />
+    <NavMenu />
 
     <!-- 顶部横幅 -->
-    <header-banner :height="header_height" />
+    <HeaderBanner :height="header_height" />
 
     <!-- 主内容区 -->
     <main class="flex-1 flex justify-center px-4 py-8 pb-16 md:pb-8 md:px-8">
       <div class="w-full md:w-[61.8%] flex gap-4 md:gap-6 relative">
         <!-- 左侧小组件区 -->
         <aside class="hidden md:flex flex-col gap-4 w-[18%] shrink-0">
-          <profile-widget />
-          <announcement-widget />
+          <ProfileWidget />
+          <AnnouncementWidget />
           <!-- 管理员卡片 - 管理员登录后显示 -->
-          <operation-card v-if="is_logged_in && is_admin" />
+          <OperationCard v-if="is_logged_in && is_admin" />
         </aside>
 
         <!-- 中间内容区 -->
         <div class="w-[67%] min-w-0 shrink-0">
-          <router-view :key="route_key" />
+          <RouterView :key="route_key" />
         </div>
 
         <!-- 右侧边栏 -->
         <aside class="hidden md:flex flex-col gap-4 w-[15%] shrink-0">
           <!-- 番剧列表页显示筛选侧边栏 -->
           <template v-if="is_bangumi_list">
-            <bangumi-sidebar />
+            <BangumiSidebar />
           </template>
           <!-- 番剧详情页显示详情侧边栏 -->
           <template v-else-if="is_bangumi_detail">
-            <bangumi-detail-sidebar @scroll-comments="handle_scroll_comments" />
+            <BangumiDetailSidebar @scroll-comments="handle_scroll_comments" />
           </template>
           <!-- 链接页显示筛选侧边栏 -->
           <template v-else-if="is_links_page">
-            <links-sidebar />
+            <LinksSidebar />
           </template>
           <!-- 相册页显示筛选侧边栏 -->
           <template v-else-if="is_gallery_page">
-            <gallery-sidebar />
+            <GallerySidebar />
           </template>
           <!-- 友人帐页显示侧边栏 -->
           <template v-else-if="is_friends_page">
-            <friends-sidebar />
+            <FriendsSidebar />
           </template>
           <!-- 文章列表页显示筛选侧边栏 -->
           <template v-else-if="is_posts_list">
-            <post-sidebar />
+            <PostSidebar />
           </template>
           <!-- 文章详情页显示详情侧边栏 -->
           <template v-else-if="is_posts_detail">
-            <post-detail-sidebar @scroll-comments="handle_scroll_comments" />
+            <PostDetailSidebar @scroll-comments="handle_scroll_comments" />
           </template>
           <!-- 文章编辑页显示编辑侧边栏 -->
           <template v-else-if="is_posts_edit">
-            <post-edit-sidebar />
+            <PostEditSidebar />
           </template>
           <!-- 归档页显示筛选侧边栏 -->
           <template v-else-if="is_archive_page">
-            <archive-sidebar />
+            <ArchiveSidebar />
           </template>
           <!-- 其他页面显示搜索框 -->
           <template v-else>
-            <search-box />
+            <SearchBox />
           </template>
         </aside>
 
         <!-- 看板娘 - 相对主内容区左侧 -->
         <div class="hidden md:block absolute -left-48 top-0">
-          <mascot-area @secret-click="handle_secret_click" />
+          <MascotArea @secret-click="handle_secret_click" />
         </div>
       </div>
     </main>
 
     <!-- 页脚 -->
-    <footer-section />
+    <FooterSection />
   </div>
 </template>

@@ -112,7 +112,7 @@ export function get_text_color_for_bg(bg_color: string, min_ratio: number = 3.9)
 export function generate_tag_colors(
   primary_color: string,
   min_ratio: number = 4.5,
-): { tagBg: string; tagText: string } {
+): { tag_bg: string; tag_text: string } {
   const { r, g, b } = hex_to_rgb(primary_color)
 
   // 方案1：主题色浅色背景 + 深色文字
@@ -126,14 +126,14 @@ export function generate_tag_colors(
     const bg_color = rgb_to_hex(bg_r, bg_g, bg_b)
 
     if (get_contrast_ratio(bg_color, dark_text) >= min_ratio) {
-      return { tagBg: bg_color, tagText: dark_text }
+      return { tag_bg: bg_color, tag_text: dark_text }
     }
   }
 
   // 方案2：主题色背景 + 白色文字
   const white_text = '#ffffff'
   if (get_contrast_ratio(primary_color, white_text) >= min_ratio) {
-    return { tagBg: primary_color, tagText: white_text }
+    return { tag_bg: primary_color, tag_text: white_text }
   }
 
   // 方案3：加深主题色背景 + 白色文字
@@ -144,7 +144,7 @@ export function generate_tag_colors(
     const bg_color = rgb_to_hex(bg_r, bg_g, bg_b)
 
     if (get_contrast_ratio(bg_color, white_text) >= min_ratio) {
-      return { tagBg: bg_color, tagText: white_text }
+      return { tag_bg: bg_color, tag_text: white_text }
     }
   }
 
@@ -158,7 +158,7 @@ export function generate_tag_colors(
   const contrast_dark = get_contrast_ratio(primary_color, white_text)
 
   if (contrast_light > contrast_dark) {
-    return { tagBg: light_bg_30, tagText: dark_text }
+    return { tag_bg: light_bg_30, tag_text: dark_text }
   }
-  return { tagBg: primary_color, tagText: white_text }
+  return { tag_bg: primary_color, tag_text: white_text }
 }

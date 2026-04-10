@@ -90,7 +90,7 @@ function heading_to_slug(text: string): string {
   return text
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, '-')        // 空格转连字符
+    .replace(/\s+/g, '-') // 空格转连字符
     .replace(/[^\w\u4e00-\u9fa5-]/g, '') // 移除非字母数字和中文的字符
 }
 
@@ -191,7 +191,10 @@ async function generate_slug_pinyin(title: string): Promise<string> {
   try {
     const { pinyin } = await import('pinyin-pro')
     const result = pinyin(title, { toneType: 'none', type: 'array' })
-    const slug = result.join('-').toLowerCase().replace(/[^\w-]/g, '')
+    const slug = result
+      .join('-')
+      .toLowerCase()
+      .replace(/[^\w-]/g, '')
     return slug
   } catch {
     // 如果导入失败，返回时间戳作为降级
@@ -208,7 +211,10 @@ async function generate_slug_baidu(title: string): Promise<string | null> {
 
     if (result.translated) {
       // 转为 slug 格式
-      const slug = result.translated.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')
+      const slug = result.translated
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^\w-]/g, '')
       return slug
     }
 

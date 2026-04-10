@@ -372,6 +372,6 @@ watch(links_filter, () => {
     </div>
 
     <!-- 回到顶部 -->
-    <back-to-top />
+    <BackToTop />
   </div>
 </template>

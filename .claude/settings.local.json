@@ -1,14 +1,30 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(bunx playwright-cli:*)",
-      "Bash(playwright-cli open:*)",
-      "Bash(playwright-cli snapshot:*)",
-      "Bash(playwright-cli click:*)",
-      "Bash(playwright-cli eval:*)",
-      "Bash(playwright-cli goto:*)",
-      "Bash(playwright-cli console:*)",
-      "Bash(playwright-cli screenshot:*)"
-    ]
-  }
+    "permissions": {
+        "allow": [
+            "Bash(bunx playwright-cli:*)",
+            "Bash(playwright-cli open:*)",
+            "Bash(playwright-cli snapshot:*)",
+            "Bash(playwright-cli click:*)",
+            "Bash(playwright-cli eval:*)",
+            "Bash(playwright-cli goto:*)",
+            "Bash(playwright-cli console:*)",
+            "Bash(playwright-cli screenshot:*)",
+            "Bash(npx ctx7@latest docs:*"
+        ]
+    },
+    "hooks": {
+        "PostToolUse": [
+            {
+                "matcher": "Write|Edit",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bun format",
+                        "timeout": 30,
+                        "statusMessage": "代码格式化..."
+                    }
+                ]
+            }
+        ]
+    }
 }

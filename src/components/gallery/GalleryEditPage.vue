@@ -3,7 +3,12 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useToast } from '@/composables/useToast'
 import { useFormCache } from '@/composables/useFormCache'
-import { fetch_gallery, create_gallery, update_gallery, toggle_gallery_visibility } from '@/api/gallery'
+import {
+  fetch_gallery,
+  create_gallery,
+  update_gallery,
+  toggle_gallery_visibility,
+} from '@/api/gallery'
 import { post } from '@/api/request'
 import type { CreateGalleryRequest, UpdateGalleryRequest } from '@/api/types'
 import BackToTop from '@/components/common/BackToTop.vue'
@@ -81,14 +86,14 @@ function handle_file_selected(file: File | null) {
 async function upload_file(file: File): Promise<string> {
   const token_data = await post<UploadToken>('/admin/upload', { type: 'cover' })
 
-  const formData = new FormData()
-  formData.append('token', token_data.token)
-  formData.append('key', token_data.key)
-  formData.append('file', file)
+  const form_data = new FormData()
+  form_data.append('token', token_data.token)
+  form_data.append('key', token_data.key)
+  form_data.append('file', file)
 
   const response = await fetch(token_data.upload_url, {
     method: 'POST',
-    body: formData,
+    body: form_data,
   })
 
   if (!response.ok) {
@@ -201,8 +206,10 @@ onMounted(() => {
 
       <!-- 封面 -->
       <div class="flex flex-col gap-1.5">
-        <label class="text-sm text-slate-600">封面 <span class="text-slate-400">(可选)</span></label>
-        <image-input
+        <label class="text-sm text-slate-600"
+          >封面 <span class="text-slate-400">(可选)</span></label
+        >
+        <ImageInput
           ref="image_input_ref"
           v-model="form_data.cover"
           placeholder="输入封面URL或选择文件"
@@ -213,8 +220,14 @@ onMounted(() => {
 
       <!-- 标签 -->
       <div class="flex flex-col gap-1.5">
-        <label class="text-sm text-slate-600">标签 <span class="text-slate-400">(可选)</span></label>
-        <simple-tags-input v-model="form_data.tags" tag-source="gallery" placeholder="输入标签，按回车添加" />
+        <label class="text-sm text-slate-600"
+          >标签 <span class="text-slate-400">(可选)</span></label
+        >
+        <SimpleTagsInput
+          v-model="form_data.tags"
+          tag-source="gallery"
+          placeholder="输入标签，按回车添加"
+        />
       </div>
 
       <!-- 操作按钮 -->
@@ -236,6 +249,6 @@ onMounted(() => {
     </div>
 
     <!-- 回到顶部 -->
-    <back-to-top />
+    <BackToTop />
   </div>
 </template>

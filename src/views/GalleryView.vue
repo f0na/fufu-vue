@@ -230,9 +230,15 @@ function handle_drag_start(id: string) {
 
 // 防抖更新照片
 const update_timers = new Map<string, ReturnType<typeof setTimeout>>()
-const pending_updates = new Map<string, { x?: number; y?: number; rotation?: number; z_index?: number }>()
+const pending_updates = new Map<
+  string,
+  { x?: number; y?: number; rotation?: number; z_index?: number }
+>()
 
-function debounced_update_photo(id: string, data: { x?: number; y?: number; rotation?: number; z_index?: number }) {
+function debounced_update_photo(
+  id: string,
+  data: { x?: number; y?: number; rotation?: number; z_index?: number },
+) {
   // 合并待更新的数据
   const existing = pending_updates.get(id) || {}
   pending_updates.set(id, { ...existing, ...data })
@@ -500,7 +506,9 @@ onUnmounted(() => {
         <!-- 删除模式按钮 -->
         <button
           class="w-10 h-10 flex items-center justify-center shadow-md rounded-full transition-colors"
-          :class="delete_mode ? 'bg-red-500 text-white' : 'bg-white/80 hover:bg-white text-slate-600'"
+          :class="
+            delete_mode ? 'bg-red-500 text-white' : 'bg-white/80 hover:bg-white text-slate-600'
+          "
           @click="delete_mode = !delete_mode"
         >
           <X v-if="delete_mode" class="w-5 h-5" />
@@ -548,7 +556,7 @@ onUnmounted(() => {
       @touchmove="handle_touch_move"
       @touchend="handle_touch_end"
     >
-      <photo-card
+      <PhotoCard
         v-for="photo in photos"
         :key="photo.id"
         :photo="photo"
@@ -564,7 +572,7 @@ onUnmounted(() => {
     </div>
 
     <!-- 放大查看 -->
-    <photo-viewer :photo="viewing_photo" @close="handle_viewer_close" />
+    <PhotoViewer :photo="viewing_photo" @close="handle_viewer_close" />
 
     <!-- 评论抽屉 -->
     <teleport to="body">
@@ -594,6 +602,6 @@ onUnmounted(() => {
     </teleport>
 
     <!-- 导航栏 -->
-    <nav-menu />
+    <NavMenu />
   </div>
 </template>

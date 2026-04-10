@@ -170,7 +170,11 @@ onMounted(() => {
       <!-- 标签 -->
       <div class="flex flex-col gap-1.5">
         <label class="text-sm text-slate-600">标签</label>
-        <simple-tags-input v-model="form_data.tags" tag-source="link" placeholder="输入标签，按回车添加" />
+        <SimpleTagsInput
+          v-model="form_data.tags"
+          tag-source="link"
+          placeholder="输入标签，按回车添加"
+        />
       </div>
 
       <!-- 操作按钮 -->
@@ -192,6 +196,6 @@ onMounted(() => {
     </div>
 
     <!-- 回到顶部 -->
-    <back-to-top />
+    <BackToTop />
   </div>
 </template>

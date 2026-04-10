@@ -38,12 +38,15 @@ export function add_auto_orient(url: string): string {
 /**
  * 获取带所有处理参数的图片 URL
  */
-export function process_image_url(url: string, options?: {
-  auto_orient?: boolean
-  width?: number
-  height?: number
-  quality?: number
-}): string {
+export function process_image_url(
+  url: string,
+  options?: {
+    auto_orient?: boolean
+    width?: number
+    height?: number
+    quality?: number
+  },
+): string {
   if (!url) return url
 
   const is_qiniu = url.includes('qiniu') || url.includes('clouddn') || url.includes('qiniucdn')

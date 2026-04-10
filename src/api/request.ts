@@ -279,14 +279,14 @@ export async function upload<T>(
   file: File,
   extra_fields?: Record<string, string | number>,
 ): Promise<T> {
-  const formData = new FormData()
-  formData.append('file', file)
+  const form_data = new FormData()
+  form_data.append('file', file)
   if (extra_fields) {
     for (const [key, value] of Object.entries(extra_fields)) {
-      formData.append(key, String(value))
+      form_data.append(key, String(value))
     }
   }
-  const response = await request.post<ApiResponse<T>>(url, formData, {
+  const response = await request.post<ApiResponse<T>>(url, form_data, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },

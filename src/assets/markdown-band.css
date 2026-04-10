@@ -108,13 +108,13 @@
 }
 
 /* 任务列表 - 移除缩进和列表样式 */
-.band-markdown ul:has(input[type="checkbox"]) {
+.band-markdown ul:has(input[type='checkbox']) {
   padding-left: 0 !important;
   margin-left: 0 !important;
   list-style: none !important;
 }
 
-.band-markdown li:has(input[type="checkbox"]) {
+.band-markdown li:has(input[type='checkbox']) {
   padding-left: 0 !important;
   margin-left: 0 !important;
   list-style: none !important;
@@ -122,7 +122,7 @@
 
 /* checkbox 与文字间距 */
 .band-markdown .checkbox-node,
-.band-markdown input[type="checkbox"] {
+.band-markdown input[type='checkbox'] {
   margin-right: 0.25em !important;
 }
 
@@ -185,63 +185,63 @@
    MyGO!!!!! 主题
    ============================================ */
 
-[data-theme="mygo"] .band-markdown {
+[data-theme='mygo'] .band-markdown {
   --mygo-pink: #ff8899;
   --mygo-blue: #77bbdd;
   --mygo-green: #77dd77;
   --mygo-gold: #ffdd88;
 }
 
-[data-theme="mygo"] .band-markdown h1 {
+[data-theme='mygo'] .band-markdown h1 {
   border-bottom-color: var(--mygo-pink) !important;
 }
 
-[data-theme="mygo"] .band-markdown h2 {
+[data-theme='mygo'] .band-markdown h2 {
   border-left-color: var(--mygo-pink) !important;
   background: rgba(255, 136, 153, 0.08) !important;
 }
 
-[data-theme="mygo"] .band-markdown h3 {
+[data-theme='mygo'] .band-markdown h3 {
   border-left-color: var(--mygo-blue) !important;
 }
 
-[data-theme="mygo"] .band-markdown a {
+[data-theme='mygo'] .band-markdown a {
   color: #c53030 !important;
 }
 
-[data-theme="mygo"] .band-markdown a:hover {
+[data-theme='mygo'] .band-markdown a:hover {
   color: var(--mygo-pink) !important;
   border-bottom-color: var(--mygo-pink) !important;
 }
 
-[data-theme="mygo"] .band-markdown blockquote {
+[data-theme='mygo'] .band-markdown blockquote {
   border-left-color: var(--mygo-pink) !important;
   background: rgba(255, 136, 153, 0.08) !important;
 }
 
-[data-theme="mygo"] .band-markdown ol li::marker {
+[data-theme='mygo'] .band-markdown ol li::marker {
   color: var(--mygo-pink) !important;
   font-weight: 600 !important;
 }
 
-[data-theme="mygo"] .band-markdown th {
+[data-theme='mygo'] .band-markdown th {
   background: var(--mygo-pink) !important;
   color: #1a202c !important;
 }
 
-[data-theme="mygo"] .band-markdown td {
+[data-theme='mygo'] .band-markdown td {
   border-bottom-color: rgba(255, 136, 153, 0.15) !important;
 }
 
-[data-theme="mygo"] .band-markdown tr:nth-child(even) td {
+[data-theme='mygo'] .band-markdown tr:nth-child(even) td {
   background: rgba(255, 221, 136, 0.05) !important;
 }
 
-[data-theme="mygo"] .band-markdown tr:hover td {
+[data-theme='mygo'] .band-markdown tr:hover td {
   background: rgba(255, 136, 153, 0.05) !important;
 }
 
-[data-theme="mygo"] .band-markdown hr {
+[data-theme='mygo'] .band-markdown hr {
   background: var(--mygo-pink) !important;
 }
 
@@ -249,62 +249,62 @@
    Ave Mujica 主题
    ============================================ */
 
-[data-theme="avemujica"] .band-markdown {
+[data-theme='avemujica'] .band-markdown {
   --mujica-lightblue: #5a8fa8;
   --mujica-green: #2f6f4f;
   --mujica-gold: #b8860b;
 }
 
-[data-theme="avemujica"] .band-markdown h1 {
+[data-theme='avemujica'] .band-markdown h1 {
   border-bottom-color: var(--mujica-lightblue) !important;
 }
 
-[data-theme="avemujica"] .band-markdown h2 {
+[data-theme='avemujica'] .band-markdown h2 {
   border-left-color: var(--mujica-lightblue) !important;
   background: rgba(90, 143, 168, 0.08) !important;
 }
 
-[data-theme="avemujica"] .band-markdown h3 {
+[data-theme='avemujica'] .band-markdown h3 {
   border-left-color: var(--mujica-green) !important;
 }
 
-[data-theme="avemujica"] .band-markdown a {
+[data-theme='avemujica'] .band-markdown a {
   color: #0e7490 !important;
 }
 
-[data-theme="avemujica"] .band-markdown a:hover {
+[data-theme='avemujica'] .band-markdown a:hover {
   color: var(--mujica-lightblue) !important;
   border-bottom-color: var(--mujica-lightblue) !important;
 }
 
-[data-theme="avemujica"] .band-markdown blockquote {
+[data-theme='avemujica'] .band-markdown blockquote {
   border-left-color: var(--mujica-lightblue) !important;
   background: rgba(90, 143, 168, 0.08) !important;
 }
 
-[data-theme="avemujica"] .band-markdown ol li::marker {
+[data-theme='avemujica'] .band-markdown ol li::marker {
   color: var(--mujica-lightblue) !important;
   font-weight: 600 !important;
 }
 
-[data-theme="avemujica"] .band-markdown th {
+[data-theme='avemujica'] .band-markdown th {
   background: var(--mujica-lightblue) !important;
   color: #ffffff !important;
 }
 
-[data-theme="avemujica"] .band-markdown td {
+[data-theme='avemujica'] .band-markdown td {
   border-bottom-color: rgba(90, 143, 168, 0.15) !important;
 }
 
-[data-theme="avemujica"] .band-markdown tr:nth-child(even) td {
+[data-theme='avemujica'] .band-markdown tr:nth-child(even) td {
   background: rgba(184, 134, 11, 0.04) !important;
 }
 
-[data-theme="avemujica"] .band-markdown tr:hover td {
+[data-theme='avemujica'] .band-markdown tr:hover td {
   background: rgba(90, 143, 168, 0.06) !important;
 }
 
-[data-theme="avemujica"] .band-markdown hr {
+[data-theme='avemujica'] .band-markdown hr {
   background: var(--mujica-lightblue) !important;
 }
 

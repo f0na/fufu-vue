@@ -56,9 +56,7 @@ onMounted(async () => {
     <div class="text-center">
       <!-- 加载中 -->
       <template v-if="loading">
-        <Loader2
-          class="w-12 h-12 text-[var(--c-primary)] animate-spin mx-auto mb-4"
-        />
+        <Loader2 class="w-12 h-12 text-[var(--c-primary)] animate-spin mx-auto mb-4" />
         <p class="text-slate-600">正在登录...</p>
       </template>
 

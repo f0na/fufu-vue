@@ -3,7 +3,12 @@
  * 基于后端 API 接口文档 v1
  */
 import { get, post, patch, del } from './request'
-import type { Announcement, CreateAnnouncementRequest, UpdateAnnouncementRequest } from './types'
+import type {
+  Announcement,
+  CreateAnnouncementRequest,
+  UpdateAnnouncementRequest,
+  PaginatedData,
+} from './types'
 
 // ========== 公开接口 ==========
 
@@ -13,6 +18,15 @@ export function fetch_announcements(limit: number = 10): Promise<Announcement[]>
 }
 
 // ========== 管理接口 ==========
+
+// 获取公告列表（管理视角，包含隐藏项）
+export function get_admin_announcements(params?: {
+  visible?: boolean
+  page?: number
+  per_page?: number
+}): Promise<PaginatedData<Announcement>> {
+  return get<PaginatedData<Announcement>>('/admin/announcements', { params })
+}
 
 // 创建公告
 export function create_announcement(data: CreateAnnouncementRequest): Promise<Announcement> {

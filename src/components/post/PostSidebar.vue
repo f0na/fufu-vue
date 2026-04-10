@@ -38,7 +38,7 @@ function select_category(category: string) {
     >
       <div class="relative">
         <div class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400">
-          <Search class="w-3.5 h-3.5" />
+          <search class="w-3.5 h-3.5" />
         </div>
         <input
           v-model="search_query"
@@ -52,7 +52,7 @@ function select_category(category: string) {
     <!-- 标签筛选 -->
     <div class="p-3 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
       <h3 class="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1">
-        <Tag class="w-3 h-3" />
+        <tag class="w-3 h-3" />
         标签
       </h3>
       <div class="flex flex-wrap gap-2">
@@ -87,7 +87,7 @@ function select_category(category: string) {
     <!-- 分类筛选 -->
     <div class="p-3 rounded-xl bg-white border border-[var(--c-border)] shadow-sm">
       <h3 class="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1">
-        <Folder class="w-3 h-3" />
+        <folder class="w-3 h-3" />
         分类
       </h3>
       <div class="flex flex-wrap gap-2">

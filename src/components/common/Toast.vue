@@ -37,7 +37,7 @@ const type_icons = {
             @click="remove_toast(toast.id)"
             class="w-5 h-5 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors"
           >
-            <X class="w-3 h-3" />
+            <x class="w-3 h-3" />
           </button>
         </div>
       </div>

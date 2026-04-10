@@ -81,7 +81,10 @@ export function create_bangumi_info(data: CreateBangumiInfoRequest): Promise<Ban
 /**
  * 更新番剧信息（管理员）
  */
-export function update_bangumi_info(id: string, data: UpdateBangumiInfoRequest): Promise<BangumiInfo> {
+export function update_bangumi_info(
+  id: string,
+  data: UpdateBangumiInfoRequest,
+): Promise<BangumiInfo> {
   return patch<BangumiInfo>(`/admin/bangumi-info/${id}`, data)
 }
 
@@ -99,7 +102,9 @@ export function toggle_bangumi_info_visibility(
   id: string,
   visible: boolean,
 ): Promise<{ id: string; visible: boolean }> {
-  return patch<{ id: string; visible: boolean }>(`/admin/bangumi-info/${id}/visibility`, { visible })
+  return patch<{ id: string; visible: boolean }>(`/admin/bangumi-info/${id}/visibility`, {
+    visible,
+  })
 }
 
 /**
