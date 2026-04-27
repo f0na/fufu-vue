@@ -12,6 +12,8 @@ export const routes: RouteRecordRaw[] = [
   { path: '/gallery/:id', name: 'GalleryDetail', component: () => import('@/pages/GalleryDetailPage.vue') },
   { path: '/friends', name: 'Friends', component: () => import('@/pages/FriendsPage.vue') },
   { path: '/status', name: 'Status', component: () => import('@/pages/StatusPage.vue') },
+  { path: '/license', name: 'License', component: () => import('@/pages/LicensePage.vue') },
+  { path: '/privacy', name: 'Privacy', component: () => import('@/pages/PrivacyPage.vue') },
   { path: '/placeholder', name: 'Placeholder', component: () => import('@/pages/PlaceholderPage.vue') },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]

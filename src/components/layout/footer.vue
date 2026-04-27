@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { RouterLink } from 'vue-router'
+
 const footer_links = [
-  { label: '备案号', href: '#' },
-  { label: '许可证', href: '#' },
-  { label: '隐私政策', href: '#' },
+  { label: '备案号', to: '#' },
+  { label: '许可证', to: '/license' },
+  { label: '隐私政策', to: '/privacy' },
 ]
 
 const current_year = new Date().getFullYear()
@@ -16,14 +18,14 @@ const current_year = new Date().getFullYear()
           ©{{ current_year }} fufu all
         </p>
         <nav class="flex items-center gap-4">
-          <a
+          <RouterLink
             v-for="link in footer_links"
             :key="link.label"
-            :href="link.href"
+            :to="link.to"
             class="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             {{ link.label }}
-          </a>
+          </RouterLink>
         </nav>
       </div>
     </div>
