@@ -1,0 +1,266 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap');
+
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* 波浪动画 */
+  --animate-wave: wave 8s linear infinite;
+  --animate-wave-slow: wave 12s linear infinite;
+  --animate-wave-fast: wave 5s linear infinite;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: 'Geist Variable', sans-serif;
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* Ave Mujica 主题 */
+:root,
+[data-theme="avemujica"] {
+  --background: #f0f9fa;
+  --foreground: #1a3a4a;
+  --card: #f0f9fa;
+  --card-foreground: #1a3a4a;
+  --popover: #f0f9fa;
+  --popover-foreground: #1a3a4a;
+  --primary: #5a8fa8;
+  --primary-foreground: #f0f9fa;
+  --secondary: #2f6f4f;
+  --secondary-foreground: #f0f9fa;
+  --muted: #d9eff5;
+  --muted-foreground: #5a8fa8;
+  --accent: #7ab3cc;
+  --accent-foreground: #1a3a4a;
+  --destructive: #e53935;
+  --border: #c5dde5;
+  --input: #c5dde5;
+  --ring: #5a8fa8;
+  --chart-1: #7ab3cc;
+  --chart-2: #5a8fa8;
+  --chart-3: #4a7f98;
+  --chart-4: #3a6f88;
+  --chart-5: #2a5f78;
+  --radius: 0.625rem;
+  --sidebar: #f0f9fa;
+  --sidebar-foreground: #1a3a4a;
+  --sidebar-primary: #5a8fa8;
+  --sidebar-primary-foreground: #f0f9fa;
+  --sidebar-accent: #d9eff5;
+  --sidebar-accent-foreground: #1a3a4a;
+  --sidebar-border: #c5dde5;
+  --sidebar-ring: #5a8fa8;
+}
+
+/* MyGO!!!!! 主题 */
+[data-theme="mygo"] {
+  --background: #fef7f7;
+  --foreground: #5a2025;
+  --card: #fef7f7;
+  --card-foreground: #5a2025;
+  --popover: #fef7f7;
+  --popover-foreground: #5a2025;
+  --primary: #ff8899;
+  --primary-foreground: #fef7f7;
+  --secondary: #77dd77;
+  --secondary-foreground: #fef7f7;
+  --muted: #fff0f2;
+  --muted-foreground: #ff8899;
+  --accent: #ffaabb;
+  --accent-foreground: #5a2025;
+  --destructive: #e53935;
+  --border: #ffccd5;
+  --input: #ffccd5;
+  --ring: #ff8899;
+  --chart-1: #ffaabb;
+  --chart-2: #ff8899;
+  --chart-3: #e57788;
+  --chart-4: #d56677;
+  --chart-5: #c55566;
+  --radius: 0.625rem;
+  --sidebar: #fef7f7;
+  --sidebar-foreground: #5a2025;
+  --sidebar-primary: #ff8899;
+  --sidebar-primary-foreground: #fef7f7;
+  --sidebar-accent: #fff0f2;
+  --sidebar-accent-foreground: #5a2025;
+  --sidebar-border: #ffccd5;
+  --sidebar-ring: #ff8899;
+}
+
+/* Markdown 内容样式 */
+.markdown-content h1 {
+  @apply text-2xl font-bold mb-4 mt-6 text-foreground;
+}
+.markdown-content h2 {
+  @apply text-xl font-bold mb-3 mt-6 text-foreground;
+}
+.markdown-content h3 {
+  @apply text-lg font-semibold mb-2 mt-4 text-foreground;
+}
+.markdown-content h4 {
+  @apply text-base font-semibold mb-2 mt-4 text-foreground;
+}
+.markdown-content h5 {
+  @apply text-sm font-semibold mb-2 mt-4 text-foreground;
+}
+.markdown-content h6 {
+  @apply text-sm font-medium mb-2 mt-4 text-foreground;
+}
+.markdown-content p {
+  @apply mb-4 leading-7;
+}
+.markdown-content a {
+  @apply text-primary hover:underline;
+}
+.markdown-content blockquote {
+  @apply border-l-4 border-primary pl-4 my-4 text-muted-foreground italic;
+}
+.markdown-content ul {
+  @apply list-disc list-inside mb-4 space-y-1;
+}
+.markdown-content ol {
+  @apply list-decimal list-inside mb-4 space-y-1;
+}
+.markdown-content table {
+  @apply w-full border-collapse border border-border text-sm my-4;
+}
+.markdown-content th {
+  @apply border border-border bg-muted px-3 py-2 text-left font-medium;
+}
+.markdown-content td {
+  @apply border border-border px-3 py-2;
+}
+.markdown-content img {
+  @apply max-w-full h-auto rounded-lg;
+}
+.markdown-content strong {
+  @apply font-semibold;
+}
+.markdown-content em {
+  @apply italic;
+}
+.markdown-content code {
+  @apply px-1.5 py-0.5 rounded bg-muted text-foreground font-mono text-sm;
+}
+/* Code block wrapper */
+.markdown-content .code-block-wrapper {
+  position: relative;
+  margin: 1rem 0;
+}
+
+/* Code copy button - show on hover via plain CSS */
+.markdown-content .code-copy-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 10;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 0.375rem;
+  transition: all 0.15s;
+  background-color: oklch(1 0 0 / 0.8);
+  color: oklch(0.556 0 0);
+  opacity: 0;
+}
+.code-block-wrapper:hover .code-copy-btn {
+  opacity: 1;
+}
+.markdown-content .katex-block {
+  @apply my-4 overflow-x-auto text-center;
+}
+.markdown-content .mermaid-container {
+  @apply my-4 overflow-x-auto rounded-lg bg-muted/50 p-4;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    @apply font-sans;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* 波浪动画 - 无缝循环版本 */
+@keyframes wave {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* 专门用于双SVG无缝循环的动画 */
+.animate-wave-loop {
+  animation: wave 8s linear infinite;
+}
+
+.animate-wave-slow {
+  animation: wave 22s linear infinite;
+}
+
+.animate-wave {
+  animation: wave 16s linear infinite;
+}
+
+.animate-wave-fast {
+  animation: wave 11s linear infinite;
+}
+
+/* 覆盖 Shiki 代码块的白色背景 */
+.shiki-wrapper .shiki,
+.shiki-wrapper .shiki pre,
+.shiki-wrapper .shiki code {
+  background-color: transparent !important;
+}
+
+.shiki-wrapper {
+  background-color: var(--muted);
+}
+
