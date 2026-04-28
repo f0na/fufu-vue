@@ -1,17 +1,14 @@
 {
     "permissions": {
         "allow": [
-            "Bash(playwright-cli open:*)",
-            "Bash(playwright-cli snapshot:*)",
-            "Bash(playwright-cli click:*)",
-            "Bash(playwright-cli eval:*)",
-            "Bash(playwright-cli goto:*)",
-            "Bash(playwright-cli console:*)",
-            "Bash(playwright-cli screenshot:*)",
-            "Bash(playwright-cli close)",
-            "Bash(bun .claude/skills/tavily-search/scripts/search.mjs *)",
-            "Bash(cp *)",
-            "Bash(mkdir *)"
+            "Bash(*)",
+            "Write(*)",
+            "Edit(*)",
+            "Read(*)",
+            "Glob(*)",
+            "Grep(*)",
+            "WebFetch(*)",
+            "WebSearch(*)"
         ]
     }
 }
