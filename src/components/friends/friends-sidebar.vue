@@ -19,7 +19,6 @@ const link_url = ref('');
 const avatar_url = ref('');
 const avatar_loaded = ref(false);
 const favicon_loaded = ref(false);
-const favicon_api_loaded = ref(false);
 const name = ref('');
 const description = ref('');
 
@@ -36,24 +35,20 @@ const processed_url = computed(() => {
 const favicon_info = computed(() => {
   try {
     if (!processed_url.value)
-      return { favicon_url: null, favicon_api_url: null, site_initial: null };
+      return { favicon_url: null, site_initial: null };
     const url_obj = new URL(processed_url.value);
     const domain = url_obj.hostname.replace(/^www\./, '');
     return {
-      favicon_url: `${url_obj.origin}/favicon.ico`,
-      favicon_api_url: `https://api.iowen.cn/favicon/${domain}.png`,
+      favicon_url: `https://favicon.im/${domain}`,
       site_initial: domain.charAt(0).toUpperCase(),
     };
   } catch {
-    return { favicon_url: null, favicon_api_url: null, site_initial: null };
+    return { favicon_url: null, site_initial: null };
   }
 });
 
 const show_avatar_preview = computed(() => avatar_url.value && avatar_loaded.value);
 const show_favicon_preview = computed(() => favicon_info.value.favicon_url && favicon_loaded.value);
-const show_favicon_api_preview = computed(
-  () => favicon_info.value.favicon_api_url && favicon_api_loaded.value && !favicon_loaded.value
-);
 const show_initial_preview = computed(
   () => favicon_info.value.site_initial && /^[A-Za-z0-9]$/.test(favicon_info.value.site_initial)
 );
@@ -62,7 +57,6 @@ watch(
   () => link_url.value,
   () => {
     favicon_loaded.value = false;
-    favicon_api_loaded.value = false;
   }
 );
 
@@ -109,18 +103,6 @@ watch(
     if (val && !favicon_loaded.value) {
       preload_image(val, () => {
         favicon_loaded.value = true;
-      });
-    }
-  },
-  { immediate: true }
-);
-
-watch(
-  () => [favicon_info.value.favicon_api_url, favicon_loaded.value, favicon_api_loaded.value],
-  () => {
-    if (favicon_info.value.favicon_api_url && !favicon_api_loaded.value && !favicon_loaded.value) {
-      preload_image(favicon_info.value.favicon_api_url, () => {
-        favicon_api_loaded.value = true;
       });
     }
   },
@@ -177,13 +159,6 @@ onUnmounted(() => {
             <img
               v-else-if="show_favicon_preview"
               :src="favicon_info.favicon_url!"
-              alt="网站图标"
-              class="size-10 rounded-lg object-cover"
-            />
-            <!-- favicon api loaded -->
-            <img
-              v-else-if="show_favicon_api_preview"
-              :src="favicon_info.favicon_api_url!"
               alt="网站图标"
               class="size-10 rounded-lg object-cover"
             />

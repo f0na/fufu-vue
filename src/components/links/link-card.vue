@@ -20,12 +20,10 @@ const copied = ref(false);
 const favicon_info = computed(() => {
   try {
     const url_obj = new URL(props.link.url);
+    const domain = url_obj.hostname.replace(/^www\./, '');
     return {
-      favicon_url: `${url_obj.origin}/favicon.ico`,
-      site_initial: url_obj.hostname
-        .replace(/^www\./, '')
-        .charAt(0)
-        .toUpperCase(),
+      favicon_url: `https://favicon.im/${domain}`,
+      site_initial: domain.charAt(0).toUpperCase(),
     };
   } catch {
     return { favicon_url: null as string | null, site_initial: null as string | null };
@@ -68,7 +66,7 @@ const display_tags = computed(() => props.link.tags.slice(0, 3));
         <!-- favicon -->
         <img
           v-if="show_favicon"
-          :src="favicon_info.favicon_url"
+          :src="favicon_info.favicon_url || ''"
           alt=""
           class="size-5 shrink-0 rounded-sm"
           @error="favicon_error = true"

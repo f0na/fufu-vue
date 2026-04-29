@@ -13,7 +13,6 @@ const props = defineProps<Props>();
 
 const avatar_loaded = ref(false);
 const favicon_loaded = ref(false);
-const favicon_api_loaded = ref(false);
 
 const friend_info = computed(() => {
   try {
@@ -21,15 +20,13 @@ const friend_info = computed(() => {
     const domain = url_obj.hostname.replace(/^www\./, '');
     return {
       primary_avatar: props.friend.avatar || null,
-      favicon_url: `${url_obj.origin}/favicon.ico`,
-      favicon_api_url: `https://api.iowen.cn/favicon/${domain}.png`,
+      favicon_url: `https://favicon.im/${domain}`,
       site_initial: domain.charAt(0).toUpperCase(),
     };
   } catch {
     return {
       primary_avatar: props.friend.avatar || null,
       favicon_url: null,
-      favicon_api_url: null,
       site_initial: null,
     };
   }
@@ -37,9 +34,6 @@ const friend_info = computed(() => {
 
 const show_avatar = computed(() => friend_info.value.primary_avatar && avatar_loaded.value);
 const show_favicon = computed(() => friend_info.value.favicon_url && favicon_loaded.value);
-const show_favicon_api = computed(
-  () => friend_info.value.favicon_api_url && favicon_api_loaded.value && !favicon_loaded.value
-);
 const show_initial = computed(
   () => friend_info.value.site_initial && /^[A-Za-z0-9]$/.test(friend_info.value.site_initial)
 );
@@ -80,17 +74,6 @@ watch(
   { immediate: true }
 );
 
-watch(
-  () => [friend_info.value.favicon_api_url, favicon_loaded.value, favicon_api_loaded.value],
-  () => {
-    if (friend_info.value.favicon_api_url && !favicon_api_loaded.value && !favicon_loaded.value) {
-      preload_image(friend_info.value.favicon_api_url, () => {
-        favicon_api_loaded.value = true;
-      });
-    }
-  },
-  { immediate: true }
-);
 </script>
 
 <template>
@@ -111,13 +94,6 @@ watch(
         <img
           v-else-if="show_favicon"
           :src="friend_info.favicon_url!"
-          alt=""
-          class="size-12 shrink-0 rounded-lg object-cover"
-        />
-        <!-- favicon api -->
-        <img
-          v-else-if="show_favicon_api"
-          :src="friend_info.favicon_api_url!"
           alt=""
           class="size-12 shrink-0 rounded-lg object-cover"
         />

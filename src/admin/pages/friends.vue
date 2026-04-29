@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { ref, computed, reactive, onMounted } from 'vue';
+import { ref, computed, reactive, onMounted, watch } from 'vue';
 import { Icon } from '@iconify/vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/admin/components/ui/input';
-import { Badge } from '@/admin/components/ui/badge';
-import { Label } from '@/admin/components/ui/label';
 import { Textarea } from '@/admin/components/ui/textarea';
+import { Label } from '@/admin/components/ui/label';
 import {
   Sheet,
   SheetClose,
@@ -23,88 +22,86 @@ import {
   TableRow,
   TableCell,
 } from '@/admin/components/ui/table';
-import type { LinkItem } from '@/lib/types/link';
+import type { FriendItem } from '@/lib/types/friend';
 
 interface FormData {
-  title: string;
+  name: string;
   url: string;
+  avatar: string;
   description: string;
-  tags: string;
-  is_starred: boolean;
 }
 
 const empty_form: FormData = {
-  title: '',
+  name: '',
   url: '',
+  avatar: '',
   description: '',
-  tags: '',
-  is_starred: false,
 };
 
-const links = reactive<LinkItem[]>([]);
+const friends = reactive<FriendItem[]>([]);
 const loading = ref(true);
 const load_error = ref('');
 
 onMounted(async () => {
   try {
-    const res = await fetch('/content/links/links.json');
+    const res = await fetch('/content/friends/friends.json');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data: { links: LinkItem[] } = await res.json();
-    links.splice(0, links.length, ...(Array.isArray(data.links) ? data.links : []));
+    const data: { friends: FriendItem[] } = await res.json();
+    friends.splice(0, friends.length, ...(Array.isArray(data.friends) ? data.friends : []));
   } catch (e) {
     load_error.value = e instanceof Error ? e.message : '加载失败';
   } finally {
     loading.value = false;
   }
 });
+
 const search_query = ref('');
 const current_page = ref(1);
 const page_size = 15;
 const selected_ids = ref<string[]>([]);
 const expanded_ids = ref(new Set<string>());
+
 function toggle_expand(id: string) {
   const set = expanded_ids.value;
   if (set.has(id)) set.delete(id);
   else set.add(id);
-}
-const tag_input = ref('');
-const link_tags = ref<string[]>([]);
-function add_link_tag() {
-  const t = tag_input.value.trim();
-  if (t && !link_tags.value.includes(t)) {
-    link_tags.value.push(t);
-  }
-  tag_input.value = '';
-}
-function remove_link_tag(t: string) {
-  link_tags.value = link_tags.value.filter((x) => x !== t);
 }
 
 // Sheet state
 const sheet_open = ref(false);
 const editing_id = ref<string | null>(null);
 const form_data = reactive<FormData>({ ...empty_form });
+const avatar_dirty = ref(false);
 
-const filtered_links = computed(() => {
-  if (!search_query.value) return links;
+watch(
+  () => form_data.url,
+  (url) => {
+    if (!avatar_dirty.value && !editing_id.value && extract_domain(url)) {
+      form_data.avatar = favicon_url(url);
+    }
+  }
+);
+
+const filtered_friends = computed(() => {
+  if (!search_query.value) return friends;
   const q = search_query.value.toLowerCase();
-  return links.filter(
-    (l) =>
-      l.title.toLowerCase().includes(q) ||
-      l.url.toLowerCase().includes(q) ||
-      l.tags.some((t) => t.toLowerCase().includes(q))
+  return friends.filter(
+    (f) =>
+      f.name.toLowerCase().includes(q) ||
+      f.url.toLowerCase().includes(q) ||
+      (f.description && f.description.toLowerCase().includes(q))
   );
 });
 
-const total_pages = computed(() => Math.ceil(filtered_links.value.length / page_size));
+const total_pages = computed(() => Math.ceil(filtered_friends.value.length / page_size));
 
-const paged_links = computed(() => {
+const paged_friends = computed(() => {
   const start = (current_page.value - 1) * page_size;
-  return filtered_links.value.slice(start, start + page_size);
+  return filtered_friends.value.slice(start, start + page_size);
 });
 
 const all_selected = computed(
-  () => paged_links.value.length > 0 && selected_ids.value.length === paged_links.value.length
+  () => paged_friends.value.length > 0 && selected_ids.value.length === paged_friends.value.length
 );
 
 function toggle_select(id: string) {
@@ -114,19 +111,19 @@ function toggle_select(id: string) {
 }
 
 function select_all() {
-  if (selected_ids.value.length === paged_links.value.length) {
+  if (selected_ids.value.length === paged_friends.value.length) {
     selected_ids.value = [];
   } else {
-    selected_ids.value = paged_links.value.map((l) => l.id);
+    selected_ids.value = paged_friends.value.map((f) => f.id);
   }
 }
 
 function generate_id(): string {
-  const existing_ids = links.map((l) => l.id);
-  let num = links.length + 1;
+  const existing_ids = friends.map((f) => f.id);
+  let num = friends.length + 1;
   let id: string;
   do {
-    id = `link-${String(num).padStart(3, '0')}`;
+    id = `friend-${String(num).padStart(3, '0')}`;
     num++;
   } while (existing_ids.includes(id));
   return id;
@@ -135,55 +132,53 @@ function generate_id(): string {
 function open_add_sheet() {
   editing_id.value = null;
   Object.assign(form_data, empty_form);
-  link_tags.value = [];
+  avatar_dirty.value = false;
   sheet_open.value = true;
 }
 
-function open_edit_sheet(link: LinkItem) {
-  editing_id.value = link.id;
-  form_data.title = link.title;
-  form_data.url = link.url;
-  form_data.description = link.description ?? '';
-  link_tags.value = [...link.tags];
-  form_data.is_starred = link.is_starred ?? false;
+function open_edit_sheet(friend: FriendItem) {
+  editing_id.value = friend.id;
+  form_data.name = friend.name;
+  form_data.url = friend.url;
+  form_data.avatar = friend.avatar ?? '';
+  form_data.description = friend.description ?? '';
+  avatar_dirty.value = true;
   sheet_open.value = true;
 }
 
-function save_link() {
-  if (!form_data.title.trim() || !form_data.url.trim()) return;
+function save_friend() {
+  if (!form_data.name.trim() || !form_data.url.trim()) return;
 
   const url = normalize_url(form_data.url);
 
   if (editing_id.value) {
-    const idx = links.findIndex((l) => l.id === editing_id.value);
+    const idx = friends.findIndex((f) => f.id === editing_id.value);
     if (idx >= 0) {
-      links[idx] = {
-        ...links[idx],
-        title: form_data.title.trim(),
+      friends[idx] = {
+        ...friends[idx],
+        name: form_data.name.trim(),
         url,
-        description: form_data.description.trim(),
-        tags: [...link_tags.value],
-        is_starred: form_data.is_starred,
+        avatar: form_data.avatar.trim() || undefined,
+        description: form_data.description.trim() || undefined,
       };
     }
   } else {
-    links.unshift({
+    friends.unshift({
       id: generate_id(),
-      title: form_data.title.trim(),
+      name: form_data.name.trim(),
       url,
+      avatar: form_data.avatar.trim() || undefined,
       description: form_data.description.trim() || undefined,
-      tags: [...link_tags.value],
       created_at: new Date().toISOString().split('T')[0],
-      is_starred: form_data.is_starred || undefined,
     });
   }
 
   sheet_open.value = false;
 }
 
-function delete_link(id: string) {
-  const idx = links.findIndex((l) => l.id === id);
-  if (idx >= 0) links.splice(idx, 1);
+function delete_friend(id: string) {
+  const idx = friends.findIndex((f) => f.id === id);
+  if (idx >= 0) friends.splice(idx, 1);
   const sel_idx = selected_ids.value.indexOf(id);
   if (sel_idx >= 0) selected_ids.value.splice(sel_idx, 1);
 }
@@ -191,15 +186,10 @@ function delete_link(id: string) {
 function delete_selected() {
   if (selected_ids.value.length === 0) return;
   const id_set = new Set(selected_ids.value);
-  for (let i = links.length - 1; i >= 0; i--) {
-    if (id_set.has(links[i].id)) links.splice(i, 1);
+  for (let i = friends.length - 1; i >= 0; i--) {
+    if (id_set.has(friends[i].id)) friends.splice(i, 1);
   }
   selected_ids.value = [];
-}
-
-function toggle_star(link: LinkItem) {
-  link.is_starred = !link.is_starred;
-  if (!link.is_starred) delete link.is_starred;
 }
 
 function truncate_url(url: string, max = 40): string {
@@ -231,10 +221,10 @@ function normalize_url(url: string): string {
   <div>
     <!-- 页头 -->
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-semibold text-foreground">链接管理</h1>
+      <h1 class="text-2xl font-semibold text-foreground">友人帐管理</h1>
       <Button size="sm" @click="open_add_sheet">
         <Icon icon="lucide:plus" class="size-4 mr-1" />
-        添加链接
+        添加友人
       </Button>
     </div>
 
@@ -245,7 +235,7 @@ function normalize_url(url: string): string {
           icon="lucide:search"
           class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none"
         />
-        <Input v-model="search_query" placeholder="搜索标题、链接或标签..." class="pl-9 h-9" />
+        <Input v-model="search_query" placeholder="搜索名称、链接或描述..." class="pl-9 h-9" />
       </div>
       <Button
         v-if="selected_ids.length > 0"
@@ -257,7 +247,7 @@ function normalize_url(url: string): string {
         <Icon icon="lucide:trash-2" class="size-3.5 mr-1" />
         删除选中 ({{ selected_ids.length }})
       </Button>
-      <div class="text-sm text-muted-foreground ml-auto">共 {{ filtered_links.length }} 条</div>
+      <div class="text-sm text-muted-foreground ml-auto">共 {{ filtered_friends.length }} 条</div>
     </div>
 
     <!-- 加载状态 -->
@@ -275,7 +265,7 @@ function normalize_url(url: string): string {
       <p>数据加载失败：{{ load_error }}</p>
     </div>
 
-    <!-- 链接表格 -->
+    <!-- 友人表格 -->
     <div v-else class="border border-border rounded-lg overflow-hidden">
       <Table>
         <TableHeader>
@@ -289,89 +279,63 @@ function normalize_url(url: string): string {
                 class="size-4 accent-primary"
               />
             </TableHead>
-            <TableHead class="w-64">标题</TableHead>
+            <TableHead class="w-56">名称</TableHead>
             <TableHead class="w-56">链接</TableHead>
-            <TableHead class="w-36">标签</TableHead>
-            <TableHead class="w-16">收藏</TableHead>
+            <TableHead class="hidden md:table-cell">描述</TableHead>
             <TableHead class="w-24">创建日期</TableHead>
             <TableHead class="w-24 text-right">操作</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          <template v-for="link in paged_links" :key="link.id">
+          <template v-for="friend in paged_friends" :key="friend.id">
             <TableRow
               class="cursor-pointer"
               :class="[
-                selected_ids.includes(link.id) ? 'bg-muted/30' : '',
-                expanded_ids.has(link.id) ? 'border-b-0' : '',
+                selected_ids.includes(friend.id) ? 'bg-muted/30' : '',
+                expanded_ids.has(friend.id) ? 'border-b-0' : '',
               ]"
-              @click="toggle_expand(link.id)"
+              @click="toggle_expand(friend.id)"
             >
               <TableCell @click.stop>
                 <input
                   type="checkbox"
-                  :checked="selected_ids.includes(link.id)"
-                  @change="toggle_select(link.id)"
+                  :checked="selected_ids.includes(friend.id)"
+                  @change="toggle_select(friend.id)"
                   class="size-4 accent-primary"
                 />
               </TableCell>
               <TableCell class="font-medium text-foreground">
                 <div class="flex items-center gap-2">
                   <img
-                    v-if="link.url"
-                    :src="favicon_url(link.url)"
-                    class="size-4 shrink-0 rounded"
-                    alt=""
+                    :src="friend.avatar || favicon_url(friend.url)"
+                    :alt="friend.name"
+                    class="size-8 shrink-0 rounded-lg object-cover bg-muted"
                     loading="lazy"
-                    referrerpolicy="no-referrer"
                     @error="($event.target as HTMLImageElement).style.display='none'"
                   />
-                  <span class="truncate">{{ link.title }}</span>
+                  <span class="truncate">{{ friend.name }}</span>
                 </div>
               </TableCell>
               <TableCell>
-                <a
-                  :href="link.url"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="text-sm text-muted-foreground hover:text-primary truncate block max-w-[200px]"
-                  :title="link.url"
-                >
-                  {{ truncate_url(link.url) }}
-                </a>
-              </TableCell>
-              <TableCell>
-                <div class="flex flex-wrap gap-1">
-                  <Badge
-                    v-for="tag in link.tags.slice(0, 2)"
-                    :key="tag"
-                    variant="secondary"
-                    class="text-xs"
+                <div class="flex items-center gap-2">
+                  <a
+                    :href="friend.url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-sm text-muted-foreground hover:text-primary truncate block max-w-[200px]"
+                    :title="friend.url"
                   >
-                    {{ tag }}
-                  </Badge>
-                  <span v-if="link.tags.length > 2" class="text-xs text-muted-foreground">
-                    +{{ link.tags.length - 2 }}
-                  </span>
+                    {{ truncate_url(friend.url) }}
+                  </a>
                 </div>
               </TableCell>
-              <TableCell @click.stop>
-                <button
-                  class="cursor-pointer transition-colors"
-                  :class="link.is_starred ? 'text-yellow-500' : 'text-muted-foreground hover:text-yellow-500'"
-                  :title="link.is_starred ? '取消收藏' : '收藏'"
-                  @click="toggle_star(link)"
-                >
-                  <Icon
-                    :icon="link.is_starred ? 'ph:star-fill' : 'ph:star'"
-                    class="size-4"
-                  />
-                </button>
+              <TableCell class="hidden md:table-cell text-sm text-muted-foreground max-w-[240px]">
+                <span class="truncate block">{{ friend.description || '-' }}</span>
               </TableCell>
-              <TableCell class="text-sm text-muted-foreground">{{ link.created_at }}</TableCell>
+              <TableCell class="text-sm text-muted-foreground">{{ friend.created_at }}</TableCell>
               <TableCell class="text-right" @click.stop>
                 <div class="flex items-center justify-end gap-1">
-                  <Button variant="ghost" size="icon-sm" title="编辑" @click="open_edit_sheet(link)">
+                  <Button variant="ghost" size="icon-sm" title="编辑" @click="open_edit_sheet(friend)">
                     <Icon icon="lucide:pen" class="size-3.5" />
                   </Button>
                   <Button
@@ -379,7 +343,7 @@ function normalize_url(url: string): string {
                     size="icon-sm"
                     title="删除"
                     class="text-destructive hover:text-destructive"
-                    @click="delete_link(link.id)"
+                    @click="delete_friend(friend.id)"
                   >
                     <Icon icon="lucide:trash-2" class="size-3.5" />
                   </Button>
@@ -388,30 +352,34 @@ function normalize_url(url: string): string {
             </TableRow>
 
             <!-- 展开完整内容 -->
-            <TableRow v-if="expanded_ids.has(link.id)" class="bg-muted/20">
-              <TableCell :colspan="7" class="p-0">
+            <TableRow v-if="expanded_ids.has(friend.id)" class="bg-muted/20">
+              <TableCell :colspan="6" class="p-0">
                 <div class="px-6 py-3 space-y-2 text-sm border-t border-border">
+                  <div class="flex gap-3 items-center">
+                    <span class="text-muted-foreground shrink-0 w-12">头像:</span>
+                    <img
+                      :src="friend.avatar || favicon_url(friend.url)"
+                      :alt="friend.name"
+                      class="size-8 rounded-lg object-cover bg-muted"
+                      loading="lazy"
+                      @error="($event.target as HTMLImageElement).style.display='none'"
+                    />
+                  </div>
                   <div class="flex gap-3">
-                    <span class="text-muted-foreground shrink-0 w-12">标题:</span>
-                    <span>{{ link.title }}</span>
+                    <span class="text-muted-foreground shrink-0 w-12">名称:</span>
+                    <span>{{ friend.name }}</span>
                   </div>
                   <div class="flex gap-3">
                     <span class="text-muted-foreground shrink-0 w-12">链接:</span>
-                    <a :href="link.url" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline truncate">{{ link.url }}</a>
+                    <a :href="friend.url" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline truncate">{{ friend.url }}</a>
                   </div>
-                  <div v-if="link.tags?.length" class="flex gap-3">
-                    <span class="text-muted-foreground shrink-0 w-12">标签:</span>
-                    <div class="flex flex-wrap gap-1">
-                      <Badge v-for="tag in link.tags" :key="tag" variant="secondary" class="text-xs">{{ tag }}</Badge>
-                    </div>
-                  </div>
-                  <div v-if="link.description" class="flex gap-3">
+                  <div v-if="friend.description" class="flex gap-3">
                     <span class="text-muted-foreground shrink-0 w-12">描述:</span>
-                    <span class="text-muted-foreground">{{ link.description }}</span>
+                    <span class="text-muted-foreground">{{ friend.description }}</span>
                   </div>
                   <div class="flex gap-3">
                     <span class="text-muted-foreground shrink-0 w-12">创建日期:</span>
-                    <span class="text-muted-foreground">{{ link.created_at }}</span>
+                    <span class="text-muted-foreground">{{ friend.created_at }}</span>
                   </div>
                 </div>
               </TableCell>
@@ -419,9 +387,9 @@ function normalize_url(url: string): string {
           </template>
 
           <!-- 空状态 -->
-          <TableRow v-if="paged_links.length === 0">
-            <TableCell :colspan="7" class="text-center py-12 text-muted-foreground">
-              没有找到匹配的链接
+          <TableRow v-if="paged_friends.length === 0">
+            <TableCell :colspan="6" class="text-center py-12 text-muted-foreground">
+              没有找到匹配的友人
             </TableCell>
           </TableRow>
         </TableBody>
@@ -468,52 +436,39 @@ function normalize_url(url: string): string {
     <Sheet :open="sheet_open" @update:open="sheet_open = $event">
       <SheetContent side="right" class="w-full sm:max-w-md">
         <SheetHeader>
-          <SheetTitle>{{ editing_id ? '编辑链接' : '添加链接' }}</SheetTitle>
+          <SheetTitle>{{ editing_id ? '编辑友人' : '添加友人' }}</SheetTitle>
           <SheetDescription>
-            {{ editing_id ? '修改链接信息' : '添加一个新的友情链接' }}
+            {{ editing_id ? '修改友链信息' : '添加一个新的友链' }}
           </SheetDescription>
         </SheetHeader>
 
         <div class="flex-1 space-y-4 px-6 py-4">
           <div class="space-y-2">
-            <Label for="title">标题 *</Label>
-            <Input id="title" v-model="form_data.title" placeholder="链接标题" />
+            <Label for="name">名称 *</Label>
+            <Input id="name" v-model="form_data.name" placeholder="站点名称" />
           </div>
           <div class="space-y-2">
             <Label for="url">URL *</Label>
             <Input id="url" v-model="form_data.url" placeholder="https://example.com" />
           </div>
           <div class="space-y-2">
-            <Label for="description">描述</Label>
-            <Textarea id="description" v-model="form_data.description" placeholder="简短描述" :rows="3" />
+            <Label for="avatar">头像 URL <span class="text-muted-foreground font-normal text-xs">（留空则自动使用网站图标）</span></Label>
+            <Input id="avatar" v-model="form_data.avatar" placeholder="留空则自动使用网站图标" @input="avatar_dirty = true" />
+            <div v-if="extract_domain(form_data.url)" class="flex items-center gap-3 pt-1">
+              <img
+                :src="form_data.avatar || favicon_url(form_data.url)"
+                alt="avatar preview"
+                class="size-8 rounded-lg object-cover bg-muted"
+                @error="($event.target as HTMLImageElement).style.display='none'"
+              />
+              <span class="text-xs text-muted-foreground">
+                {{ form_data.avatar ? '自定义' : '自动获取' }}：{{ extract_domain(form_data.url) }}
+              </span>
+            </div>
           </div>
           <div class="space-y-2">
-            <Label>标签</Label>
-            <div class="flex items-center gap-2">
-              <Input v-model="tag_input" placeholder="输入标签后添加" class="flex-1" @keydown.enter.prevent="add_link_tag" />
-              <Button variant="outline" size="sm" @click="add_link_tag" :disabled="!tag_input.trim()">添加</Button>
-            </div>
-            <div v-if="link_tags.length" class="flex flex-wrap gap-2 pt-1">
-              <Badge
-                v-for="t in link_tags"
-                :key="t"
-                variant="secondary"
-                class="cursor-pointer gap-1"
-                @click="remove_link_tag(t)"
-              >
-                {{ t }}
-                <Icon icon="lucide:x" class="size-3" />
-              </Badge>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <input
-              id="is_starred"
-              type="checkbox"
-              v-model="form_data.is_starred"
-              class="size-4 accent-primary"
-            />
-            <Label for="is_starred" class="cursor-pointer">设为收藏</Label>
+            <Label for="description">描述</Label>
+            <Textarea id="description" v-model="form_data.description" placeholder="站点描述" :rows="3" />
           </div>
         </div>
 
@@ -522,8 +477,8 @@ function normalize_url(url: string): string {
             <Button variant="outline">取消</Button>
           </SheetClose>
           <Button
-            :disabled="!form_data.title.trim() || !form_data.url.trim()"
-            @click="save_link"
+            :disabled="!form_data.name.trim() || !form_data.url.trim()"
+            @click="save_friend"
           >
             {{ editing_id ? '保存' : '添加' }}
           </Button>

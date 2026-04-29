@@ -64,7 +64,7 @@ export const routes: RouteRecordRaw[] = [
       {
         path: 'friends',
         name: 'admin.friends',
-        component: () => import('@/admin/pages/placeholder.vue'),
+        component: () => import('@/admin/pages/friends.vue'),
       },
       {
         path: 'gallery',
