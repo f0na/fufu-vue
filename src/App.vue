@@ -1,35 +1,36 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
-import { provide, ref, onMounted, onUnmounted, defineAsyncComponent } from 'vue'
-import { Icon } from '@iconify/vue'
+import { RouterView } from 'vue-router';
+import { provide, ref, onMounted, onUnmounted, defineAsyncComponent } from 'vue';
+import { Icon } from '@iconify/vue';
+import { RightSidebarPortalKey } from '@/context/right-sidebar-portal';
 
-const GlobalLive2D = defineAsyncComponent(() => import('@/components/mascot/global-live2d.vue'))
+const GlobalLive2D = defineAsyncComponent(() => import('@/components/mascot/global-live2d.vue'));
 
-const portal_target = ref<HTMLElement | null>(null)
+const portal_target = ref<HTMLElement | null>(null);
 
 function set_portal_target(target: HTMLElement | null) {
-  portal_target.value = target
+  portal_target.value = target;
 }
 
-provide('rightSidebarPortal', { portal_target, set_portal_target })
+provide(RightSidebarPortalKey, { portal_target, set_portal_target });
 
-const show_scroll_top = ref(false)
+const show_scroll_top = ref(false);
 
 function on_scroll() {
-  show_scroll_top.value = window.scrollY > 300
+  show_scroll_top.value = window.scrollY > 300;
 }
 
 function scroll_to_top() {
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 onMounted(() => {
-  window.addEventListener('scroll', on_scroll, { passive: true })
-})
+  window.addEventListener('scroll', on_scroll, { passive: true });
+});
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', on_scroll)
-})
+  window.removeEventListener('scroll', on_scroll);
+});
 </script>
 
 <template>
@@ -54,7 +55,9 @@ onUnmounted(() => {
 <style scoped>
 .scroll-top-enter-active,
 .scroll-top-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 .scroll-top-enter-from,
 .scroll-top-leave-to {

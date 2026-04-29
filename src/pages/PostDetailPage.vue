@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, nextTick } from 'vue'
-import { useRoute } from 'vue-router'
-import PageWrapper from '@/components/layout/page-wrapper.vue'
-import PostLayout from '@/components/post/post-layout.vue'
-import PostSidebar from '@/components/post/post-sidebar.vue'
-import PostContent from '@/components/post/post-content.vue'
-import PostRecommend from '@/components/post/post-recommend.vue'
-import PostComments from '@/components/post/post-comments.vue'
-import type { Post } from '@/lib/types/post'
-import type { TocHeading } from '@/components/post/post-toc.vue'
+import { ref, watch, onMounted, onUnmounted, nextTick, defineAsyncComponent } from 'vue';
+import { useRoute } from 'vue-router';
+import PageWrapper from '@/components/layout/page-wrapper.vue';
+import PostLayout from '@/components/post/post-layout.vue';
+import PostSidebar from '@/components/post/post-sidebar.vue';
+import PostContent from '@/components/post/post-content.vue';
+import PostRecommend from '@/components/post/post-recommend.vue';
+
+const PostComments = defineAsyncComponent(() => import('@/components/post/post-comments.vue'));
+import type { Post } from '@/lib/types/post';
+import type { TocHeading } from '@/components/post/post-toc.vue';
 
 const comments_config = {
   repo: 'f0na/fufu-next',
@@ -16,95 +17,131 @@ const comments_config = {
   category: 'Announcements',
   category_id: 'DIC_kwDOSF1Ew8C7HmC',
   mapping: 'pathname' as const,
-}
+};
 
-const route = useRoute()
+const route = useRoute();
 
-const post = ref<Post | null>(null)
-const content = ref('')
-const recommended_posts = ref<Post[]>([])
-const comments_count = ref(0)
-const headings = ref<TocHeading[]>([])
-const error = ref(false)
+const post = ref<Post | null>(null);
+const content = ref('');
+const recommended_posts = ref<Post[]>([]);
+const comments_count = ref(0);
+const headings = ref<TocHeading[]>([]);
+const error = ref(false);
+const comments_ref = ref<HTMLElement | null>(null);
+const comments_visible = ref(false);
+let comments_observer: IntersectionObserver | null = null;
 
 async function fetch_comments_count(slug: string) {
   try {
-    const encoded_path = encodeURIComponent(`/posts/${slug}`)
+    const encoded_path = encodeURIComponent(`/posts/${slug}`);
     const res = await fetch(
       `https://api.github.com/search/issues?q=repo:${comments_config.repo}+type:discussions+${encoded_path}&per_page=1`
-    )
-    if (!res.ok) return
-    const data = await res.json()
+    );
+    if (!res.ok) return;
+    const data = await res.json();
     if (data.total_count > 0 && data.items[0]) {
-      comments_count.value = data.items[0].comment_count || data.items[0].comments || 0
-    }
-  } catch { /* Giscus will update later */ }
-}
-
-async function fetch_post(slug: string) {
-  error.value = false
-  post.value = null
-  content.value = ''
-  recommended_posts.value = []
-  comments_count.value = 0
-
-  try {
-    const res = await fetch('/content/posts/_index.json')
-    if (!res.ok) {
-      error.value = true
-      return
-    }
-    const data = await res.json()
-    const post_data = Array.isArray(data) ? data.find((p: Post) => p.slug === slug) : data.posts?.find((p: Post) => p.slug === slug)
-
-    if (!post_data) {
-      error.value = true
-      return
-    }
-
-    post.value = post_data
-
-    const content_res = await fetch(`/content/posts/${slug}.md`)
-    if (content_res.ok) {
-      const text = await content_res.text()
-      if (!text.startsWith('<!DOCTYPE') && !text.startsWith('<html')) {
-        content.value = text
-      }
-    }
-
-    fetch_comments_count(slug)
-
-    if (post_data.tags?.length > 0) {
-      nextTick(() => {
-        const all_posts = Array.isArray(data) ? data.filter((p: Post) =>
-          p.slug !== slug && p.tags?.some((t: string) => post_data!.tags!.includes(t))
-        ) : (data.posts?.filter((p: Post) =>
-          p.slug !== slug && p.tags?.some((t: string) => post_data!.tags!.includes(t))
-        ) || [])
-        recommended_posts.value = all_posts.slice(0, 3)
-      })
+      comments_count.value = data.items[0].comment_count || data.items[0].comments || 0;
     }
   } catch {
-    error.value = true
+    /* Giscus will update later */
   }
 }
 
-watch(() => route.params.slug, (new_slug) => {
-  if (new_slug) fetch_post(new_slug as string)
-})
+async function fetch_post(slug: string) {
+  error.value = false;
+  post.value = null;
+  content.value = '';
+  recommended_posts.value = [];
+  comments_count.value = 0;
+
+  try {
+    const res = await fetch('/content/posts/_index.json');
+    if (!res.ok) {
+      error.value = true;
+      return;
+    }
+    const data = await res.json();
+    const post_data = Array.isArray(data)
+      ? data.find((p: Post) => p.slug === slug)
+      : data.posts?.find((p: Post) => p.slug === slug);
+
+    if (!post_data) {
+      error.value = true;
+      return;
+    }
+
+    post.value = post_data;
+
+    const content_res = await fetch(`/content/posts/${slug}.md`);
+    if (content_res.ok) {
+      const text = await content_res.text();
+      if (!text.startsWith('<!DOCTYPE') && !text.startsWith('<html')) {
+        content.value = text;
+      }
+    }
+
+    fetch_comments_count(slug);
+
+    if (post_data.tags?.length > 0) {
+      nextTick(() => {
+        const all_posts = Array.isArray(data)
+          ? data.filter(
+              (p: Post) =>
+                p.slug !== slug && p.tags?.some((t: string) => post_data!.tags!.includes(t))
+            )
+          : data.posts?.filter(
+              (p: Post) =>
+                p.slug !== slug && p.tags?.some((t: string) => post_data!.tags!.includes(t))
+            ) || [];
+        recommended_posts.value = all_posts.slice(0, 3);
+      });
+    }
+  } catch {
+    error.value = true;
+  }
+}
+
+watch(
+  () => route.params.slug,
+  (new_slug) => {
+    if (new_slug) fetch_post(new_slug as string);
+  }
+);
 
 onMounted(async () => {
-  await nextTick()
-  const slug = route.params.slug
-  if (slug) fetch_post(slug as string)
-})
+  await nextTick();
+  const slug = route.params.slug;
+  if (slug) fetch_post(slug as string);
+
+  // 评论区懒加载 — 进入视口前 200px 开始加载
+  comments_observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        comments_visible.value = true;
+        comments_observer?.disconnect();
+        comments_observer = null;
+      }
+    },
+    { rootMargin: '200px' }
+  );
+  nextTick(() => {
+    if (comments_ref.value) {
+      comments_observer?.observe(comments_ref.value);
+    }
+  });
+});
+
+onUnmounted(() => {
+  comments_observer?.disconnect();
+  comments_observer = null;
+});
 
 function on_headings_change(new_headings: TocHeading[]) {
-  headings.value = new_headings
+  headings.value = new_headings;
 }
 
 function on_count_change(count: number) {
-  comments_count.value = count
+  comments_count.value = count;
 }
 </script>
 
@@ -116,7 +153,8 @@ function on_count_change(count: number) {
     </div>
 
     <!-- 页面始终渲染，内容就绪后自动填充 -->
-    <PostLayout v-else
+    <PostLayout
+      v-else
       :profile_props="{
         name: 'Fufu',
         greeting: 'Ciallo～(∠・ω< )⌒★',
@@ -162,10 +200,7 @@ function on_count_change(count: number) {
       </div>
 
       <!-- 文章内容 -->
-      <PostContent
-        :content="content"
-        :on_headings_change="on_headings_change"
-      />
+      <PostContent :content="content" :on_headings_change="on_headings_change" />
 
       <!-- 右侧边栏 -->
       <template #right_sidebar>
@@ -185,17 +220,20 @@ function on_count_change(count: number) {
         <PostRecommend :posts="recommended_posts" />
       </template>
 
-      <!-- 评论区 -->
+      <!-- 评论区（懒加载） -->
       <template #comments_section>
-        <PostComments
-          :repo="comments_config.repo"
-          :repo_id="comments_config.repo_id"
-          :category="comments_config.category"
-          :category_id="comments_config.category_id"
-          :mapping="comments_config.mapping"
-          section_id="comments"
-          :on_count_change="on_count_change"
-        />
+        <div ref="comments_ref">
+          <PostComments
+            v-if="comments_visible"
+            :repo="comments_config.repo"
+            :repo_id="comments_config.repo_id"
+            :category="comments_config.category"
+            :category_id="comments_config.category_id"
+            :mapping="comments_config.mapping"
+            section_id="comments"
+            :on_count_change="on_count_change"
+          />
+        </div>
       </template>
     </PostLayout>
   </PageWrapper>
