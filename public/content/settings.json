@@ -1,0 +1,44 @@
+{
+  "site": {
+    "name": "fufu",
+    "avatar_url": "https://www.loliapi.com/acg/pp/",
+    "greeting": "Ciallo～(∠・ω< )⌒★",
+    "description": "这里是可爱芙芙的小窝，欢迎大家^^",
+    "keywords": "博客,个人站,二次元,芙芙"
+  },
+  "hero": {
+    "image_url": "https://t.alcy.cc/moez"
+  },
+  "footer": {
+    "icp_beian": "",
+    "copyright": "fufu",
+    "license_label": "许可证",
+    "license_url": "/license",
+    "privacy_label": "隐私政策",
+    "privacy_url": "/privacy"
+  },
+  "social_links": [
+    {
+      "platform": "bilibili",
+      "label": "Bilibili",
+      "url": "https://space.bilibili.com/"
+    },
+    {
+      "platform": "github",
+      "label": "GitHub",
+      "url": "https://github.com/"
+    },
+    {
+      "platform": "email",
+      "label": "Email",
+      "url": "mailto:example@email.com"
+    }
+  ],
+  "announcements": [
+    {
+      "id": "1",
+      "content": "欢迎来到我的小站！这里是我的个人空间。",
+      "time": "2026-04-17"
+    }
+  ]
+}

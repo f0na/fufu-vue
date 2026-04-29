@@ -3,7 +3,7 @@ import type { DialogContentEmits, DialogContentProps } from 'reka-ui';
 
 import type { HTMLAttributes } from 'vue';
 import { reactiveOmit } from '@vueuse/core';
-import { XIcon } from 'lucide-vue-next';
+import { Icon } from '@iconify/vue';
 import { DialogClose, DialogContent, DialogPortal, useForwardPropsEmits } from 'reka-ui';
 import { cn } from '@/lib/utils';
 import { Button } from '@/admin/components/ui/button';
@@ -48,7 +48,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
 
       <DialogClose v-if="showCloseButton" data-slot="sheet-close" as-child>
         <Button variant="ghost" class="absolute top-3 right-3" size="icon-sm">
-          <XIcon />
+          <Icon icon="lucide:x" />
           <span class="sr-only">Close</span>
         </Button>
       </DialogClose>

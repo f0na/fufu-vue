@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, reactive, onMounted, watch } from 'vue';
+import { toast } from 'vue-sonner';
 import { Icon } from '@iconify/vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/admin/components/ui/input';
@@ -22,7 +23,7 @@ import {
   TableRow,
   TableCell,
 } from '@/admin/components/ui/table';
-import type { FriendItem } from '@/lib/types/friend';
+import type { FriendItem, FriendStatus } from '@/lib/types/friend';
 
 interface FormData {
   name: string;
@@ -56,6 +57,7 @@ onMounted(async () => {
 });
 
 const search_query = ref('');
+const status_filter = ref<FriendStatus | 'all'>('all');
 const current_page = ref(1);
 const page_size = 15;
 const selected_ids = ref<string[]>([]);
@@ -83,14 +85,20 @@ watch(
 );
 
 const filtered_friends = computed(() => {
-  if (!search_query.value) return friends;
-  const q = search_query.value.toLowerCase();
-  return friends.filter(
-    (f) =>
-      f.name.toLowerCase().includes(q) ||
-      f.url.toLowerCase().includes(q) ||
-      (f.description && f.description.toLowerCase().includes(q))
-  );
+  let result = friends;
+  if (status_filter.value !== 'all') {
+    result = result.filter((f) => f.status === status_filter.value);
+  }
+  if (search_query.value) {
+    const q = search_query.value.toLowerCase();
+    result = result.filter(
+      (f) =>
+        f.name.toLowerCase().includes(q) ||
+        f.url.toLowerCase().includes(q) ||
+        (f.description && f.description.toLowerCase().includes(q))
+    );
+  }
+  return result;
 });
 
 const total_pages = computed(() => Math.ceil(filtered_friends.value.length / page_size));
@@ -170,9 +178,11 @@ function save_friend() {
       avatar: form_data.avatar.trim() || undefined,
       description: form_data.description.trim() || undefined,
       created_at: new Date().toISOString().split('T')[0],
+      status: 'approved',
     });
   }
 
+  toast.success(editing_id.value ? '友人已更新' : '友人已添加');
   sheet_open.value = false;
 }
 
@@ -190,6 +200,34 @@ function delete_selected() {
     if (id_set.has(friends[i].id)) friends.splice(i, 1);
   }
   selected_ids.value = [];
+}
+
+function approve_friend(id: string) {
+  const item = friends.find((f) => f.id === id);
+  if (item) item.status = 'approved';
+}
+
+function reject_friend(id: string) {
+  const item = friends.find((f) => f.id === id);
+  if (item) item.status = 'rejected';
+}
+
+function status_badge_variant(status?: FriendStatus): string {
+  switch (status) {
+    case 'approved': return 'bg-green-500/10 text-green-600 dark:text-green-400';
+    case 'pending':  return 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400';
+    case 'rejected': return 'bg-red-500/10 text-red-600 dark:text-red-400';
+    default:         return 'bg-muted text-muted-foreground';
+  }
+}
+
+function status_label(status?: FriendStatus): string {
+  switch (status) {
+    case 'approved': return '已通过';
+    case 'pending':  return '待审核';
+    case 'rejected': return '已拒绝';
+    default:         return '未知';
+  }
 }
 
 function truncate_url(url: string, max = 40): string {
@@ -229,25 +267,47 @@ function normalize_url(url: string): string {
     </div>
 
     <!-- 搜索和操作条 -->
-    <div class="flex items-center gap-3 mb-4">
-      <div class="relative max-w-xs w-full">
-        <Icon
-          icon="lucide:search"
-          class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none"
-        />
-        <Input v-model="search_query" placeholder="搜索名称、链接或描述..." class="pl-9 h-9" />
+    <div class="flex flex-col gap-3 mb-4">
+      <div class="flex items-center gap-3">
+        <div class="relative max-w-xs w-full">
+          <Icon
+            icon="lucide:search"
+            class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none"
+          />
+          <Input v-model="search_query" placeholder="搜索名称、链接或描述..." class="pl-9 h-9" />
+        </div>
+        <Button
+          v-if="selected_ids.length > 0"
+          variant="outline"
+          size="sm"
+          class="text-destructive"
+          @click="delete_selected"
+        >
+          <Icon icon="lucide:trash-2" class="size-3.5 mr-1" />
+          删除选中 ({{ selected_ids.length }})
+        </Button>
+        <div class="text-sm text-muted-foreground ml-auto">共 {{ filtered_friends.length }} 条</div>
       </div>
-      <Button
-        v-if="selected_ids.length > 0"
-        variant="outline"
-        size="sm"
-        class="text-destructive"
-        @click="delete_selected"
-      >
-        <Icon icon="lucide:trash-2" class="size-3.5 mr-1" />
-        删除选中 ({{ selected_ids.length }})
-      </Button>
-      <div class="text-sm text-muted-foreground ml-auto">共 {{ filtered_friends.length }} 条</div>
+      <div class="flex items-center gap-1.5">
+        <button
+          v-for="opt in ([
+            { value: 'all', label: '全部' },
+            { value: 'pending', label: '待审核' },
+            { value: 'approved', label: '已通过' },
+            { value: 'rejected', label: '已拒绝' },
+          ] as const)"
+          :key="opt.value"
+          class="px-3 py-1 text-xs rounded-full border transition-colors cursor-pointer"
+          :class="
+            status_filter === opt.value
+              ? 'bg-foreground text-background border-foreground'
+              : 'bg-transparent text-muted-foreground border-border hover:border-foreground/30'
+          "
+          @click="status_filter = opt.value"
+        >
+          {{ opt.label }}
+        </button>
+      </div>
     </div>
 
     <!-- 加载状态 -->
@@ -279,11 +339,12 @@ function normalize_url(url: string): string {
                 class="size-4 accent-primary"
               />
             </TableHead>
-            <TableHead class="w-56">名称</TableHead>
-            <TableHead class="w-56">链接</TableHead>
+            <TableHead class="w-44">名称</TableHead>
+            <TableHead class="w-44">链接</TableHead>
             <TableHead class="hidden md:table-cell">描述</TableHead>
-            <TableHead class="w-24">创建日期</TableHead>
-            <TableHead class="w-24 text-right">操作</TableHead>
+            <TableHead class="w-20">状态</TableHead>
+            <TableHead class="w-20">创建日期</TableHead>
+            <TableHead class="w-28 text-right">操作</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -329,12 +390,30 @@ function normalize_url(url: string): string {
                   </a>
                 </div>
               </TableCell>
-              <TableCell class="hidden md:table-cell text-sm text-muted-foreground max-w-[240px]">
+              <TableCell class="hidden md:table-cell text-sm text-muted-foreground max-w-[200px]">
                 <span class="truncate block">{{ friend.description || '-' }}</span>
               </TableCell>
-              <TableCell class="text-sm text-muted-foreground">{{ friend.created_at }}</TableCell>
+              <TableCell>
+                <span
+                  class="inline-block px-2 py-0.5 text-[11px] font-medium rounded-full"
+                  :class="status_badge_variant(friend.status)"
+                >
+                  {{ status_label(friend.status) }}
+                </span>
+              </TableCell>
+              <TableCell class="text-sm text-muted-foreground whitespace-nowrap">{{ friend.created_at }}</TableCell>
               <TableCell class="text-right" @click.stop>
-                <div class="flex items-center justify-end gap-1">
+                <div class="flex items-center justify-end gap-0.5">
+                  <template v-if="friend.status !== 'approved'">
+                    <Button variant="ghost" size="icon-sm" title="通过" @click="approve_friend(friend.id)">
+                      <Icon icon="lucide:check" class="size-3.5 text-green-600" />
+                    </Button>
+                  </template>
+                  <template v-if="friend.status !== 'rejected'">
+                    <Button variant="ghost" size="icon-sm" title="拒绝" @click="reject_friend(friend.id)">
+                      <Icon icon="lucide:x" class="size-3.5 text-red-500" />
+                    </Button>
+                  </template>
                   <Button variant="ghost" size="icon-sm" title="编辑" @click="open_edit_sheet(friend)">
                     <Icon icon="lucide:pen" class="size-3.5" />
                   </Button>
@@ -353,7 +432,7 @@ function normalize_url(url: string): string {
 
             <!-- 展开完整内容 -->
             <TableRow v-if="expanded_ids.has(friend.id)" class="bg-muted/20">
-              <TableCell :colspan="6" class="p-0">
+              <TableCell :colspan="7" class="p-0">
                 <div class="px-6 py-3 space-y-2 text-sm border-t border-border">
                   <div class="flex gap-3 items-center">
                     <span class="text-muted-foreground shrink-0 w-12">头像:</span>
@@ -381,6 +460,15 @@ function normalize_url(url: string): string {
                     <span class="text-muted-foreground shrink-0 w-12">创建日期:</span>
                     <span class="text-muted-foreground">{{ friend.created_at }}</span>
                   </div>
+                  <div class="flex gap-3">
+                    <span class="text-muted-foreground shrink-0 w-12">状态:</span>
+                    <span
+                      class="inline-block px-2 py-0.5 text-[11px] font-medium rounded-full"
+                      :class="status_badge_variant(friend.status)"
+                    >
+                      {{ status_label(friend.status) }}
+                    </span>
+                  </div>
                 </div>
               </TableCell>
             </TableRow>
@@ -388,7 +476,7 @@ function normalize_url(url: string): string {
 
           <!-- 空状态 -->
           <TableRow v-if="paged_friends.length === 0">
-            <TableCell :colspan="6" class="text-center py-12 text-muted-foreground">
+            <TableCell :colspan="7" class="text-center py-12 text-muted-foreground">
               没有找到匹配的友人
             </TableCell>
           </TableRow>

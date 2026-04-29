@@ -3,7 +3,7 @@ import type { SelectScrollDownButtonProps } from 'reka-ui';
 
 import type { HTMLAttributes } from 'vue';
 import { reactiveOmit } from '@vueuse/core';
-import { ChevronDownIcon } from 'lucide-vue-next';
+import { Icon } from '@iconify/vue';
 import { SelectScrollDownButton, useForwardProps } from 'reka-ui';
 import { cn } from '@/lib/utils';
 
@@ -26,7 +26,7 @@ const forwardedProps = useForwardProps(delegatedProps);
     "
   >
     <slot>
-      <ChevronDownIcon />
+      <Icon icon="lucide:chevron-down" />
     </slot>
   </SelectScrollDownButton>
 </template>

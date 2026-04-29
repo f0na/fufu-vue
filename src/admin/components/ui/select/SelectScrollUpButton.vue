@@ -3,7 +3,7 @@ import type { SelectScrollUpButtonProps } from 'reka-ui';
 
 import type { HTMLAttributes } from 'vue';
 import { reactiveOmit } from '@vueuse/core';
-import { ChevronUpIcon } from 'lucide-vue-next';
+import { Icon } from '@iconify/vue';
 import { SelectScrollUpButton, useForwardProps } from 'reka-ui';
 import { cn } from '@/lib/utils';
 
@@ -26,7 +26,7 @@ const forwardedProps = useForwardProps(delegatedProps);
     "
   >
     <slot>
-      <ChevronUpIcon />
+      <Icon icon="lucide:chevron-up" />
     </slot>
   </SelectScrollUpButton>
 </template>

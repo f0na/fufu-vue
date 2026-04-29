@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, reactive, onMounted } from 'vue';
+import { toast } from 'vue-sonner';
 import { Icon } from '@iconify/vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/admin/components/ui/input';
@@ -178,6 +179,7 @@ function save_link() {
     });
   }
 
+  toast.success(editing_id.value ? '链接已更新' : '链接已添加');
   sheet_open.value = false;
 }
 

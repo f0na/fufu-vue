@@ -1,3 +1,5 @@
+export type FriendStatus = 'pending' | 'approved' | 'rejected';
+
 export interface FriendItem {
   id: string;
   name: string;
@@ -5,6 +7,7 @@ export interface FriendItem {
   avatar?: string;
   description?: string;
   created_at: string;
+  status?: FriendStatus;
 }
 
 export interface FriendsResponse {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 export interface AnnouncementItem {
@@ -26,7 +27,26 @@ const props = withDefaults(defineProps<Props>(), {
   max_display: 3,
 });
 
-const display_items = props.announcements.slice(0, props.max_display);
+const settings_announcements = ref<AnnouncementItem[]>([]);
+
+onMounted(async () => {
+  try {
+    const res = await fetch('/content/settings.json');
+    if (res.ok) {
+      const data = await res.json();
+      if (data.announcements && Array.isArray(data.announcements)) {
+        settings_announcements.value = data.announcements;
+      }
+    }
+  } catch {
+    // fallback to props
+  }
+});
+
+const display_items = computed(() => {
+  const source = settings_announcements.value.length > 0 ? settings_announcements.value : props.announcements;
+  return source.slice(0, props.max_display);
+});
 </script>
 
 <template>

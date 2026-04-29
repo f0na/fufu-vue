@@ -79,7 +79,22 @@ export const routes: RouteRecordRaw[] = [
       {
         path: 'settings',
         name: 'admin.settings',
-        component: () => import('@/admin/pages/placeholder.vue'),
+        component: () => import('@/admin/pages/settings.vue'),
+      },
+      {
+        path: 'settings/description',
+        name: 'admin.settings.description',
+        component: () => import('@/admin/pages/settings-editor.vue'),
+      },
+      {
+        path: 'license',
+        name: 'admin.license',
+        component: () => import('@/admin/pages/license-editor.vue'),
+      },
+      {
+        path: 'privacy',
+        name: 'admin.privacy',
+        component: () => import('@/admin/pages/privacy-editor.vue'),
       },
     ],
   },

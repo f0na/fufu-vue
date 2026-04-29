@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { toast } from 'vue-sonner';
 import { Icon } from '@iconify/vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/admin/components/ui/input';
@@ -46,18 +47,6 @@ function add_photo_url() {
   url_input.value = '';
 }
 
-// Upload feedback
-const upload_message = ref('');
-let upload_message_timer: ReturnType<typeof setTimeout> | null = null;
-
-function show_upload_message(msg: string) {
-  upload_message.value = msg;
-  if (upload_message_timer) clearTimeout(upload_message_timer);
-  upload_message_timer = setTimeout(() => {
-    upload_message.value = '';
-  }, 3000);
-}
-
 // File upload
 const upload_loading = ref(false);
 const file_input = ref<HTMLInputElement | null>(null);
@@ -79,21 +68,17 @@ async function handle_upload(files: FileList | null) {
       }
     }
     if (success_count > 0 && fail_count === 0) {
-      show_upload_message(`成功上传 ${success_count} 张照片`);
+      toast.success(`成功上传 ${success_count} 张照片`);
     } else if (success_count > 0 && fail_count > 0) {
-      show_upload_message(`成功 ${success_count} 张，${fail_count} 张失败`);
+      toast.warning(`成功 ${success_count} 张，${fail_count} 张失败`);
     } else {
-      show_upload_message('上传失败');
+      toast.error('上传失败');
     }
   } finally {
     upload_loading.value = false;
     if (file_input.value) file_input.value.value = '';
   }
 }
-
-onUnmounted(() => {
-  if (upload_message_timer) clearTimeout(upload_message_timer);
-});
 
 async function upload_file(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -181,9 +166,9 @@ async function save() {
     });
 
     if (!save_res.ok) throw new Error('保存失败');
-    router.push('/admin/gallery');
+    toast.success('相册已保存');
   } catch (e) {
-    console.error('保存失败', e);
+    toast.error('保存失败：' + (e instanceof Error ? e.message : '未知错误'));
   } finally {
     saving.value = false;
   }
@@ -201,7 +186,7 @@ async function save() {
         </Button>
         <h1 class="text-2xl font-semibold text-foreground" v-if="title">{{ title }}</h1>
       </div>
-      <Button :disabled="!title.trim() || saving" @click="save">
+      <Button :disabled="!title.trim() || saving" @click.prevent="save">
         <Icon icon="lucide:check" class="size-4 mr-1" />
         {{ saving ? '保存中...' : '保存' }}
       </Button>
@@ -287,18 +272,6 @@ async function save() {
                 @change="handle_upload(($event.target as HTMLInputElement).files)"
               />
             </label>
-            <!-- 上传提示 -->
-            <div
-              v-if="upload_message"
-              class="flex items-center gap-1.5 text-sm"
-              :class="upload_message.includes('失败') ? 'text-destructive' : 'text-emerald-600'"
-            >
-              <Icon
-                :icon="upload_message.includes('失败') ? 'lucide:alert-circle' : 'lucide:check-circle'"
-                class="size-4"
-              />
-              {{ upload_message }}
-            </div>
           </div>
         </div>
 

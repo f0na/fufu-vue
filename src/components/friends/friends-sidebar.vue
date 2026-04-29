@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'vue-sonner';
 import { Icon } from '@iconify/vue';
 import { RightSidebarPortalKey } from '@/context/right-sidebar-portal';
 import type { RightSidebarPortalValue } from '@/context/right-sidebar-portal';
@@ -75,6 +76,7 @@ const handle_submit = () => {
     avatar_url: avatar_url.value,
     description: description.value,
   });
+  toast.success('友链申请已提交');
 };
 
 const preload_image = (src: string, success_cb: () => void, fail_cb?: () => void) => {

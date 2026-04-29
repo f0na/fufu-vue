@@ -4,7 +4,10 @@
       "id": "spring",
       "title": "春日随拍",
       "cover_path": "/content/imgs/143540268_p0_master1200.jpg",
-      "tags": ["风景", "春"],
+      "tags": [
+        "风景",
+        "春"
+      ],
       "photos": [
         "/content/imgs/143540268_p0_master1200.jpg",
         "/content/imgs/143467961_p0_master1200.jpg",
@@ -28,7 +31,10 @@
       "id": "summer",
       "title": "夏日时光",
       "cover_path": "/content/imgs/141416862_p0_master1200.jpg",
-      "tags": ["风景", "夏"],
+      "tags": [
+        "风景",
+        "夏"
+      ],
       "photos": [
         "/content/imgs/141416862_p0_master1200.jpg",
         "/content/imgs/141997715_p0_master1200.jpg",
@@ -52,7 +58,10 @@
       "id": "autumn",
       "title": "秋日私语",
       "cover_path": "/content/imgs/139313803_p0_master1200.jpg",
-      "tags": ["风景", "秋"],
+      "tags": [
+        "风景",
+        "秋"
+      ],
       "photos": [
         "/content/imgs/139313803_p0_master1200.jpg",
         "/content/imgs/139367127_p0_master1200.jpg",
@@ -76,7 +85,10 @@
       "id": "winter",
       "title": "冬雪记忆",
       "cover_path": "/content/imgs/137620084_p0_master1200.jpg",
-      "tags": ["风景", "冬"],
+      "tags": [
+        "风景",
+        "冬"
+      ],
       "photos": [
         "/content/imgs/137620084_p0_master1200.jpg",
         "/content/imgs/137281874_p0_square1200.jpg",
@@ -100,7 +112,10 @@
       "id": "daily",
       "title": "日常碎片",
       "cover_path": "/content/imgs/132533223_p0_master1200.jpg",
-      "tags": ["日常", "人物"],
+      "tags": [
+        "日常",
+        "人物"
+      ],
       "photos": [
         "/content/imgs/132533223_p0_master1200.jpg",
         "/content/imgs/132578575_p0_master1200.jpg",
@@ -124,7 +139,10 @@
       "id": "special",
       "title": "特别收藏",
       "cover_path": "/content/imgs/143595898_p0_master1200.jpg",
-      "tags": ["收藏", "人物"],
+      "tags": [
+        "收藏",
+        "人物"
+      ],
       "photos": [
         "/content/imgs/143595898_p0_master1200.jpg",
         "/content/imgs/143595898_p2_master1200.jpg",

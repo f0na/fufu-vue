@@ -2,6 +2,7 @@
 import { RouterView } from 'vue-router';
 import { provide, ref, onMounted, onUnmounted, defineAsyncComponent } from 'vue';
 import { Icon } from '@iconify/vue';
+import Sonner from '@/components/ui/sonner/Sonner.vue';
 import { RightSidebarPortalKey } from '@/context/right-sidebar-portal';
 
 const GlobalLive2D = defineAsyncComponent(() => import('@/components/mascot/global-live2d.vue'));
@@ -37,6 +38,7 @@ onUnmounted(() => {
   <div class="min-h-full flex flex-col">
     <RouterView />
     <GlobalLive2D />
+    <Sonner position="top-center" rich-colors />
 
     <!-- 回到顶部 -->
     <Transition name="scroll-top">

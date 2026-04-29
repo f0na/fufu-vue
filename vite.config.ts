@@ -5,6 +5,7 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import { resolve } from 'path'
 import crypto from 'crypto'
 import fs from 'fs'
+import sharp from 'sharp'
 import type { Plugin } from 'vite'
 
 const BAIDU_API_URL = 'https://fanyi-api.baidu.com/api/trans/vip/translate';
@@ -109,7 +110,22 @@ function uploadPlugin(): Plugin {
               fs.mkdirSync(imgs_dir, { recursive: true });
             }
 
-            fs.writeFileSync(resolve(imgs_dir, name), buffer);
+            // auto-rotate → 剥离所有元数据
+            const image = sharp(buffer).rotate();
+            const meta = await image.metadata();
+            switch (meta.format) {
+              case 'png':
+                image.png();
+                break;
+              case 'webp':
+                image.webp();
+                break;
+              case 'jpeg':
+              default:
+                image.jpeg({ mozjpeg: true });
+                break;
+            }
+            await image.toFile(resolve(imgs_dir, name));
 
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify({ path: `/content/imgs/${name}` }));
@@ -152,6 +168,102 @@ function uploadPlugin(): Plugin {
           }
         });
       });
+
+      // Settings save
+      server.middlewares.use('/api/settings/save', async (req, res) => {
+        if (req.method !== 'POST') {
+          res.statusCode = 405;
+          res.end('Method Not Allowed');
+          return;
+        }
+
+        let body = '';
+        req.on('data', (chunk) => (body += chunk));
+        req.on('end', async () => {
+          try {
+            const settings = JSON.parse(body);
+            if (!settings) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: '缺少设置数据' }));
+              return;
+            }
+
+            const filepath = resolve(__dirname, 'public/content/settings.json');
+            fs.writeFileSync(filepath, JSON.stringify(settings, null, 2), 'utf-8');
+
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ success: true }));
+          } catch (e) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ error: (e as Error).message }));
+          }
+        });
+      });
+
+      // License save
+      server.middlewares.use('/api/license/save', async (req, res) => {
+        if (req.method !== 'POST') {
+          res.statusCode = 405;
+          res.end('Method Not Allowed');
+          return;
+        }
+
+        let body = '';
+        req.on('data', (chunk) => (body += chunk));
+        req.on('end', async () => {
+          try {
+            const data = JSON.parse(body);
+            if (!data) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: '缺少许可证数据' }));
+              return;
+            }
+
+            const filepath = resolve(__dirname, 'public/content/license.json');
+            fs.writeFileSync(filepath, JSON.stringify(data, null, 2), 'utf-8');
+
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ success: true }));
+          } catch (e) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ error: (e as Error).message }));
+          }
+        });
+      });
+
+      // Privacy save
+      server.middlewares.use('/api/privacy/save', async (req, res) => {
+        if (req.method !== 'POST') {
+          res.statusCode = 405;
+          res.end('Method Not Allowed');
+          return;
+        }
+
+        let body = '';
+        req.on('data', (chunk) => (body += chunk));
+        req.on('end', async () => {
+          try {
+            const data = JSON.parse(body);
+            if (!data || !data.versions) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: '缺少隐私政策数据' }));
+              return;
+            }
+
+            const filepath = resolve(__dirname, 'public/content/privacy.json');
+            fs.writeFileSync(filepath, JSON.stringify(data, null, 2), 'utf-8');
+
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ success: true }));
+          } catch (e) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ error: (e as Error).message }));
+          }
+        });
+      });
     },
   };
 }
@@ -172,6 +284,9 @@ export default defineConfig({
     },
   },
   server: {
+    watch: {
+      ignored: ['**/public/content/**'],
+    },
     proxy: {
       '/api/bangumi': {
         target: 'https://api.bgm.tv',

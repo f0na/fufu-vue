@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { toast } from 'vue-sonner';
 import { Icon } from '@iconify/vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/admin/components/ui/input';
@@ -143,6 +144,7 @@ function save_gallery() {
     photos: [],
     created_at: new Date().toISOString().split('T')[0],
   });
+  toast.success('相册已添加');
   sheet_open.value = false;
 }
 

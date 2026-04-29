@@ -454,13 +454,11 @@ const photo_width = computed(() => (mobile.value ? 140 : 200));
             alt="photo"
             :width="photo_width"
             :style="{
-              width: mobile ? '140px' : '200px',
               minWidth: mobile ? '140px' : '200px',
+              width: mobile ? '140px' : '200px',
               height: 'auto',
-              maxHeight: '300px',
               display: 'block',
             }"
-            class="object-cover"
             draggable="false"
           />
 

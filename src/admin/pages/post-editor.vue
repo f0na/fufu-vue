@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { toast } from 'vue-sonner';
 import { Icon } from '@iconify/vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/admin/components/ui/input';
@@ -110,7 +111,7 @@ onMounted(async () => {
 
 function handle_save() {
   // TODO: save to backend
-  router.push('/admin/posts');
+  toast.success('文章已保存');
 }
 </script>
 

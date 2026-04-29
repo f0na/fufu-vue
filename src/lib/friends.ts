@@ -8,7 +8,9 @@ async function read_friends_from_file(): Promise<FriendItem[]> {
     const res = await fetch('/content/friends/friends.json');
     if (!res.ok) return [];
     const data = await res.json();
-    return Array.isArray(data.friends) ? data.friends : [];
+    const items: FriendItem[] = Array.isArray(data.friends) ? data.friends : [];
+    // 公开页面只显示已通过审核的友链
+    return items.filter((f) => f.status === 'approved');
   } catch {
     return [];
   }

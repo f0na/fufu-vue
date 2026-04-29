@@ -3,7 +3,7 @@ import type { PaginationEllipsisProps } from 'reka-ui';
 
 import type { HTMLAttributes } from 'vue';
 import { reactiveOmit } from '@vueuse/core';
-import { MoreHorizontalIcon } from 'lucide-vue-next';
+import { Icon } from '@iconify/vue';
 import { PaginationEllipsis } from 'reka-ui';
 import { cn } from '@/lib/utils';
 
@@ -21,7 +21,7 @@ const delegatedProps = reactiveOmit(props, 'class');
     "
   >
     <slot>
-      <MoreHorizontalIcon />
+      <Icon icon="lucide:more-horizontal" />
       <span class="sr-only">More pages</span>
     </slot>
   </PaginationEllipsis>

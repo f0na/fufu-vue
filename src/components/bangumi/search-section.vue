@@ -12,8 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Icon } from '@iconify/vue';
 import { search_bangumi_subjects, SORT_TYPES, SORT_LABELS } from '@/lib/bangumi-api';
 import { convert_subject_info_to_subject } from '@/lib/bangumi-utils';
@@ -47,8 +46,8 @@ const exclude_tags = ref<string[]>([]);
 const exclude_input = ref('');
 const rating_min = ref('');
 const rating_max = ref('');
-const air_date_start = ref<Date>();
-const air_date_end = ref<Date>();
+const air_date_start = ref('');
+const air_date_end = ref('');
 const rank_min = ref('');
 const rank_max = ref('');
 
@@ -58,14 +57,9 @@ const has_searched = ref(false);
 
 const results_ref = ref<HTMLElement | null>(null);
 
-function format_display_date(date: Date | undefined): string {
-  if (!date) return '选择日期';
-  return date.toLocaleDateString('zh-CN');
-}
-
-function date_to_filter_string(date: Date | undefined, prefix: string): string | undefined {
+function date_to_filter_string(date: string, prefix: string): string | undefined {
   if (!date) return undefined;
-  return `${prefix}${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  return `${prefix}${date}`;
 }
 
 function add_tag(
@@ -170,8 +164,8 @@ function handle_clear() {
   exclude_input.value = '';
   rating_min.value = '';
   rating_max.value = '';
-  air_date_start.value = undefined;
-  air_date_end.value = undefined;
+  air_date_start.value = '';
+  air_date_end.value = '';
   rank_min.value = '';
   rank_max.value = '';
   results.value = [];
@@ -386,32 +380,14 @@ function handle_clear() {
                 <Icon icon="lucide:calendar" class="size-3" />
                 开播日期晚于
               </label>
-              <Popover>
-                <PopoverTrigger as-child>
-                  <Button variant="outline" class="justify-start">
-                    {{ format_display_date(air_date_start) }}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent class="w-auto p-0" align="start">
-                  <Calendar v-model="air_date_start" mode="single" caption-layout="dropdown" />
-                </PopoverContent>
-              </Popover>
+              <DatePicker v-model="air_date_start" />
             </div>
             <div class="flex flex-col gap-2">
               <label class="text-sm text-muted-foreground flex items-center gap-1">
                 <Icon icon="lucide:calendar" class="size-3" />
                 开播日期早于
               </label>
-              <Popover>
-                <PopoverTrigger as-child>
-                  <Button variant="outline" class="justify-start">
-                    {{ format_display_date(air_date_end) }}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent class="w-auto p-0" align="start">
-                  <Calendar v-model="air_date_end" mode="single" caption-layout="dropdown" />
-                </PopoverContent>
-              </Popover>
+              <DatePicker v-model="air_date_end" />
             </div>
           </div>
         </div>

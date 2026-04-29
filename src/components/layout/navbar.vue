@@ -10,10 +10,26 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Icon } from '@iconify/vue';
-const themes = [
+
+const THEMES = [
   { name: 'avemujica', label: 'AM', color: '#5a8fa8' },
   { name: 'mygo', label: 'MG', color: '#ff8899' },
 ];
+
+const saved_name = localStorage.getItem('fufu-theme');
+const init_name = saved_name && THEMES.some((t) => t.name === saved_name) ? saved_name : 'avemujica';
+
+document.documentElement.setAttribute('data-theme', init_name);
+localStorage.setItem('fufu-theme', init_name);
+
+const current_theme = ref(THEMES.find((t) => t.name === init_name)!);
+
+function toggle_theme() {
+  const next_name = current_theme.value.name === 'avemujica' ? 'mygo' : 'avemujica';
+  document.documentElement.setAttribute('data-theme', next_name);
+  localStorage.setItem('fufu-theme', next_name);
+  current_theme.value = THEMES.find((t) => t.name === next_name)!;
+}
 
 const nav_items = [
   { label: '首页', key: 'home', href: '/home' },
@@ -39,14 +55,8 @@ function get_current_page_key(): string {
   return '';
 }
 
-const theme_idx = ref(0);
 const is_mobile_menu_open = ref(false);
 const is_search_open = ref(false);
-
-function toggle_theme() {
-  theme_idx.value = (theme_idx.value + 1) % themes.length;
-  document.documentElement.setAttribute('data-theme', themes[theme_idx.value].name);
-}
 
 function open_search() {
   is_search_open.value = true;
@@ -139,8 +149,8 @@ onMounted(() => {
 
         <button
           class="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-muted"
-          :style="{ color: themes[theme_idx].color }"
-          :title="`当前: ${themes[theme_idx].label}`"
+          :style="{ color: current_theme.color }"
+          :title="`当前: ${current_theme.label}`"
           @click="toggle_theme"
         >
           <Icon icon="lucide:palette" class="w-4 h-4" />
