@@ -1,17 +1,19 @@
-import { createApp } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
-import App from './App.vue'
-import './assets/globals.css'
-import { routes } from './router'
+import { createApp } from 'vue';
+import { createRouter, createWebHistory } from 'vue-router';
+import { createPinia } from 'pinia';
+import App from './App.vue';
+import './assets/globals.css';
+import { routes } from './router';
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
   scrollBehavior() {
-    return { top: 0 }
+    return { top: 0 };
   },
-})
+});
 
-const app = createApp(App)
-app.use(router)
-app.mount('#app')
+const app = createApp(App);
+app.use(createPinia());
+app.use(router);
+app.mount('#app');
