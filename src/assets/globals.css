@@ -1,8 +1,7 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap');
 
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -32,11 +31,29 @@
   --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
-  --color-border: var(--border);
+  --color-border: var(--t-border, var(--border));
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
+  --color-accent: var(--t-accent, var(--accent));
   --color-muted-foreground: var(--muted-foreground);
+  /* Editor theme tokens */
+  --color-bg: var(--t-bg);
+  --color-bg-alt: var(--t-bg-alt);
+  --color-bg-hover: var(--t-bg-hover);
+  --color-bg-input: var(--t-bg-input);
+  --color-border-light: var(--t-border-light);
+  --color-text: var(--t-text);
+  --color-text-dim: var(--t-text-dim);
+  --color-text-bright: var(--t-text-bright);
+  --color-accent-hover: var(--t-accent-hover);
+  --color-accent-dim: var(--t-accent-dim);
+  --color-success: var(--t-success);
+  --color-warning: var(--t-warning);
+  --color-danger: var(--t-danger);
+  --color-code-bg: var(--t-code-bg);
+  --color-link: var(--t-link);
+  --color-key-bg: var(--t-key-bg);
+  --color-key-border: var(--t-key-border);
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary: var(--secondary);
@@ -57,7 +74,7 @@
 
 /* Ave Mujica 主题 */
 :root,
-[data-theme="avemujica"] {
+[data-theme='avemujica'] {
   --background: #f0f9fa;
   --foreground: #1a3a4a;
   --card: #f0f9fa;
@@ -93,7 +110,7 @@
 }
 
 /* MyGO!!!!! 主题 */
-[data-theme="mygo"] {
+[data-theme='mygo'] {
   --background: #fef7f7;
   --foreground: #5a2025;
   --card: #fef7f7;
@@ -207,10 +224,19 @@
   opacity: 1;
 }
 .markdown-content .katex-block {
-  @apply my-4 overflow-x-auto text-center;
+  @apply my-4 overflow-x-auto;
+}
+.markdown-content .katex-display {
+  text-align: left !important;
 }
 .markdown-content .mermaid-container {
   @apply my-4 overflow-x-auto rounded-lg bg-muted/50 p-4;
+}
+.markdown-content .task-list-item {
+  list-style: none;
+}
+.markdown-content .task-list-item input[type="checkbox"] {
+  cursor: pointer;
 }
 
 @layer base {
@@ -264,3 +290,26 @@
   background-color: var(--muted);
 }
 
+/* ── 编辑器主题（使用项目主题配色，全局可用） ── */
+:root,
+.editor-panel {
+  --t-bg: var(--background);
+  --t-bg-alt: var(--muted);
+  --t-bg-hover: color-mix(in srgb, var(--foreground) 8%, var(--background));
+  --t-bg-input: var(--input);
+  --t-border: var(--border);
+  --t-border-light: var(--border);
+  --t-text: var(--foreground);
+  --t-text-dim: var(--muted-foreground);
+  --t-text-bright: var(--foreground);
+  --t-accent: var(--primary);
+  --t-accent-hover: var(--primary);
+  --t-accent-dim: var(--accent);
+  --t-success: #4caf50;
+  --t-warning: #f57c00;
+  --t-danger: var(--destructive);
+  --t-code-bg: var(--muted);
+  --t-link: var(--primary);
+  --t-key-bg: var(--muted);
+  --t-key-border: var(--border);
+}
