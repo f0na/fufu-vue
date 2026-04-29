@@ -69,7 +69,12 @@ export const routes: RouteRecordRaw[] = [
       {
         path: 'gallery',
         name: 'admin.gallery',
-        component: () => import('@/admin/pages/placeholder.vue'),
+        component: () => import('@/admin/pages/gallery.vue'),
+      },
+      {
+        path: 'gallery/:id/edit',
+        name: 'admin.gallery.edit',
+        component: () => import('@/admin/pages/gallery-editor.vue'),
       },
       {
         path: 'settings',

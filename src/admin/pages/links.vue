@@ -357,14 +357,14 @@ function normalize_url(url: string): string {
               </TableCell>
               <TableCell @click.stop>
                 <button
-                  class="cursor-pointer transition-colors"
+                  class="cursor-pointer transition-colors p-1.5 -m-1.5"
                   :class="link.is_starred ? 'text-yellow-500' : 'text-muted-foreground hover:text-yellow-500'"
                   :title="link.is_starred ? '取消收藏' : '收藏'"
                   @click="toggle_star(link)"
                 >
                   <Icon
                     :icon="link.is_starred ? 'ph:star-fill' : 'ph:star'"
-                    class="size-4"
+                    class="size-5"
                   />
                 </button>
               </TableCell>

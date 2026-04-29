@@ -160,7 +160,7 @@ function delete_selected() {
                 class="size-4 accent-primary"
               />
             </TableHead>
-            <TableHead>标题</TableHead>
+            <TableHead class="w-64">标题</TableHead>
             <TableHead class="w-36">Slug</TableHead>
             <TableHead class="w-36">标签</TableHead>
             <TableHead class="w-24">日期</TableHead>
@@ -185,7 +185,9 @@ function delete_selected() {
                   class="size-4 accent-primary"
                 />
               </TableCell>
-              <TableCell class="font-medium text-foreground">{{ post.title }}</TableCell>
+              <TableCell class="font-medium text-foreground">
+                <span class="truncate block max-w-60">{{ post.title }}</span>
+              </TableCell>
               <TableCell>
                 <code class="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
                   {{ post.slug }}

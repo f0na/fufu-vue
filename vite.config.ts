@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import { resolve } from 'path'
 import crypto from 'crypto'
+import fs from 'fs'
 import type { Plugin } from 'vite'
 
 const BAIDU_API_URL = 'https://fanyi-api.baidu.com/api/trans/vip/translate';
@@ -75,11 +76,92 @@ function baiduTranslatePlugin(): Plugin {
   };
 }
 
+function uploadPlugin(): Plugin {
+  const imgs_dir = resolve(__dirname, 'public/content/imgs');
+
+  return {
+    name: 'upload',
+    configureServer(server) {
+      // Image upload
+      server.middlewares.use('/api/upload', async (req, res) => {
+        if (req.method !== 'POST') {
+          res.statusCode = 405;
+          res.end('Method Not Allowed');
+          return;
+        }
+
+        let body = '';
+        req.on('data', (chunk) => (body += chunk));
+        req.on('end', async () => {
+          try {
+            const { filename, data } = JSON.parse(body);
+            if (!filename || !data) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: '缺少 filename 或 data' }));
+              return;
+            }
+
+            const buffer = Buffer.from(data, 'base64');
+            const ext = filename.match(/\.\w+$/)?.[0] || '.jpg';
+            const name = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`;
+
+            if (!fs.existsSync(imgs_dir)) {
+              fs.mkdirSync(imgs_dir, { recursive: true });
+            }
+
+            fs.writeFileSync(resolve(imgs_dir, name), buffer);
+
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ path: `/content/imgs/${name}` }));
+          } catch (e) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ error: (e as Error).message }));
+          }
+        });
+      });
+
+      // Gallery JSON save
+      server.middlewares.use('/api/gallery/save', async (req, res) => {
+        if (req.method !== 'POST') {
+          res.statusCode = 405;
+          res.end('Method Not Allowed');
+          return;
+        }
+
+        let body = '';
+        req.on('data', (chunk) => (body += chunk));
+        req.on('end', async () => {
+          try {
+            const { galleries } = JSON.parse(body);
+            if (!galleries) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: '缺少 galleries 数据' }));
+              return;
+            }
+
+            const filepath = resolve(__dirname, 'public/content/gallery.json');
+            fs.writeFileSync(filepath, JSON.stringify({ galleries }, null, 2), 'utf-8');
+
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ success: true }));
+          } catch (e) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ error: (e as Error).message }));
+          }
+        });
+      });
+    },
+  };
+}
+
 export default defineConfig({
   plugins: [
     vue(),
     tailwindcss(),
     baiduTranslatePlugin(),
+    uploadPlugin(),
     nodePolyfills({
       globals: { Buffer: true, global: true, process: true },
     }),
