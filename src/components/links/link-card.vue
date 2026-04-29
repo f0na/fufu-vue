@@ -1,58 +1,61 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { Icon } from '@iconify/vue'
-import { Card, CardHeader, CardTitle, CardContent, CardAction } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
-import type { LinkItem } from '@/lib/types/link'
+import { ref, computed } from 'vue';
+import { Icon } from '@iconify/vue';
+import { Card, CardHeader, CardTitle, CardContent, CardAction } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import type { LinkItem } from '@/lib/types/link';
 
 interface Props {
-  link: LinkItem
-  class?: string
+  link: LinkItem;
+  class?: string;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
-const favicon_error = ref(false)
-const copied = ref(false)
+const favicon_error = ref(false);
+const copied = ref(false);
 
 const favicon_info = computed(() => {
   try {
-    const url_obj = new URL(props.link.url)
+    const url_obj = new URL(props.link.url);
     return {
       favicon_url: `${url_obj.origin}/favicon.ico`,
-      site_initial: url_obj.hostname.replace(/^www\./, '').charAt(0).toUpperCase(),
-    }
+      site_initial: url_obj.hostname
+        .replace(/^www\./, '')
+        .charAt(0)
+        .toUpperCase(),
+    };
   } catch {
-    return { favicon_url: null as string | null, site_initial: null as string | null }
+    return { favicon_url: null as string | null, site_initial: null as string | null };
   }
-})
+});
 
-const show_favicon = computed(() =>
-  !!favicon_info.value.favicon_url && !favicon_error.value
-)
+const show_favicon = computed(() => !!favicon_info.value.favicon_url && !favicon_error.value);
 
-const show_initial = computed(() =>
-  favicon_info.value.site_initial && /^[A-Za-z0-9]$/.test(favicon_info.value.site_initial)
-)
+const show_initial = computed(
+  () => favicon_info.value.site_initial && /^[A-Za-z0-9]$/.test(favicon_info.value.site_initial)
+);
 
 const handle_click = () => {
-  window.open(props.link.url, '_blank')
-}
+  window.open(props.link.url, '_blank');
+};
 
 const handle_copy = async (e: Event) => {
-  e.stopPropagation()
+  e.stopPropagation();
   try {
-    await navigator.clipboard.writeText(props.link.url)
-    copied.value = true
-    setTimeout(() => { copied.value = false }, 2000)
+    await navigator.clipboard.writeText(props.link.url);
+    copied.value = true;
+    setTimeout(() => {
+      copied.value = false;
+    }, 2000);
   } catch (err) {
-    console.error('Failed to copy:', err)
+    console.error('Failed to copy:', err);
   }
-}
+};
 
-const display_tags = computed(() => props.link.tags.slice(0, 3))
+const display_tags = computed(() => props.link.tags.slice(0, 3));
 </script>
 
 <template>

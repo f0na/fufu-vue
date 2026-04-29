@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import PageWrapper from '@/components/layout/page-wrapper.vue'
-import GalleryContent from '@/components/gallery/gallery-content.vue'
+import PageWrapper from '@/components/layout/page-wrapper.vue';
+import GalleryContent from '@/components/gallery/gallery-content.vue';
 </script>
 
 <template>

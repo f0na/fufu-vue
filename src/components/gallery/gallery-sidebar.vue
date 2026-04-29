@@ -1,47 +1,55 @@
 <script setup lang="ts">
-import { ref, inject, onMounted, onUnmounted } from 'vue'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Icon } from '@iconify/vue'
+import { ref, inject, onMounted, onUnmounted } from 'vue';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Icon } from '@iconify/vue';
+import { RightSidebarPortalKey } from '@/context/right-sidebar-portal';
+import type { RightSidebarPortalValue } from '@/context/right-sidebar-portal';
 
-const portal_target_ref = ref<HTMLDivElement | null>(null)
-const portal = inject<any>('rightSidebarPortal', null)
+const portal_target_ref = ref<HTMLDivElement | null>(null);
+const portal = inject<RightSidebarPortalValue>(
+  RightSidebarPortalKey,
+  null as unknown as RightSidebarPortalValue
+);
 
 onMounted(() => {
   if (portal && portal_target_ref.value) {
-    portal.set_portal_target(portal_target_ref.value)
+    portal.set_portal_target(portal_target_ref.value);
   }
-})
+});
 
 onUnmounted(() => {
   if (portal) {
-    portal.set_portal_target(null)
+    portal.set_portal_target(null);
   }
-})
+});
 
 interface Props {
-  tags: string[]
-  all_tags: string[]
-  is_portal_target?: boolean
+  tags: string[];
+  all_tags: string[];
+  is_portal_target?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   is_portal_target: false,
-})
+});
 const emit = defineEmits<{
-  'update:tags': [tags: string[]]
-}>()
+  'update:tags': [tags: string[]];
+}>();
 
 function handle_tag_click(tag: string) {
   if (props.tags.includes(tag)) {
-    emit('update:tags', props.tags.filter(t => t !== tag))
+    emit(
+      'update:tags',
+      props.tags.filter((t) => t !== tag)
+    );
   } else {
-    emit('update:tags', [...props.tags, tag])
+    emit('update:tags', [...props.tags, tag]);
   }
 }
 
 function handle_all_click() {
-  emit('update:tags', [])
+  emit('update:tags', []);
 }
 </script>
 

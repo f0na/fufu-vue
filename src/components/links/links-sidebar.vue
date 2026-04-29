@@ -1,56 +1,60 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, inject } from 'vue'
-import { Button } from '@/components/ui/button'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
-import { Icon } from '@iconify/vue'
+import { ref, onMounted, onUnmounted, inject } from 'vue';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Icon } from '@iconify/vue';
+import { RightSidebarPortalKey } from '@/context/right-sidebar-portal';
+import type { RightSidebarPortalValue } from '@/context/right-sidebar-portal';
 interface Props {
-  tags: string[]
-  starred: boolean
-  all_tags: string[]
-  is_portal_target?: boolean
+  tags: string[];
+  starred: boolean;
+  all_tags: string[];
+  is_portal_target?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   is_portal_target: false,
-})
+});
 
 const emit = defineEmits<{
-  'update:tags': [tags: string[]]
-  'update:starred': [starred: boolean]
-}>()
+  'update:tags': [tags: string[]];
+  'update:starred': [starred: boolean];
+}>();
 
-const portal_target_ref = ref<HTMLDivElement | null>(null)
+const portal_target_ref = ref<HTMLDivElement | null>(null);
 
 const handle_tag_click = (tag_item: string) => {
   if (props.tags.includes(tag_item)) {
-    emit('update:tags', props.tags.filter((t) => t !== tag_item))
+    emit(
+      'update:tags',
+      props.tags.filter((t) => t !== tag_item)
+    );
   } else {
-    emit('update:tags', [...props.tags, tag_item])
+    emit('update:tags', [...props.tags, tag_item]);
   }
-}
+};
 
 const handle_all_tags_click = () => {
-  emit('update:tags', [])
-}
+  emit('update:tags', []);
+};
 
 onMounted(() => {
   if (props.is_portal_target && portal_target_ref.value) {
-    const portal = inject<any>('rightSidebarPortal')
+    const portal = inject<RightSidebarPortalValue>(RightSidebarPortalKey);
     if (portal) {
-      portal.set_portal_target(portal_target_ref.value)
+      portal.set_portal_target(portal_target_ref.value);
     }
   }
-})
+});
 
 onUnmounted(() => {
   if (props.is_portal_target) {
-    const portal = inject<any>('rightSidebarPortal')
+    const portal = inject<RightSidebarPortalValue>(RightSidebarPortalKey);
     if (portal) {
-      portal.set_portal_target(null)
+      portal.set_portal_target(null);
     }
   }
-})
+});
 </script>
 
 <template>

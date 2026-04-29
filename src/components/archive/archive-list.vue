@@ -1,57 +1,58 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
-import { Separator } from '@/components/ui/separator'
-import { Spinner } from '@/components/ui/spinner'
-import { cn } from '@/lib/utils'
-import type { Post } from '@/lib/types/post'
-import { get_posts, get_all_tags, get_all_years } from '@/lib/posts'
-import { useInfiniteScroll } from '@/composables/useInfiniteScroll'
+import { computed } from 'vue';
+import { RouterLink } from 'vue-router';
+import { Separator } from '@/components/ui/separator';
+import { Spinner } from '@/components/ui/spinner';
+import { cn } from '@/lib/utils';
+import type { Post } from '@/lib/types/post';
+import { useInfiniteScroll } from '@/composables/useInfiniteScroll';
 
 interface Props {
-  posts?: Post[]
-  is_loading?: boolean
-  has_more?: boolean
+  posts?: Post[];
+  is_loading?: boolean;
+  has_more?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   posts: () => [],
   is_loading: false,
   has_more: true,
-})
+});
 
 const { sentinelRef } = useInfiniteScroll({
   has_more: props.has_more,
   onLoadMore: () => {},
   root_margin: '100px',
   disabled: props.is_loading || props.posts.length === 0,
-})
+});
 
 interface GroupedPosts {
-  [year: string]: Post[]
+  [year: string]: Post[];
 }
 
 function group_posts_by_year(posts: Post[]): GroupedPosts {
-  const grouped: GroupedPosts = {}
+  const grouped: GroupedPosts = {};
   for (const post of posts) {
-    const year = new Date(post.date).getFullYear().toString()
+    const year = new Date(post.date).getFullYear().toString();
     if (!grouped[year]) {
-      grouped[year] = []
+      grouped[year] = [];
     }
-    grouped[year].push(post)
+    grouped[year].push(post);
   }
-  return grouped
+  return grouped;
 }
 
 function format_date(date_string: string): string {
-  const date = new Date(date_string)
-  const month = date.getMonth() + 1
-  const day = date.getDate()
-  return `${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
+  const date = new Date(date_string);
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  return `${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
 }
 
-const grouped_posts = computed(() => group_posts_by_year(props.posts))
-const years = computed(() => Object.keys(grouped_posts.value).sort((a, b) => Number(b) - Number(a)))
+const grouped_posts = computed(() => group_posts_by_year(props.posts));
+const years = computed(() =>
+  Object.keys(grouped_posts.value).sort((a, b) => Number(b) - Number(a))
+);
 </script>
 
 <template>

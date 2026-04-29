@@ -1,50 +1,51 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, inject } from 'vue'
-import ProfileCard from '@/components/entrance/profile-card.vue'
-import Announcement from '@/components/home/announcement.vue'
-import type { AnnouncementItem } from '@/components/home/announcement.vue'
-import { cn } from '@/lib/utils'
+import { ref, onMounted, onUnmounted, inject } from 'vue';
+import ProfileCard from '@/components/entrance/profile-card.vue';
+import Announcement from '@/components/home/announcement.vue';
+import type { AnnouncementItem } from '@/components/home/announcement.vue';
+import { cn } from '@/lib/utils';
+import { RightSidebarPortalKey } from '@/context/right-sidebar-portal';
+import type { RightSidebarPortalValue } from '@/context/right-sidebar-portal';
 
 interface ProfileProps {
-  name?: string
-  avatar_url?: string
-  greeting?: string
+  name?: string;
+  avatar_url?: string;
+  greeting?: string;
   social_links?: {
-    bilibili?: string
-    github?: string
-    email?: string
-  }
+    bilibili?: string;
+    github?: string;
+    email?: string;
+  };
 }
 
 interface Props {
-  children?: any
-  profile_props?: ProfileProps
+  profile_props?: ProfileProps;
   announcement_props?: {
-    title?: string
-    announcements?: AnnouncementItem[]
-    max_display?: number
-  }
-  class?: string
+    title?: string;
+    announcements?: AnnouncementItem[];
+    max_display?: number;
+  };
+  class?: string;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
-const portal_target_ref = ref<HTMLDivElement | null>(null)
+const portal_target_ref = ref<HTMLDivElement | null>(null);
 
 // 注册 portal target
 onMounted(() => {
-  const portal = inject<any>('rightSidebarPortal')
+  const portal = inject<RightSidebarPortalValue>(RightSidebarPortalKey);
   if (portal && portal_target_ref.value) {
-    portal.set_portal_target(portal_target_ref.value)
+    portal.set_portal_target(portal_target_ref.value);
   }
-})
+});
 
 onUnmounted(() => {
-  const portal = inject<any>('rightSidebarPortal')
+  const portal = inject<RightSidebarPortalValue>(RightSidebarPortalKey);
   if (portal) {
-    portal.set_portal_target(null)
+    portal.set_portal_target(null);
   }
-})
+});
 </script>
 
 <template>

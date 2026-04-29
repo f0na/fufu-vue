@@ -1,87 +1,87 @@
-import type { BangumiRecord, BangumiStatus } from '@/lib/types/bangumi'
+import type { BangumiRecord, BangumiStatus } from '@/lib/types/bangumi';
 
-const STORAGE_KEY = 'bangumi_records'
+const STORAGE_KEY = 'bangumi_records';
 
 export interface BangumiRecordStorage {
-  get_all(): Promise<BangumiRecord[]>
-  get_by_id(id: string): Promise<BangumiRecord | null>
-  get_by_subject_id(subject_id: number): Promise<BangumiRecord | null>
-  add(record: BangumiRecord): Promise<void>
-  update(id: string, updates: Partial<BangumiRecord>): Promise<void>
-  delete(id: string): Promise<void>
-  get_by_status(status: BangumiStatus): Promise<BangumiRecord[]>
+  get_all(): Promise<BangumiRecord[]>;
+  get_by_id(id: string): Promise<BangumiRecord | null>;
+  get_by_subject_id(subject_id: number): Promise<BangumiRecord | null>;
+  add(record: BangumiRecord): Promise<void>;
+  update(id: string, updates: Partial<BangumiRecord>): Promise<void>;
+  delete(id: string): Promise<void>;
+  get_by_status(status: BangumiStatus): Promise<BangumiRecord[]>;
 }
 
 export class LocalStorageImpl implements BangumiRecordStorage {
   private get_records(): BangumiRecord[] {
     try {
-      const data = localStorage.getItem(STORAGE_KEY)
-      return data ? JSON.parse(data) : []
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : [];
     } catch {
-      return []
+      return [];
     }
   }
 
   private save_records(records: BangumiRecord[]): void {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(records))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
   }
 
   async get_all(): Promise<BangumiRecord[]> {
-    return this.get_records()
+    return this.get_records();
   }
 
   async get_by_id(id: string): Promise<BangumiRecord | null> {
-    const records = this.get_records()
-    return records.find((r) => r.id === id) ?? null
+    const records = this.get_records();
+    return records.find((r) => r.id === id) ?? null;
   }
 
   async get_by_subject_id(subject_id: number): Promise<BangumiRecord | null> {
-    const records = this.get_records()
-    return records.find((r) => r.subject_id === subject_id) ?? null
+    const records = this.get_records();
+    return records.find((r) => r.subject_id === subject_id) ?? null;
   }
 
   async add(record: BangumiRecord): Promise<void> {
-    const records = this.get_records()
-    const existing = records.find((r) => r.subject_id === record.subject_id)
+    const records = this.get_records();
+    const existing = records.find((r) => r.subject_id === record.subject_id);
     if (existing) {
-      Object.assign(existing, record)
+      Object.assign(existing, record);
     } else {
-      records.push(record)
+      records.push(record);
     }
-    this.save_records(records)
+    this.save_records(records);
   }
 
   async update(id: string, updates: Partial<BangumiRecord>): Promise<void> {
-    const records = this.get_records()
-    const index = records.findIndex((r) => r.id === id)
+    const records = this.get_records();
+    const index = records.findIndex((r) => r.id === id);
     if (index !== -1) {
-      records[index] = { ...records[index], ...updates }
-      this.save_records(records)
+      records[index] = { ...records[index], ...updates };
+      this.save_records(records);
     }
   }
 
   async delete(id: string): Promise<void> {
-    const records = this.get_records()
-    const filtered = records.filter((r) => r.id !== id)
-    this.save_records(filtered)
+    const records = this.get_records();
+    const filtered = records.filter((r) => r.id !== id);
+    this.save_records(filtered);
   }
 
   async get_by_status(status: BangumiStatus): Promise<BangumiRecord[]> {
-    const records = this.get_records()
-    return records.filter((r) => r.status === status)
+    const records = this.get_records();
+    return records.filter((r) => r.status === status);
   }
 }
 
-let storage_instance: BangumiRecordStorage = new LocalStorageImpl()
+let storage_instance: BangumiRecordStorage = new LocalStorageImpl();
 
 export function get_storage(): BangumiRecordStorage {
-  return storage_instance
+  return storage_instance;
 }
 
 export function set_storage(storage: BangumiRecordStorage): void {
-  storage_instance = storage
+  storage_instance = storage;
 }
 
 export function generate_id(): string {
-  return `bangumi_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
+  return `bangumi_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 }

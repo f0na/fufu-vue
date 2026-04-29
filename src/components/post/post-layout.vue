@@ -1,31 +1,31 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import ProfileCard from '@/components/entrance/profile-card.vue'
-import Announcement, { type AnnouncementItem } from '@/components/home/announcement.vue'
-import { cn } from '@/lib/utils'
+import { ref } from 'vue';
+import ProfileCard from '@/components/entrance/profile-card.vue';
+import Announcement, { type AnnouncementItem } from '@/components/home/announcement.vue';
+import { cn } from '@/lib/utils';
 
 interface Props {
   profile_props?: {
-    name?: string
-    avatar_url?: string
-    greeting?: string
+    name?: string;
+    avatar_url?: string;
+    greeting?: string;
     social_links?: {
-      bilibili?: string
-      github?: string
-      email?: string
-    }
-  }
+      bilibili?: string;
+      github?: string;
+      email?: string;
+    };
+  };
   announcement_props?: {
-    title?: string
-    announcements?: AnnouncementItem[]
-    max_display?: number
-  }
-  class?: string
+    title?: string;
+    announcements?: AnnouncementItem[];
+    max_display?: number;
+  };
+  class?: string;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
-const portal_target_ref = ref<HTMLDivElement | null>(null)
+const portal_target_ref = ref<HTMLDivElement | null>(null);
 </script>
 
 <template>

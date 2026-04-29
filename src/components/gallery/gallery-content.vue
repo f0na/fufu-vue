@@ -1,54 +1,54 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
-import { get_galleries } from '@/lib/gallery-data'
-import ProfileCard from '@/components/entrance/profile-card.vue'
-import Announcement, { type AnnouncementItem } from '@/components/home/announcement.vue'
-import GalleryList from '@/components/gallery/gallery-list.vue'
-import GallerySidebar from '@/components/gallery/gallery-sidebar.vue'
-import type { Gallery } from '@/lib/types/gallery'
+import { ref, computed, onMounted, nextTick } from 'vue';
+import { get_galleries } from '@/lib/gallery-data';
+import ProfileCard from '@/components/entrance/profile-card.vue';
+import Announcement, { type AnnouncementItem } from '@/components/home/announcement.vue';
+import GalleryList from '@/components/gallery/gallery-list.vue';
+import GallerySidebar from '@/components/gallery/gallery-sidebar.vue';
+import type { Gallery } from '@/lib/types/gallery';
 
 interface Props {
   profile_props?: {
-    name?: string
-    avatar_url?: string
-    greeting?: string
+    name?: string;
+    avatar_url?: string;
+    greeting?: string;
     social_links?: {
-      bilibili?: string
-      github?: string
-      email?: string
-    }
-  }
+      bilibili?: string;
+      github?: string;
+      email?: string;
+    };
+  };
   announcement_props?: {
-    title?: string
-    announcements?: AnnouncementItem[]
-    max_display?: number
-  }
+    title?: string;
+    announcements?: AnnouncementItem[];
+    max_display?: number;
+  };
 }
 
-defineProps<Props>()
+defineProps<Props>();
 
-const selected_tags = ref<string[]>([])
-const galleries = ref<Gallery[]>([])
+const selected_tags = ref<string[]>([]);
+const galleries = ref<Gallery[]>([]);
 
 onMounted(async () => {
-  await nextTick()
-  galleries.value = await get_galleries()
-})
+  await nextTick();
+  galleries.value = await get_galleries();
+});
 
 const all_tags = computed(() => {
-  const tag_set = new Set<string>()
+  const tag_set = new Set<string>();
   galleries.value.forEach((gallery) => {
-    gallery.tags?.forEach((tag) => tag_set.add(tag))
-  })
-  return Array.from(tag_set)
-})
+    gallery.tags?.forEach((tag) => tag_set.add(tag));
+  });
+  return Array.from(tag_set);
+});
 
 const filtered_galleries = computed(() => {
-  if (selected_tags.value.length === 0) return galleries.value
+  if (selected_tags.value.length === 0) return galleries.value;
   return galleries.value.filter((gallery) =>
     gallery.tags?.some((tag) => selected_tags.value.includes(tag))
-  )
-})
+  );
+});
 </script>
 
 <template>
@@ -74,10 +74,7 @@ const filtered_galleries = computed(() => {
       <main class="flex-1 lg:w-[60%] min-w-0">
         <!-- 移动端筛选栏 -->
         <div class="lg:hidden mb-4">
-          <GallerySidebar
-            v-model:tags="selected_tags"
-            :all_tags="all_tags"
-          />
+          <GallerySidebar v-model:tags="selected_tags" :all_tags="all_tags" />
         </div>
 
         <!-- 相册列表 -->

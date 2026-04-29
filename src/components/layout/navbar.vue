@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import { ref, onMounted, onUnmounted } from 'vue';
+import { RouterLink, useRoute } from 'vue-router';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Icon } from '@iconify/vue'
+} from '@/components/ui/dropdown-menu';
+import { Icon } from '@iconify/vue';
 const themes = [
   { name: 'avemujica', label: 'AM', color: '#5a8fa8' },
   { name: 'mygo', label: 'MG', color: '#ff8899' },
-]
+];
 
 const nav_items = [
   { label: '首页', key: 'home', href: '/home' },
@@ -22,57 +22,55 @@ const nav_items = [
   { label: '追番', key: 'anime', href: '/anime' },
   { label: '相册', key: 'gallery', href: '/gallery' },
   { label: '友人帐', key: 'friends', href: '/friends' },
-]
+];
 
-const more_items = [
-  { label: '网站状态', key: 'status', href: '/status' },
-]
+const more_items = [{ label: '网站状态', key: 'status', href: '/status' }];
 
-const route = useRoute()
+const route = useRoute();
 
 function get_current_page_key(): string {
-  const path = route.path
+  const path = route.path;
   for (const item of nav_items) {
-    if (path === item.href) return item.key
+    if (path === item.href) return item.key;
   }
   for (const item of more_items) {
-    if (path === item.href) return item.key
+    if (path === item.href) return item.key;
   }
-  return ''
+  return '';
 }
 
-const theme_idx = ref(0)
-const is_mobile_menu_open = ref(false)
-const is_search_open = ref(false)
+const theme_idx = ref(0);
+const is_mobile_menu_open = ref(false);
+const is_search_open = ref(false);
 
 function toggle_theme() {
-  theme_idx.value = (theme_idx.value + 1) % themes.length
-  document.documentElement.setAttribute('data-theme', themes[theme_idx.value].name)
+  theme_idx.value = (theme_idx.value + 1) % themes.length;
+  document.documentElement.setAttribute('data-theme', themes[theme_idx.value].name);
 }
 
 function open_search() {
-  is_search_open.value = true
+  is_search_open.value = true;
 }
 
 function close_search() {
-  is_search_open.value = false
+  is_search_open.value = false;
 }
 
-const input_ref = ref<HTMLInputElement | null>(null)
-const query = ref('')
+const input_ref = ref<HTMLInputElement | null>(null);
+const query = ref('');
 
 onMounted(() => {
   const handle_keydown = (e: KeyboardEvent) => {
     if (e.key === 'Escape' && is_search_open.value) {
-      close_search()
+      close_search();
     }
-  }
-  window.addEventListener('keydown', handle_keydown)
+  };
+  window.addEventListener('keydown', handle_keydown);
 
   onUnmounted(() => {
-    window.removeEventListener('keydown', handle_keydown)
-  })
-})
+    window.removeEventListener('keydown', handle_keydown);
+  });
+});
 </script>
 
 <template>
@@ -87,19 +85,23 @@ onMounted(() => {
     <Icon icon="lucide:menu" v-else class="size-4" />
   </Button>
 
-  <nav class="fixed top-0 left-1/2 -translate-x-1/2 z-50 bg-background/80 backdrop-blur-md rounded-b-lg border border-border shadow-sm">
+  <nav
+    class="fixed top-0 left-1/2 -translate-x-1/2 z-50 bg-background/80 backdrop-blur-md rounded-b-lg border border-border shadow-sm"
+  >
     <div class="flex items-center gap-1 px-4 h-10">
       <div class="hidden md:flex items-center gap-1">
         <RouterLink
           v-for="item in nav_items"
           :key="item.key"
           :to="item.href"
-          :class="cn(
-            'px-3 py-1.5 text-sm font-medium transition-colors whitespace-nowrap',
-            get_current_page_key() === item.key
-              ? 'text-primary bg-primary/10 rounded-md'
-              : 'text-foreground hover:text-primary'
-          )"
+          :class="
+            cn(
+              'px-3 py-1.5 text-sm font-medium transition-colors whitespace-nowrap',
+              get_current_page_key() === item.key
+                ? 'text-primary bg-primary/10 rounded-md'
+                : 'text-foreground hover:text-primary'
+            )
+          "
         >
           {{ item.label }}
         </RouterLink>
@@ -202,13 +204,9 @@ onMounted(() => {
             <Icon icon="lucide:x" class="size-4" />
           </button>
         </div>
-        <div class="px-4 py-6 text-center text-muted-foreground text-sm">
-          输入关键词搜索内容
-        </div>
+        <div class="px-4 py-6 text-center text-muted-foreground text-sm">输入关键词搜索内容</div>
       </div>
-      <div class="mt-2 text-center text-muted-foreground text-xs">
-        按 ESC 或点击空白处关闭
-      </div>
+      <div class="mt-2 text-center text-muted-foreground text-xs">按 ESC 或点击空白处关闭</div>
     </div>
   </div>
 </template>

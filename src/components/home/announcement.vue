@@ -1,30 +1,32 @@
 <script setup lang="ts">
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 export interface AnnouncementItem {
-  id: string
-  content: string
-  time: string
+  id: string;
+  content: string;
+  time: string;
 }
 
 interface Props {
-  title?: string
-  announcements?: AnnouncementItem[]
-  max_display?: number
-  class?: string
+  title?: string;
+  announcements?: AnnouncementItem[];
+  max_display?: number;
+  class?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   title: '公告',
-  announcements: () => [{
-    id: '1',
-    content: '欢迎来到我的小站！这里是我的个人空间。',
-    time: '2026-04-17',
-  }],
+  announcements: () => [
+    {
+      id: '1',
+      content: '欢迎来到我的小站！这里是我的个人空间。',
+      time: '2026-04-17',
+    },
+  ],
   max_display: 3,
-})
+});
 
-const display_items = props.announcements.slice(0, props.max_display)
+const display_items = props.announcements.slice(0, props.max_display);
 </script>
 
 <template>

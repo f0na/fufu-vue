@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { Spinner } from '@/components/ui/spinner'
-import LinkCard from './link-card.vue'
-import { useInfiniteScroll } from '@/composables/useInfiniteScroll'
-import type { LinkItem } from '@/lib/types/link'
+import { Spinner } from '@/components/ui/spinner';
+import LinkCard from './link-card.vue';
+import { useInfiniteScroll } from '@/composables/useInfiniteScroll';
+import type { LinkItem } from '@/lib/types/link';
 
 interface Props {
-  links: LinkItem[]
-  is_loading: boolean
-  has_more: boolean
+  links: LinkItem[];
+  is_loading: boolean;
+  has_more: boolean;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
 const { sentinelRef } = useInfiniteScroll({
   has_more: props.has_more,
   onLoadMore: () => {},
   root_margin: '100px',
   disabled: props.is_loading || props.links.length === 0,
-})
+});
 </script>
 
 <template>

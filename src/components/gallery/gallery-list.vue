@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import GalleryCard from '@/components/gallery/gallery-card.vue'
-import type { Gallery } from '@/lib/types/gallery'
+import GalleryCard from '@/components/gallery/gallery-card.vue';
+import type { Gallery } from '@/lib/types/gallery';
 
 interface Props {
-  galleries: Gallery[]
+  galleries: Gallery[];
 }
 
-defineProps<Props>()
+defineProps<Props>();
 </script>
 
 <template>
@@ -18,7 +18,5 @@ defineProps<Props>()
       class="break-inside-avoid"
     />
   </div>
-  <div v-else class="text-center py-8 text-muted-foreground">
-    暂无相册
-  </div>
+  <div v-else class="text-center py-8 text-muted-foreground">暂无相册</div>
 </template>

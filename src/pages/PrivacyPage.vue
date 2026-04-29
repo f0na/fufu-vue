@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import HomeLayout from '@/components/home/home-layout.vue'
-import PageWrapper from '@/components/layout/page-wrapper.vue'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { ref } from 'vue';
+import HomeLayout from '@/components/home/home-layout.vue';
+import PageWrapper from '@/components/layout/page-wrapper.vue';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface PolicyVersion {
-  version: string
-  date: string
-  content: Array<{ title: string; items: string[] }>
+  version: string;
+  date: string;
+  content: Array<{ title: string; items: string[] }>;
 }
 
 const versions: PolicyVersion[] = [
@@ -77,9 +77,7 @@ const versions: PolicyVersion[] = [
       },
       {
         title: '9. 联系方式',
-        items: [
-          '如果您对本隐私政策有任何疑问，请通过 GitHub Issues 或电子邮件联系我。',
-        ],
+        items: ['如果您对本隐私政策有任何疑问，请通过 GitHub Issues 或电子邮件联系我。'],
       },
     ],
   },
@@ -112,9 +110,7 @@ const versions: PolicyVersion[] = [
       },
       {
         title: '4. Cookies',
-        items: [
-          '本网站不使用任何用于跟踪目的的 Cookie。',
-        ],
+        items: ['本网站不使用任何用于跟踪目的的 Cookie。'],
       },
       {
         title: '5. 数据安全',
@@ -131,21 +127,17 @@ const versions: PolicyVersion[] = [
       },
       {
         title: '7. 政策更新',
-        items: [
-          '本隐私政策可能会不时更新。更新后的政策将发布在此页面，并注明最后更新日期。',
-        ],
+        items: ['本隐私政策可能会不时更新。更新后的政策将发布在此页面，并注明最后更新日期。'],
       },
       {
         title: '8. 联系方式',
-        items: [
-          '如果您对本隐私政策有任何疑问，请通过 GitHub Issues 或电子邮件联系我。',
-        ],
+        items: ['如果您对本隐私政策有任何疑问，请通过 GitHub Issues 或电子邮件联系我。'],
       },
     ],
   },
-]
+];
 
-const active_version = ref(versions[0])
+const active_version = ref(versions[0]);
 </script>
 
 <template>
@@ -158,7 +150,11 @@ const active_version = ref(versions[0])
       :announcement_props="{
         title: '公告',
         announcements: [
-          { id: '1', content: '欢迎来到我的小站！这里是我的个人空间，记录着生活中的点点滴滴。', time: '2026-04-17' },
+          {
+            id: '1',
+            content: '欢迎来到我的小站！这里是我的个人空间，记录着生活中的点点滴滴。',
+            time: '2026-04-17',
+          },
           { id: '2', content: '网站正在建设中，敬请期待更多内容。', time: '2026-04-16' },
         ],
         max_display: 3,
@@ -185,7 +181,11 @@ const active_version = ref(versions[0])
 
           <!-- 当前版本内容 -->
           <div class="space-y-4 text-sm text-muted-foreground leading-relaxed">
-            <section v-for="section in active_version.content" :key="section.title" class="space-y-2">
+            <section
+              v-for="section in active_version.content"
+              :key="section.title"
+              class="space-y-2"
+            >
               <h3 class="text-foreground font-medium">{{ section.title }}</h3>
               <ul class="list-disc pl-5 space-y-1">
                 <li v-for="item in section.items" :key="item">

@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Card, CardContent } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
-import PostToc from '@/components/post/post-toc.vue'
-import type { TocHeading } from '@/components/post/post-toc.vue'
-import { Icon } from '@iconify/vue'
-import { cn } from '@/lib/utils'
+import { ref } from 'vue';
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import PostToc from '@/components/post/post-toc.vue';
+import type { TocHeading } from '@/components/post/post-toc.vue';
+import { Icon } from '@iconify/vue';
+import { cn } from '@/lib/utils';
 
 interface Props {
-  cover?: string
-  likes?: number
-  views?: number
-  comments_count?: number
-  excerpt?: string
-  headings?: TocHeading[]
-  comments_section_id?: string
-  class?: string
+  cover?: string;
+  likes?: number;
+  views?: number;
+  comments_count?: number;
+  excerpt?: string;
+  headings?: TocHeading[];
+  comments_section_id?: string;
+  class?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -24,24 +24,26 @@ const props = withDefaults(defineProps<Props>(), {
   comments_count: 0,
   headings: () => [],
   comments_section_id: 'comments',
-})
+});
 
-const is_liked = ref(false)
-const current_likes = ref(props.likes)
-const is_animating = ref(false)
+const is_liked = ref(false);
+const current_likes = ref(props.likes);
+const is_animating = ref(false);
 
 function handle_like() {
-  if (is_liked.value) return
-  is_animating.value = true
-  is_liked.value = true
-  current_likes.value++
-  setTimeout(() => { is_animating.value = false }, 500)
+  if (is_liked.value) return;
+  is_animating.value = true;
+  is_liked.value = true;
+  current_likes.value++;
+  setTimeout(() => {
+    is_animating.value = false;
+  }, 500);
 }
 
 function scroll_to_comments() {
-  const element = document.getElementById(props.comments_section_id)
+  const element = document.getElementById(props.comments_section_id);
   if (element) {
-    element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
 </script>
@@ -53,12 +55,7 @@ function scroll_to_comments() {
       v-if="cover"
       class="relative aspect-video w-full overflow-hidden rounded-xl ring-1 ring-foreground/10"
     >
-      <img
-        :src="cover"
-        alt="文章封面"
-        class="object-cover w-full h-full"
-        loading="lazy"
-      />
+      <img :src="cover" alt="文章封面" class="object-cover w-full h-full" loading="lazy" />
     </div>
 
     <!-- 统计信息 -->
@@ -76,7 +73,8 @@ function scroll_to_comments() {
           "
           :aria-label="is_liked ? '已点赞' : '点击点赞'"
         >
-          <Icon icon="lucide:heart"
+          <Icon
+            icon="lucide:heart"
             :class="
               cn(
                 'size-5 transition-all',
@@ -86,12 +84,7 @@ function scroll_to_comments() {
             "
           />
           <span
-            :class="
-              cn(
-                'text-xs font-medium',
-                is_liked ? 'text-red-500' : 'text-muted-foreground'
-              )
-            "
+            :class="cn('text-xs font-medium', is_liked ? 'text-red-500' : 'text-muted-foreground')"
           >
             {{ current_likes }}
           </span>

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
-import GallerySpace from '@/components/gallery/gallery-space.vue'
+import { useRoute } from 'vue-router';
+import GallerySpace from '@/components/gallery/gallery-space.vue';
 
-const route = useRoute()
+const route = useRoute();
 </script>
 
 <template>

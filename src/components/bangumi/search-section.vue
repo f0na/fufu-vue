@@ -1,19 +1,25 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Calendar } from '@/components/ui/calendar'
-import { Icon } from '@iconify/vue'
-import { search_bangumi_subjects, SORT_TYPES, SORT_LABELS } from '@/lib/bangumi-api'
-import { convert_subject_info_to_subject } from '@/lib/bangumi-utils'
-import type { BangumiSubject, BangumiRecord } from '@/lib/types/bangumi'
-import type { SortType } from '@/lib/bangumi-api'
-import BangumiCard from '@/components/bangumi/bangumi-card.vue'
+import { ref, computed } from 'vue';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { Icon } from '@iconify/vue';
+import { search_bangumi_subjects, SORT_TYPES, SORT_LABELS } from '@/lib/bangumi-api';
+import { convert_subject_info_to_subject } from '@/lib/bangumi-utils';
+import type { BangumiSubject, BangumiRecord } from '@/lib/types/bangumi';
+import type { SortType } from '@/lib/bangumi-api';
+import BangumiCard from '@/components/bangumi/bangumi-card.vue';
 
 const SUBJECT_TYPE_OPTIONS = [
   { value: '2', label: '动画' },
@@ -21,45 +27,45 @@ const SUBJECT_TYPE_OPTIONS = [
   { value: '3', label: '音乐' },
   { value: '4', label: '游戏' },
   { value: '6', label: '三次元' },
-]
+];
 
 interface Props {
-  records: BangumiRecord[]
-  on_card_click: (subject_id: number) => void
+  records: BangumiRecord[];
+  on_card_click: (subject_id: number) => void;
 }
 
-const props = defineProps<Props>()
+defineProps<Props>();
 
-const keyword = ref('')
-const sort = ref<SortType>('heat')
-const subject_type = ref('2')
-const tags = ref<string[]>([])
-const tag_input = ref('')
-const include_tags = ref<string[]>([])
-const include_input = ref('')
-const exclude_tags = ref<string[]>([])
-const exclude_input = ref('')
-const rating_min = ref('')
-const rating_max = ref('')
-const air_date_start = ref<Date>()
-const air_date_end = ref<Date>()
-const rank_min = ref('')
-const rank_max = ref('')
+const keyword = ref('');
+const sort = ref<SortType>('heat');
+const subject_type = ref('2');
+const tags = ref<string[]>([]);
+const tag_input = ref('');
+const include_tags = ref<string[]>([]);
+const include_input = ref('');
+const exclude_tags = ref<string[]>([]);
+const exclude_input = ref('');
+const rating_min = ref('');
+const rating_max = ref('');
+const air_date_start = ref<Date>();
+const air_date_end = ref<Date>();
+const rank_min = ref('');
+const rank_max = ref('');
 
-const results = ref<BangumiSubject[]>([])
-const is_loading = ref(false)
-const has_searched = ref(false)
+const results = ref<BangumiSubject[]>([]);
+const is_loading = ref(false);
+const has_searched = ref(false);
 
-const results_ref = ref<HTMLElement | null>(null)
+const results_ref = ref<HTMLElement | null>(null);
 
 function format_display_date(date: Date | undefined): string {
-  if (!date) return '选择日期'
-  return date.toLocaleDateString('zh-CN')
+  if (!date) return '选择日期';
+  return date.toLocaleDateString('zh-CN');
 }
 
 function date_to_filter_string(date: Date | undefined, prefix: string): string | undefined {
-  if (!date) return undefined
-  return `${prefix}${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  if (!date) return undefined;
+  return `${prefix}${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
 function add_tag(
@@ -67,105 +73,109 @@ function add_tag(
   input: string,
   set_input: (v: string) => void
 ) {
-  const tag = input.trim()
+  const tag = input.trim();
   if (tag) {
-    target.value = [...target.value, tag]
-    set_input('')
+    target.value = [...target.value, tag];
+    set_input('');
   }
 }
 
-function remove_tag(
-  target: typeof tags | typeof include_tags | typeof exclude_tags,
-  tag: string
-) {
-  target.value = target.value.filter(t => t !== tag)
+function remove_tag(target: typeof tags | typeof include_tags | typeof exclude_tags, tag: string) {
+  target.value = target.value.filter((t) => t !== tag);
 }
 
-const has_filters = computed(() =>
-  tags.value.length > 0 || include_tags.value.length > 0 || exclude_tags.value.length > 0 ||
-  rating_min.value || rating_max.value || air_date_start.value || air_date_end.value ||
-  rank_min.value || rank_max.value ||
-  sort.value !== 'heat' || subject_type.value !== '2'
-)
+const has_filters = computed(
+  () =>
+    tags.value.length > 0 ||
+    include_tags.value.length > 0 ||
+    exclude_tags.value.length > 0 ||
+    rating_min.value ||
+    rating_max.value ||
+    air_date_start.value ||
+    air_date_end.value ||
+    rank_min.value ||
+    rank_max.value ||
+    sort.value !== 'heat' ||
+    subject_type.value !== '2'
+);
 
 async function handle_search() {
-  if (!keyword.value.trim() && include_tags.value.length === 0) return
+  if (!keyword.value.trim() && include_tags.value.length === 0) return;
 
-  is_loading.value = true
-  has_searched.value = true
+  is_loading.value = true;
+  has_searched.value = true;
 
   setTimeout(() => {
-    results_ref.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }, 100)
+    results_ref.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
 
   try {
-    const search_keyword = [keyword.value.trim(), ...include_tags.value].filter(Boolean).join(' ')
+    const search_keyword = [keyword.value.trim(), ...include_tags.value].filter(Boolean).join(' ');
 
-    const filter: Record<string, any> = { type: [parseInt(subject_type.value)] }
+    const filter: Record<string, unknown> = { type: [parseInt(subject_type.value)] };
 
-    if (tags.value.length > 0) filter.tag = tags.value
+    if (tags.value.length > 0) filter.tag = tags.value;
 
-    const air_date_filters: string[] = []
-    const start_filter = date_to_filter_string(air_date_start.value, '>=')
-    const end_filter = date_to_filter_string(air_date_end.value, '<=')
-    if (start_filter) air_date_filters.push(start_filter)
-    if (end_filter) air_date_filters.push(end_filter)
-    if (air_date_filters.length > 0) filter.air_date = air_date_filters
+    const air_date_filters: string[] = [];
+    const start_filter = date_to_filter_string(air_date_start.value, '>=');
+    const end_filter = date_to_filter_string(air_date_end.value, '<=');
+    if (start_filter) air_date_filters.push(start_filter);
+    if (end_filter) air_date_filters.push(end_filter);
+    if (air_date_filters.length > 0) filter.air_date = air_date_filters;
 
-    const rating_filters: string[] = []
-    if (rating_min.value) rating_filters.push(`>=${rating_min.value}`)
-    if (rating_max.value) rating_filters.push(`<${rating_max.value}`)
-    if (rating_filters.length > 0) filter.rating = rating_filters
+    const rating_filters: string[] = [];
+    if (rating_min.value) rating_filters.push(`>=${rating_min.value}`);
+    if (rating_max.value) rating_filters.push(`<${rating_max.value}`);
+    if (rating_filters.length > 0) filter.rating = rating_filters;
 
-    const rank_filters: string[] = []
-    if (rank_min.value) rank_filters.push(`>${rank_min.value}`)
-    if (rank_max.value) rank_filters.push(`<=${rank_max.value}`)
-    if (rank_filters.length > 0) filter.rank = rank_filters
+    const rank_filters: string[] = [];
+    if (rank_min.value) rank_filters.push(`>${rank_min.value}`);
+    if (rank_max.value) rank_filters.push(`<=${rank_max.value}`);
+    if (rank_filters.length > 0) filter.rank = rank_filters;
 
     const search_result = await search_bangumi_subjects({
       keyword: search_keyword,
       sort: sort.value,
       filter,
       limit: 50,
-    })
+    });
 
-    let filtered_data = search_result.data
+    let filtered_data = search_result.data;
     if (exclude_tags.value.length > 0) {
-      filtered_data = filtered_data.filter(subject => {
-        const name = subject.name_cn || subject.name
-        const summary = subject.summary || ''
-        const text = `${name} ${summary}`.toLowerCase()
-        return !exclude_tags.value.some(ex => text.includes(ex.toLowerCase()))
-      })
+      filtered_data = filtered_data.filter((subject) => {
+        const name = subject.name_cn || subject.name;
+        const summary = subject.summary || '';
+        const text = `${name} ${summary}`.toLowerCase();
+        return !exclude_tags.value.some((ex) => text.includes(ex.toLowerCase()));
+      });
     }
 
-    results.value = filtered_data.map(convert_subject_info_to_subject)
-  }
-  catch {
+    results.value = filtered_data.map(convert_subject_info_to_subject);
+  } catch {
     // error handled
   }
 
-  is_loading.value = false
+  is_loading.value = false;
 }
 
 function handle_clear() {
-  keyword.value = ''
-  sort.value = 'heat'
-  subject_type.value = '2'
-  tags.value = []
-  tag_input.value = ''
-  include_tags.value = []
-  include_input.value = ''
-  exclude_tags.value = []
-  exclude_input.value = ''
-  rating_min.value = ''
-  rating_max.value = ''
-  air_date_start.value = undefined
-  air_date_end.value = undefined
-  rank_min.value = ''
-  rank_max.value = ''
-  results.value = []
-  has_searched.value = false
+  keyword.value = '';
+  sort.value = 'heat';
+  subject_type.value = '2';
+  tags.value = [];
+  tag_input.value = '';
+  include_tags.value = [];
+  include_input.value = '';
+  exclude_tags.value = [];
+  exclude_input.value = '';
+  rating_min.value = '';
+  rating_max.value = '';
+  air_date_start.value = undefined;
+  air_date_end.value = undefined;
+  rank_min.value = '';
+  rank_max.value = '';
+  results.value = [];
+  has_searched.value = false;
 }
 </script>
 
@@ -199,12 +209,14 @@ function handle_clear() {
           <div class="grid grid-cols-2 gap-4">
             <div class="flex flex-col gap-2">
               <label class="text-sm text-muted-foreground">排序方式</label>
-              <Select v-model="sort" @update:model-value="(v) => sort = v as SortType">
+              <Select v-model="sort" @update:model-value="(v) => (sort = v as SortType)">
                 <SelectTrigger class="w-full">
                   <SelectValue placeholder="选择排序" />
                 </SelectTrigger>
                 <SelectContent position="popper">
-                  <SelectItem v-for="s in SORT_TYPES" :key="s" :value="s">{{ SORT_LABELS[s] }}</SelectItem>
+                  <SelectItem v-for="s in SORT_TYPES" :key="s" :value="s">{{
+                    SORT_LABELS[s]
+                  }}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -215,7 +227,9 @@ function handle_clear() {
                   <SelectValue placeholder="选择类型" />
                 </SelectTrigger>
                 <SelectContent position="popper">
-                  <SelectItem v-for="t in SUBJECT_TYPE_OPTIONS" :key="t.value" :value="t.value">{{ t.label }}</SelectItem>
+                  <SelectItem v-for="t in SUBJECT_TYPE_OPTIONS" :key="t.value" :value="t.value">{{
+                    t.label
+                  }}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -225,21 +239,28 @@ function handle_clear() {
 
           <!-- 标签筛选 -->
           <div class="flex flex-col gap-2">
-            <label class="text-sm text-muted-foreground">标签筛选（且关系，可用 `-标签` 排除）</label>
+            <label class="text-sm text-muted-foreground"
+              >标签筛选（且关系，可用 `-标签` 排除）</label
+            >
             <div class="flex gap-2">
               <Input
                 v-model="tag_input"
-                @keydown.enter="add_tag(tags, tag_input, (v) => tag_input = v)"
+                @keydown.enter="add_tag(tags, tag_input, (v) => (tag_input = v))"
                 placeholder="添加标签..."
                 class="flex-1"
               />
-              <Button variant="outline" size="icon" @click="add_tag(tags, tag_input, (v) => tag_input = v)">
+              <Button
+                variant="outline"
+                size="icon"
+                @click="add_tag(tags, tag_input, (v) => (tag_input = v))"
+              >
                 <Icon icon="lucide:plus" class="size-4" />
               </Button>
             </div>
             <div v-if="tags.length > 0" class="flex flex-wrap gap-1">
               <Badge
-                v-for="tag in tags" :key="tag"
+                v-for="tag in tags"
+                :key="tag"
                 :variant="tag.startsWith('-') ? 'destructive' : 'secondary'"
                 class="cursor-pointer"
                 @click="remove_tag(tags, tag)"
@@ -258,18 +279,24 @@ function handle_clear() {
             <div class="flex gap-2">
               <Input
                 v-model="include_input"
-                @keydown.enter="add_tag(include_tags, include_input, (v) => include_input = v)"
+                @keydown.enter="add_tag(include_tags, include_input, (v) => (include_input = v))"
                 placeholder="添加包含关键字..."
                 class="flex-1"
               />
-              <Button variant="outline" size="icon" @click="add_tag(include_tags, include_input, (v) => include_input = v)">
+              <Button
+                variant="outline"
+                size="icon"
+                @click="add_tag(include_tags, include_input, (v) => (include_input = v))"
+              >
                 <Icon icon="lucide:plus" class="size-4" />
               </Button>
             </div>
             <div v-if="include_tags.length > 0" class="flex flex-wrap gap-1">
               <Badge
-                v-for="tag in include_tags" :key="tag"
-                variant="default" class="cursor-pointer"
+                v-for="tag in include_tags"
+                :key="tag"
+                variant="default"
+                class="cursor-pointer"
                 @click="remove_tag(include_tags, tag)"
               >
                 {{ tag }}
@@ -286,18 +313,24 @@ function handle_clear() {
             <div class="flex gap-2">
               <Input
                 v-model="exclude_input"
-                @keydown.enter="add_tag(exclude_tags, exclude_input, (v) => exclude_input = v)"
+                @keydown.enter="add_tag(exclude_tags, exclude_input, (v) => (exclude_input = v))"
                 placeholder="添加排除关键字..."
                 class="flex-1"
               />
-              <Button variant="outline" size="icon" @click="add_tag(exclude_tags, exclude_input, (v) => exclude_input = v)">
+              <Button
+                variant="outline"
+                size="icon"
+                @click="add_tag(exclude_tags, exclude_input, (v) => (exclude_input = v))"
+              >
                 <Icon icon="lucide:minus" class="size-4" />
               </Button>
             </div>
             <div v-if="exclude_tags.length > 0" class="flex flex-wrap gap-1">
               <Badge
-                v-for="tag in exclude_tags" :key="tag"
-                variant="destructive" class="cursor-pointer"
+                v-for="tag in exclude_tags"
+                :key="tag"
+                variant="destructive"
+                class="cursor-pointer"
                 @click="remove_tag(exclude_tags, tag)"
               >
                 {{ tag }}
@@ -312,9 +345,23 @@ function handle_clear() {
           <div class="flex flex-col gap-2">
             <label class="text-sm text-muted-foreground">评分范围</label>
             <div class="flex gap-2 items-center">
-              <Input v-model="rating_min" placeholder="最低评分" type="number" min="0" max="10" class="w-24" />
+              <Input
+                v-model="rating_min"
+                placeholder="最低评分"
+                type="number"
+                min="0"
+                max="10"
+                class="w-24"
+              />
               <span class="text-muted-foreground">-</span>
-              <Input v-model="rating_max" placeholder="最高评分" type="number" min="0" max="10" class="w-24" />
+              <Input
+                v-model="rating_max"
+                placeholder="最高评分"
+                type="number"
+                min="0"
+                max="10"
+                class="w-24"
+              />
             </div>
           </div>
 
@@ -388,14 +435,12 @@ function handle_clear() {
             v-for="subject in results"
             :key="subject.id"
             :subject="subject"
-            :record="records.find(r => r.subject_id === subject.id)"
+            :record="records.find((r) => r.subject_id === subject.id)"
             :on_click="() => on_card_click(subject.id)"
           />
         </div>
       </template>
-      <div v-else class="text-center text-muted-foreground py-8">
-        未找到相关番剧
-      </div>
+      <div v-else class="text-center text-muted-foreground py-8">未找到相关番剧</div>
     </div>
   </div>
 </template>

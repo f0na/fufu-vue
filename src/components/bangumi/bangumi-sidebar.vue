@@ -1,75 +1,80 @@
 <script setup lang="ts">
-import { ref, watch, computed, inject, onMounted, onUnmounted } from 'vue'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Icon } from '@iconify/vue'
-import type { BangumiStatus, BangumiSubject, BangumiRecord } from '@/lib/types/bangumi'
+import { ref, watch, computed, inject, onMounted, onUnmounted } from 'vue';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Icon } from '@iconify/vue';
+import { RightSidebarPortalKey } from '@/context/right-sidebar-portal';
+import type { RightSidebarPortalValue } from '@/context/right-sidebar-portal';
+import type { BangumiStatus, BangumiSubject, BangumiRecord } from '@/lib/types/bangumi';
 
-const portal_target_ref = ref<HTMLDivElement | null>(null)
-const portal = inject<any>('rightSidebarPortal', null)
+const portal_target_ref = ref<HTMLDivElement | null>(null);
+const portal = inject<RightSidebarPortalValue>(
+  RightSidebarPortalKey,
+  null as unknown as RightSidebarPortalValue
+);
 
 onMounted(() => {
   if (portal && portal_target_ref.value) {
-    portal.set_portal_target(portal_target_ref.value)
+    portal.set_portal_target(portal_target_ref.value);
   }
-})
+});
 
 onUnmounted(() => {
   if (portal) {
-    portal.set_portal_target(null)
+    portal.set_portal_target(null);
   }
-})
+});
 
 const status_labels: Record<BangumiStatus, string> = {
   watching: '在看',
   want_to_watch: '想看',
   watched: '看过',
   dropped: '抛弃',
-}
+};
 
 interface Props {
-  view: 'latest' | 'records' | 'search' | 'detail'
-  on_view_change: (view: 'latest' | 'records' | 'search') => void
-  selected_subject: BangumiSubject | null
-  records: BangumiRecord[]
-  on_status_change: (subject_id: number, status: BangumiStatus) => void
-  on_progress_change: (subject_id: number, progress: string) => void
+  view: 'latest' | 'records' | 'search' | 'detail';
+  on_view_change: (view: 'latest' | 'records' | 'search') => void;
+  selected_subject: BangumiSubject | null;
+  records: BangumiRecord[];
+  on_status_change: (subject_id: number, status: BangumiStatus) => void;
+  on_progress_change: (subject_id: number, progress: string) => void;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
-const progress_input = ref('')
-const has_progress_changed = ref(false)
+const progress_input = ref('');
+const has_progress_changed = ref(false);
 
 const current_record = computed(() =>
   props.selected_subject
-    ? props.records.find(r => r.subject_id === props.selected_subject!.id)
+    ? props.records.find((r) => r.subject_id === props.selected_subject!.id)
     : undefined
-)
-const current_status = computed(() => current_record.value?.status)
-const current_progress = computed(() => current_record.value?.progress || '')
+);
+const current_status = computed(() => current_record.value?.status);
+const current_progress = computed(() => current_record.value?.progress || '');
 
 watch(
   () => [props.selected_subject?.id, current_progress.value],
   () => {
     if (props.selected_subject) {
-      progress_input.value = current_progress.value
-      has_progress_changed.value = false
+      progress_input.value = current_progress.value;
+      has_progress_changed.value = false;
     }
   },
   { immediate: true }
-)
+);
 
 function handle_progress_change(value: string) {
-  progress_input.value = value
-  has_progress_changed.value = value !== current_progress.value
+  progress_input.value = value;
+  has_progress_changed.value = value !== current_progress.value;
 }
 
 function handle_save_progress() {
   if (props.selected_subject && has_progress_changed.value) {
-    props.on_progress_change(props.selected_subject.id, progress_input.value)
-    has_progress_changed.value = false
+    props.on_progress_change(props.selected_subject.id, progress_input.value);
+    has_progress_changed.value = false;
   }
 }
 </script>
@@ -121,7 +126,12 @@ function handle_save_progress() {
           <div class="flex flex-col gap-3">
             <!-- 状态按钮 -->
             <Button
-              v-for="status in (['watching', 'want_to_watch', 'watched', 'dropped'] as BangumiStatus[])"
+              v-for="status in [
+                'watching',
+                'want_to_watch',
+                'watched',
+                'dropped',
+              ] as BangumiStatus[]"
               :key="status"
               :variant="current_status === status ? 'default' : 'outline'"
               size="sm"

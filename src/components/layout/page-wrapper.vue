@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Navbar from './navbar.vue'
-import Footer from './footer.vue'
-import HeroSection from './hero-section.vue'
+import Navbar from './navbar.vue';
+import Footer from './footer.vue';
+import HeroSection from './hero-section.vue';
 </script>
 
 <template>

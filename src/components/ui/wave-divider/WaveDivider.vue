@@ -1,13 +1,13 @@
 <script setup lang="ts">
 interface Props {
-  height?: number
-  flip?: boolean
+  height?: number;
+  flip?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   height: 64,
   flip: false,
-})
+});
 </script>
 
 <template>

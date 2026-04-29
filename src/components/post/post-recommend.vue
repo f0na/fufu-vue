@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import type { Post } from '@/lib/types/post'
-import { cn } from '@/lib/utils'
+import { RouterLink } from 'vue-router';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import type { Post } from '@/lib/types/post';
+import { cn } from '@/lib/utils';
 
 interface Props {
-  posts: Post[]
-  class?: string
+  posts: Post[];
+  class?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   posts: () => [],
-})
+});
 
 function format_date(date_string: string): string {
-  const date = new Date(date_string)
+  const date = new Date(date_string);
   return date.toLocaleDateString('zh-CN', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  })
+  });
 }
 </script>
 
@@ -33,26 +33,20 @@ function format_date(date_string: string): string {
 
     <!-- 推荐文章卡片 -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-      <RouterLink
-        v-for="post in posts"
-        :key="post.slug"
-        :to="`/posts/${post.slug}`"
-        class="group"
-      >
+      <RouterLink v-for="post in posts" :key="post.slug" :to="`/posts/${post.slug}`" class="group">
         <Card
           size="sm"
-          :class="cn(
-            'transition-all duration-200',
-            'hover:ring-2 hover:ring-primary/30 hover:shadow-md',
-            'cursor-pointer overflow-hidden',
-            '!pt-0 !gap-0'
-          )"
+          :class="
+            cn(
+              'transition-all duration-200',
+              'hover:ring-2 hover:ring-primary/30 hover:shadow-md',
+              'cursor-pointer overflow-hidden',
+              '!pt-0 !gap-0'
+            )
+          "
         >
           <!-- 封面图 -->
-          <div
-            v-if="post.cover"
-            class="relative aspect-video w-full overflow-hidden rounded-t-xl"
-          >
+          <div v-if="post.cover" class="relative aspect-video w-full overflow-hidden rounded-t-xl">
             <img
               :src="post.cover"
               :alt="post.title"

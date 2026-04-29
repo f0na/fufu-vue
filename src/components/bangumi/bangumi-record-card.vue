@@ -1,48 +1,48 @@
 <script setup lang="ts">
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Icon } from '@iconify/vue'
-import { cn } from '@/lib/utils'
-import { ref } from 'vue'
-import type { BangumiRecord, BangumiStatus } from '@/lib/types/bangumi'
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Icon } from '@iconify/vue';
+import { cn } from '@/lib/utils';
+import { ref } from 'vue';
+import type { BangumiRecord, BangumiStatus } from '@/lib/types/bangumi';
 
 const status_labels: Record<BangumiStatus, string> = {
   watching: '在看',
   want_to_watch: '想看',
   watched: '看过',
   dropped: '抛弃',
-}
+};
 
 const status_colors: Record<BangumiStatus, string> = {
   watching: 'bg-primary/20 text-primary',
   want_to_watch: 'bg-secondary text-secondary-foreground',
   watched: 'bg-muted text-muted-foreground',
   dropped: 'bg-destructive/20 text-destructive',
-}
+};
 
 interface Props {
-  record: BangumiRecord
-  on_progress_update?: (progress: string) => void
-  on_delete?: () => void
-  class?: string
+  record: BangumiRecord;
+  on_progress_update?: (progress: string) => void;
+  on_delete?: () => void;
+  class?: string;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
-const is_editing = ref(false)
-const edit_value = ref(props.record.progress)
+const is_editing = ref(false);
+const edit_value = ref(props.record.progress);
 
 function handle_save() {
   if (edit_value.value !== props.record.progress && props.on_progress_update) {
-    props.on_progress_update(edit_value.value)
+    props.on_progress_update(edit_value.value);
   }
-  is_editing.value = false
+  is_editing.value = false;
 }
 
 function handle_cancel() {
-  edit_value.value = props.record.progress
-  is_editing.value = false
+  edit_value.value = props.record.progress;
+  is_editing.value = false;
 }
 </script>
 
@@ -86,12 +86,22 @@ function handle_cancel() {
         />
         <Button size="icon-xs" variant="ghost" @click="handle_save" class="text-primary">
           <svg class="size-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
           </svg>
         </Button>
         <Button size="icon-xs" variant="ghost" @click="handle_cancel" class="text-muted-foreground">
           <svg class="size-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </Button>
       </div>

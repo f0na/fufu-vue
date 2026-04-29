@@ -1,69 +1,71 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { RouterLink } from 'vue-router'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Icon } from '@iconify/vue'
-import { format_size } from '@/lib/anime-garden-client'
-import { extract_episode, format_date } from '@/lib/bangumi-utils'
-import type { BangumiSubject, AnimeResource } from '@/lib/types/bangumi'
+import { ref, computed } from 'vue';
+import { RouterLink } from 'vue-router';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Icon } from '@iconify/vue';
+import { format_size } from '@/lib/anime-garden-client';
+import { extract_episode, format_date } from '@/lib/bangumi-utils';
+import type { BangumiSubject, AnimeResource } from '@/lib/types/bangumi';
 
 interface Props {
-  subject: BangumiSubject | null
-  is_loading: boolean
-  resources_loading?: boolean
-  resource_error?: string | null
+  subject: BangumiSubject | null;
+  is_loading: boolean;
+  resources_loading?: boolean;
+  resource_error?: string | null;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
-const copied_id = ref<number | null>(null)
+const copied_id = ref<number | null>(null);
 
 // 按字幕组分组资源
 const resource_group = computed(() => {
-  if (!props.subject) return { grouped_resources: new Map<string, AnimeResource[]>(), no_fansub_resources: [] as AnimeResource[] }
+  if (!props.subject)
+    return {
+      grouped_resources: new Map<string, AnimeResource[]>(),
+      no_fansub_resources: [] as AnimeResource[],
+    };
 
-  const groups = new Map<string, AnimeResource[]>()
-  const no_fansub: AnimeResource[] = []
+  const groups = new Map<string, AnimeResource[]>();
+  const no_fansub: AnimeResource[] = [];
 
   for (const r of props.subject.resources) {
-    const fansub_name = r.fansub?.name
+    const fansub_name = r.fansub?.name;
     if (fansub_name) {
-      if (!groups.has(fansub_name)) groups.set(fansub_name, [])
-      groups.get(fansub_name)!.push(r)
+      if (!groups.has(fansub_name)) groups.set(fansub_name, []);
+      groups.get(fansub_name)!.push(r);
     } else {
-      no_fansub.push(r)
+      no_fansub.push(r);
     }
   }
 
   // 每组内按时间排序
   for (const [, resources] of groups) {
-    resources.sort((a, b) => b.created_at.getTime() - a.created_at.getTime())
+    resources.sort((a, b) => b.created_at.getTime() - a.created_at.getTime());
   }
-  no_fansub.sort((a, b) => b.created_at.getTime() - a.created_at.getTime())
+  no_fansub.sort((a, b) => b.created_at.getTime() - a.created_at.getTime());
 
   // 按资源数量排序
-  const sorted = new Map(
-    [...groups.entries()].sort((a, b) => b[1].length - a[1].length)
-  )
+  const sorted = new Map([...groups.entries()].sort((a, b) => b[1].length - a[1].length));
 
-  return { grouped_resources: sorted, no_fansub_resources: no_fansub }
-})
+  return { grouped_resources: sorted, no_fansub_resources: no_fansub };
+});
 
 async function handle_copy(magnet: string, resource_id: number) {
   try {
-    await navigator.clipboard.writeText(magnet)
-    copied_id.value = resource_id
-    setTimeout(() => { copied_id.value = null }, 2000)
-  }
-  catch {
+    await navigator.clipboard.writeText(magnet);
+    copied_id.value = resource_id;
+    setTimeout(() => {
+      copied_id.value = null;
+    }, 2000);
+  } catch {
     // copy failed
   }
 }
-
 </script>
 
 <template>
@@ -108,15 +110,22 @@ async function handle_copy(magnet: string, resource_id: number) {
           />
         </template>
         <template v-else>
-          <div class="w-[160px] aspect-[3/4] bg-muted rounded-lg flex items-center justify-center shrink-0">
-            <span class="text-muted-foreground text-lg font-medium">{{ (subject.name_cn || subject.name).slice(0, 2) }}</span>
+          <div
+            class="w-[160px] aspect-[3/4] bg-muted rounded-lg flex items-center justify-center shrink-0"
+          >
+            <span class="text-muted-foreground text-lg font-medium">{{
+              (subject.name_cn || subject.name).slice(0, 2)
+            }}</span>
           </div>
         </template>
 
         <!-- 基本信息 -->
         <div class="flex-1 flex flex-col gap-2">
           <h1 class="text-lg font-bold">{{ subject.name_cn || subject.name }}</h1>
-          <p v-if="subject.name !== (subject.name_cn || subject.name)" class="text-muted-foreground text-sm">
+          <p
+            v-if="subject.name !== (subject.name_cn || subject.name)"
+            class="text-muted-foreground text-sm"
+          >
             {{ subject.name }}
           </p>
 
@@ -136,14 +145,23 @@ async function handle_copy(magnet: string, resource_id: number) {
 
           <!-- 标签 -->
           <div v-if="subject.tags && subject.tags.length > 0" class="flex flex-wrap gap-1 mt-1">
-            <Badge v-for="tag in subject.tags.slice(0, 6)" :key="tag" variant="secondary" class="text-xs">
+            <Badge
+              v-for="tag in subject.tags.slice(0, 6)"
+              :key="tag"
+              variant="secondary"
+              class="text-xs"
+            >
               {{ tag }}
             </Badge>
           </div>
 
           <!-- Bangumi 链接 -->
           <Button variant="outline" size="sm" as-child class="mt-2">
-            <a :href="`https://bgm.tv/subject/${subject.id}`" target="_blank" rel="noopener noreferrer">
+            <a
+              :href="`https://bgm.tv/subject/${subject.id}`"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Icon icon="lucide:external-link" class="size-4" />
               在 Bangumi 查看
             </a>
@@ -211,7 +229,10 @@ async function handle_copy(magnet: string, resource_id: number) {
           <CardContent>
             <div class="flex flex-col gap-4">
               <!-- 按字幕组分组 -->
-              <template v-for="[fansub_name, resources] in resource_group.grouped_resources" :key="fansub_name">
+              <template
+                v-for="[fansub_name, resources] in resource_group.grouped_resources"
+                :key="fansub_name"
+              >
                 <div class="flex flex-col gap-2">
                   <!-- 字幕组标题 -->
                   <div class="flex items-center gap-2 text-sm font-medium text-muted-foreground">
@@ -219,7 +240,9 @@ async function handle_copy(magnet: string, resource_id: number) {
                       v-if="resources[0]?.fansub?.avatar"
                       :src="resources[0].fansub.avatar"
                       :alt="fansub_name"
+                      referrerpolicy="no-referrer"
                       class="size-5 rounded"
+                      @error="(e: Event) => (e.target as HTMLImageElement).style.display = 'none'"
                     />
                     <span>{{ fansub_name }}</span>
                     <span class="text-xs">({{ resources.length }})</span>
@@ -250,7 +273,11 @@ async function handle_copy(magnet: string, resource_id: number) {
                             class="shrink-0"
                             @click="handle_copy(resource.magnet, resource.id)"
                           >
-                            <Icon v-if="copied_id === resource.id" icon="lucide:check" class="size-4 text-primary" />
+                            <Icon
+                              v-if="copied_id === resource.id"
+                              icon="lucide:check"
+                              class="size-4 text-primary"
+                            />
                             <Icon v-else icon="lucide:copy" class="size-4" />
                           </Button>
                         </TooltipTrigger>
@@ -293,7 +320,11 @@ async function handle_copy(magnet: string, resource_id: number) {
                           class="shrink-0"
                           @click="handle_copy(resource.magnet, resource.id)"
                         >
-                          <Icon v-if="copied_id === resource.id" icon="lucide:check" class="size-4 text-primary" />
+                          <Icon
+                            v-if="copied_id === resource.id"
+                            icon="lucide:check"
+                            class="size-4 text-primary"
+                          />
                           <Icon v-else icon="lucide:copy" class="size-4" />
                         </Button>
                       </TooltipTrigger>

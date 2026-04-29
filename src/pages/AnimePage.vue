@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import PageWrapper from '@/components/layout/page-wrapper.vue'
-import BangumiContent from '@/components/bangumi/bangumi-content.vue'
+import PageWrapper from '@/components/layout/page-wrapper.vue';
+import BangumiContent from '@/components/bangumi/bangumi-content.vue';
 </script>
 
 <template>

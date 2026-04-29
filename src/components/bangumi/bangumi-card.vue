@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { Card, CardContent } from '@/components/ui/card'
-import type { BangumiSubject, BangumiRecord } from '@/lib/types/bangumi'
+import { Card } from '@/components/ui/card';
+import type { BangumiSubject, BangumiRecord } from '@/lib/types/bangumi';
 
 interface Props {
-  subject: BangumiSubject
-  record?: BangumiRecord
-  on_click?: (subject_id: number) => void
-  class?: string
+  subject: BangumiSubject;
+  record?: BangumiRecord;
+  on_click?: (subject_id: number) => void;
+  class?: string;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
-const display_name = props.subject.name_cn || props.subject.name
+const display_name = props.subject.name_cn || props.subject.name;
 </script>
 
 <template>
@@ -46,7 +46,9 @@ const display_name = props.subject.name_cn || props.subject.name
     </template>
     <template v-else>
       <div class="aspect-[3/4] w-full bg-muted flex items-center justify-center">
-        <span class="text-muted-foreground text-lg font-medium">{{ display_name.slice(0, 2) }}</span>
+        <span class="text-muted-foreground text-lg font-medium">{{
+          display_name.slice(0, 2)
+        }}</span>
       </div>
     </template>
 

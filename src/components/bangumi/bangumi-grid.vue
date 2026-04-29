@@ -1,20 +1,19 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Card, CardContent } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import type { BangumiSubject, BangumiRecord } from '@/lib/types/bangumi'
+import { ref } from 'vue';
+import { Skeleton } from '@/components/ui/skeleton';
+import type { BangumiSubject, BangumiRecord } from '@/lib/types/bangumi';
 
 interface Props {
-  subjects: BangumiSubject[]
-  records: BangumiRecord[]
-  on_card_click?: (subject_id: number) => void
-  is_loading?: boolean
-  has_more?: boolean
+  subjects: BangumiSubject[];
+  records: BangumiRecord[];
+  on_card_click?: (subject_id: number) => void;
+  is_loading?: boolean;
+  has_more?: boolean;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
-const sentinel_ref = ref<HTMLDivElement | null>(null)
+const sentinel_ref = ref<HTMLDivElement | null>(null);
 </script>
 
 <template>
@@ -25,7 +24,7 @@ const sentinel_ref = ref<HTMLDivElement | null>(null)
         v-for="subject in subjects"
         :key="subject.id"
         :subject="subject"
-        :record="records.find(r => r.subject_id === subject.id)"
+        :record="records.find((r) => r.subject_id === subject.id)"
         :on_click="() => props.on_card_click?.(subject.id)"
       />
     </div>
@@ -48,7 +47,10 @@ const sentinel_ref = ref<HTMLDivElement | null>(null)
     </div>
 
     <!-- 无数据 -->
-    <div v-if="!props.is_loading && props.subjects.length === 0" class="text-center py-8 text-muted-foreground">
+    <div
+      v-if="!props.is_loading && props.subjects.length === 0"
+      class="text-center py-8 text-muted-foreground"
+    >
       暂无番剧数据
     </div>
   </div>

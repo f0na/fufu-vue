@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { Icon } from '@iconify/vue'
-import { Card, CardContent } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { Icon } from '@iconify/vue';
+import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 interface StatItem {
-  key: string
-  label: string
-  value: number
-  trend?: number
-  icon: string
+  key: string;
+  label: string;
+  value: number;
+  trend?: number;
+  icon: string;
 }
 
 interface Props {
-  stats?: StatItem[]
-  class?: string
+  stats?: StatItem[];
+  class?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -25,7 +25,7 @@ const props = withDefaults(defineProps<Props>(), {
     { key: 'links', label: '链接数', value: 8, trend: 1, icon: 'lucide:link-2' },
     { key: 'comments', label: '评论数', value: 32, trend: 5, icon: 'lucide:message-circle' },
   ],
-})
+});
 </script>
 
 <template>
@@ -42,12 +42,14 @@ const props = withDefaults(defineProps<Props>(), {
           </div>
           <div
             v-if="stat.trend !== undefined"
-            :class="cn(
-              'flex items-center gap-1 text-xs mt-1',
-              stat.trend > 0 && 'text-chart-1',
-              stat.trend < 0 && 'text-destructive',
-              stat.trend === 0 && 'text-muted-foreground'
-            )"
+            :class="
+              cn(
+                'flex items-center gap-1 text-xs mt-1',
+                stat.trend > 0 && 'text-chart-1',
+                stat.trend < 0 && 'text-destructive',
+                stat.trend === 0 && 'text-muted-foreground'
+              )
+            "
           >
             <Icon v-if="stat.trend > 0" icon="lucide:trending-up" class="size-3" />
             <Icon v-if="stat.trend < 0" icon="lucide:trending-down" class="size-3" />
