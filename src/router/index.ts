@@ -1,3 +1,4 @@
+import { createRouter, createWebHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
 
 export const routes: RouteRecordRaw[] = [
@@ -30,6 +31,12 @@ export const routes: RouteRecordRaw[] = [
     path: '/placeholder',
     name: 'Placeholder',
     component: () => import('@/pages/PlaceholderPage.vue'),
+  },
+  // Login page (outside admin layout to avoid sidebar)
+  {
+    path: '/admin/login',
+    name: 'admin.login',
+    component: () => import('@/admin/pages/login.vue'),
   },
   {
     path: '/admin',
@@ -87,6 +94,11 @@ export const routes: RouteRecordRaw[] = [
         component: () => import('@/admin/pages/settings-editor.vue'),
       },
       {
+        path: 'trash',
+        name: 'admin.trash',
+        component: () => import('@/admin/pages/trash.vue'),
+      },
+      {
         path: 'license',
         name: 'admin.license',
         component: () => import('@/admin/pages/license-editor.vue'),
@@ -100,3 +112,24 @@ export const routes: RouteRecordRaw[] = [
   },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ];
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+  scrollBehavior() {
+    return { top: 0 };
+  },
+});
+
+// Auth guard: redirect unauthenticated users to login
+router.beforeEach(async (to) => {
+  if (to.path.startsWith('/admin') && to.name !== 'admin.login') {
+    const { useAuthStore } = await import('@/stores/auth');
+    const auth = useAuthStore();
+    if (!auth.is_authenticated) {
+      return { name: 'admin.login', query: { redirect: to.fullPath } };
+    }
+  }
+});
+
+export default router;

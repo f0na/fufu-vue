@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
-import { RouterLink, useRoute } from 'vue-router';
+import { ref, watch, onMounted, onUnmounted } from 'vue';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Icon } from '@iconify/vue';
+import { search_content, type SearchResult } from '@/lib/api/search';
 
 const THEMES = [
   { name: 'avemujica', label: 'AM', color: '#5a8fa8' },
@@ -66,8 +67,77 @@ function close_search() {
   is_search_open.value = false;
 }
 
+const router = useRouter();
+
 const input_ref = ref<HTMLInputElement | null>(null);
 const query = ref('');
+const search_results = ref<SearchResult[]>([]);
+const is_searching = ref(false);
+const search_total = ref(0);
+let search_timer: ReturnType<typeof setTimeout> | null = null;
+
+async function do_search(q: string) {
+  if (!q.trim() || q.trim().length < 2) {
+    search_results.value = [];
+    search_total.value = 0;
+    return;
+  }
+
+  is_searching.value = true;
+  try {
+    const res = await search_content({ q: q.trim(), page_size: 10 });
+    search_results.value = res.data;
+    search_total.value = res.total;
+  } catch {
+    search_results.value = [];
+    search_total.value = 0;
+  }
+  is_searching.value = false;
+}
+
+function handle_input() {
+  if (search_timer) clearTimeout(search_timer);
+  search_timer = setTimeout(() => do_search(query.value), 300);
+}
+
+function go_to_result(item: SearchResult) {
+  close_search();
+  if (item.url) {
+    router.push(item.url);
+  }
+}
+
+function type_icon(type: SearchResult['type']): string {
+  const map: Record<string, string> = {
+    post: 'lucide:file-text',
+    link: 'lucide:link',
+    gallery: 'lucide:images',
+    friend: 'lucide:users',
+    announcement: 'lucide:megaphone',
+  };
+  return map[type] || 'lucide:search';
+}
+
+function type_label(type: SearchResult['type']): string {
+  const map: Record<string, string> = {
+    post: '文章',
+    link: '链接',
+    gallery: '相册',
+    friend: '友人',
+    announcement: '公告',
+  };
+  return map[type] || type;
+}
+
+watch(is_search_open, (open) => {
+  if (open) {
+    setTimeout(() => input_ref.value?.focus(), 100);
+  } else {
+    query.value = '';
+    search_results.value = [];
+    search_total.value = 0;
+  }
+});
 
 onMounted(() => {
   const handle_keydown = (e: KeyboardEvent) => {
@@ -198,25 +268,62 @@ onMounted(() => {
     <div class="relative w-full max-w-xl mx-4" @click.stop>
       <div class="bg-card border border-border rounded-xl shadow-lg overflow-hidden">
         <div class="flex items-center gap-2 px-4 py-3 border-b border-border">
-          <Icon icon="lucide:search" class="size-4 text-muted-foreground" />
+          <Icon icon="lucide:search" class="size-4 text-muted-foreground shrink-0" />
           <input
             ref="input_ref"
             v-model="query"
             type="text"
-            placeholder="搜索文章、标签..."
+            placeholder="搜索文章、链接、友人帐..."
             class="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
+            @input="handle_input"
           />
+          <div v-if="is_searching" class="size-4 animate-spin text-muted-foreground">
+            <Icon icon="lucide:loader-2" class="size-4" />
+          </div>
           <button
-            v-if="query"
+            v-if="query && !is_searching"
             class="text-muted-foreground hover:text-foreground"
-            @click="query = ''"
+            @click="query = ''; search_results = []; search_total = 0"
           >
             <Icon icon="lucide:x" class="size-4" />
           </button>
         </div>
-        <div class="px-4 py-6 text-center text-muted-foreground text-sm">输入关键词搜索内容</div>
+
+        <!-- 搜索结果 -->
+        <div v-if="search_results.length > 0" class="max-h-80 overflow-y-auto">
+          <div
+            v-for="item in search_results"
+            :key="`${item.type}-${item.url || item.title}`"
+            class="flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-muted/50 transition-colors border-b border-border last:border-b-0"
+            @click="go_to_result(item)"
+          >
+            <div class="shrink-0 mt-0.5">
+              <Icon
+                :icon="type_icon(item.type)"
+                class="size-4 text-muted-foreground"
+              />
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="text-sm font-medium text-foreground truncate">{{ item.title }}</div>
+              <div class="text-xs text-muted-foreground line-clamp-2 mt-0.5">{{ item.snippet }}</div>
+            </div>
+            <div class="shrink-0">
+              <span class="text-[10px] text-muted-foreground/60 px-1.5 py-0.5 rounded bg-muted">{{ type_label(item.type) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 空状态 -->
+        <div
+          v-else
+          class="px-4 py-6 text-center text-muted-foreground text-sm"
+        >
+          {{ query ? '未找到相关内容' : '输入关键词搜索文章、链接、友人帐...' }}
+        </div>
       </div>
-      <div class="mt-2 text-center text-muted-foreground text-xs">按 ESC 或点击空白处关闭</div>
+      <div class="mt-2 text-center text-muted-foreground text-xs">
+        {{ query ? `共 ${search_total} 条结果 · ` : '' }}按 ESC 或点击空白处关闭
+      </div>
     </div>
   </div>
 </template>

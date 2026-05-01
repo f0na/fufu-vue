@@ -1,24 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { computed } from 'vue';
 import { Icon } from '@iconify/vue';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface Props {
-  start_date?: string;
+  uptime_seconds: number;
 }
 
-withDefaults(defineProps<Props>(), {
-  start_date: '2026-04-17',
-});
+const props = defineProps<Props>();
 
-const days = ref(0);
-
-onMounted(() => {
-  const start = new Date('2026-04-17');
-  const now = new Date();
-  const diff_time = now.getTime() - start.getTime();
-  days.value = Math.floor(diff_time / (1000 * 60 * 60 * 24));
-});
+const days = computed(() => Math.floor(props.uptime_seconds / 86400));
 </script>
 
 <template>
@@ -34,7 +25,6 @@ onMounted(() => {
         </span>
         <span class="text-2xl text-muted-foreground">天</span>
       </div>
-      <div class="text-xs text-muted-foreground/60 mt-2">自 {{ start_date }} 起</div>
     </CardContent>
   </Card>
 </template>

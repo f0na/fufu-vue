@@ -155,4 +155,6 @@ export interface BangumiRecord {
   added_at: string;
   cover_url?: string;
   fansub?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
 }

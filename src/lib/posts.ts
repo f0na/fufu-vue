@@ -1,30 +1,30 @@
-import matter from 'gray-matter';
 import type { Post, PostsResponse } from '@/lib/types/post';
+import * as posts_api from '@/lib/api/posts';
 
-/**
- * 获取所有文章
- */
-async function fetch_all_posts(): Promise<Post[]> {
-  try {
-    const res = await fetch('/content/posts/_index.json');
-    if (!res.ok) return [];
-    return await res.json();
-  } catch {
-    // fallback: 手动列出文章
-    return [];
-  }
+function map_api_post(post: Post): Post {
+  return {
+    ...post,
+    date: post.published_at || post.created_at?.split('T')[0],
+    views: post.view_count,
+    comments_count: 0,
+    cover: '',
+  };
 }
 
-/**
- * 从文件名获取 slug
- */
+function map_api_response(
+  res: import('@/lib/types/api').PaginatedResponse<Post>
+): PostsResponse {
+  return {
+    posts: res.data.map(map_api_post),
+    page: res.page,
+    has_more: res.page < res.total_pages,
+  };
+}
+
 export function slug_from_filename(filename: string): string {
   return filename.replace(/\.mdx?$/, '');
 }
 
-/**
- * 从内容生成摘要
- */
 export function generate_excerpt(content: string, length = 150): string {
   const content_without_fm = content.replace(/^---[\s\S]*?---/, '');
   const plain_text = content_without_fm
@@ -40,9 +40,6 @@ export function generate_excerpt(content: string, length = 150): string {
   return plain_text.slice(0, length) + '...';
 }
 
-/**
- * 获取文章列表（支持分页和筛选）
- */
 export async function get_posts(
   options: {
     page?: number;
@@ -50,46 +47,24 @@ export async function get_posts(
     year?: string;
     tag?: string;
     tags?: string[];
-    sort?: 'asc' | 'desc';
   } = {}
 ): Promise<PostsResponse> {
-  const { page = 1, limit = 10, year, tag, tags, sort = 'desc' } = options;
+  const { page = 1, limit = 10 } = options;
 
-  const posts = await fetch_all_posts();
-
-  let filtered = posts;
-
-  if (year) {
-    filtered = filtered.filter((post) => post.date.startsWith(year));
-  }
-  if (tag) {
-    filtered = filtered.filter((post) => post.tags.includes(tag));
-  }
-  if (tags && tags.length > 0) {
-    filtered = filtered.filter((post) => tags.every((t) => post.tags.includes(t)));
-  }
-
-  filtered.sort((a, b) => {
-    const date_a = new Date(a.date).getTime();
-    const date_b = new Date(b.date).getTime();
-    return sort === 'desc' ? date_b - date_a : date_a - date_b;
+  const result = await posts_api.get_posts({
+    page,
+    page_size: limit,
+    tag: options.tag,
+    year: options.year,
   });
 
-  const start_index = (page - 1) * limit;
-  const end_index = start_index + limit;
-  const paginated_posts = filtered.slice(start_index, end_index);
-  const has_more = end_index < filtered.length;
-
-  return { posts: paginated_posts, page, has_more };
+  return map_api_response(result);
 }
 
-/**
- * 获取所有标签及其文章数量
- */
 export async function get_all_tags(): Promise<Record<string, number>> {
-  const posts = await fetch_all_posts();
+  const result = await posts_api.get_posts({ page: 1, page_size: 200 });
   const tag_counts: Record<string, number> = {};
-  for (const post of posts) {
+  for (const post of result.data) {
     for (const tag of post.tags) {
       tag_counts[tag] = (tag_counts[tag] || 0) + 1;
     }
@@ -97,15 +72,13 @@ export async function get_all_tags(): Promise<Record<string, number>> {
   return tag_counts;
 }
 
-/**
- * 获取所有年份及其文章数量
- */
 export async function get_all_years(): Promise<Record<string, number>> {
-  const posts = await fetch_all_posts();
+  const result = await posts_api.get_posts({ page: 1, page_size: 200 });
   const year_counts: Record<string, number> = {};
-  for (const post of posts) {
-    if (!post.date) continue;
-    const year = post.date.split('-')[0];
+  for (const post of result.data) {
+    const d = post.published_at || post.created_at;
+    if (!d) continue;
+    const year = d.split('-')[0];
     if (year) {
       year_counts[year] = (year_counts[year] || 0) + 1;
     }
@@ -113,41 +86,34 @@ export async function get_all_years(): Promise<Record<string, number>> {
   return year_counts;
 }
 
-/**
- * 根据 slug 获取单篇文章
- */
 export async function get_post_by_slug(slug: string): Promise<Post | null> {
-  const posts = await fetch_all_posts();
-  return posts.find((post) => post.slug === slug) || null;
-}
-
-/**
- * 获取文章完整内容
- */
-export async function get_post_content(slug: string): Promise<{ content: string } | null> {
   try {
-    const res = await fetch(`/content/posts/${slug}.md`);
-    if (!res.ok) return null;
-    const text = await res.text();
-    const { content } = matter(text);
-    return { content };
+    const post = await posts_api.get_post_by_slug(slug);
+    return map_api_post(post);
   } catch {
     return null;
   }
 }
 
-/**
- * 获取推荐文章（基于标签匹配）
- */
+export async function get_post_content(slug: string): Promise<{ content: string } | null> {
+  try {
+    const post = await posts_api.get_post_by_slug(slug);
+    if (post.content) return { content: post.content };
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export async function get_recommended_posts(
   current_post: Post,
   max_recommendations = 3
 ): Promise<Post[]> {
   if (!current_post.tags || current_post.tags.length === 0) return [];
 
-  const all_posts = await fetch_all_posts();
+  const result = await posts_api.get_posts({ page: 1, page_size: 200 });
 
-  const posts_with_score = all_posts
+  const posts_with_score = result.data
     .filter((post) => post.slug !== current_post.slug)
     .map((post) => {
       const matching_tags = post.tags.filter((tag) => current_post.tags.includes(tag));
@@ -156,10 +122,12 @@ export async function get_recommended_posts(
     .filter((item) => item.score > 0)
     .sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score;
-      return new Date(b.post.date).getTime() - new Date(a.post.date).getTime();
+      const da = new Date(a.post.published_at || a.post.created_at).getTime();
+      const db = new Date(b.post.published_at || b.post.created_at).getTime();
+      return db - da;
     })
     .slice(0, max_recommendations)
-    .map((item) => item.post);
+    .map((item) => map_api_post(item.post));
 
   return posts_with_score;
 }

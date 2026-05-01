@@ -1,31 +1,13 @@
 import type { FriendItem, FriendsResponse } from '@/lib/types/friend';
+import * as friends_api from '@/lib/api/friends';
 
-/**
- * 从 public/content/friends/friends.json 读取友链数据
- */
-async function read_friends_from_file(): Promise<FriendItem[]> {
-  try {
-    const res = await fetch('/content/friends/friends.json');
-    if (!res.ok) return [];
-    const data = await res.json();
-    const items: FriendItem[] = Array.isArray(data.friends) ? data.friends : [];
-    // 公开页面只显示已通过审核的友链
-    return items.filter((f) => f.status === 'approved');
-  } catch {
-    return [];
-  }
+function map_api_friend(item: FriendItem): FriendItem {
+  return {
+    ...item,
+    avatar: item.avatar_url || item.avatar,
+  };
 }
 
-/**
- * 获取所有友链
- */
-async function fetch_all_friends(): Promise<FriendItem[]> {
-  return read_friends_from_file();
-}
-
-/**
- * 获取友链列表（支持分页和筛选）
- */
 export async function get_friends(
   options: {
     page?: number;
@@ -35,30 +17,28 @@ export async function get_friends(
 ): Promise<FriendsResponse> {
   const { page = 1, limit = 10, sort = 'desc' } = options;
 
-  const friends = await fetch_all_friends();
+  const result = await friends_api.get_friends({ page, page_size: limit, status: 'approved' });
 
-  friends.sort((a, b) => {
-    const date_a = new Date(a.created_at).getTime();
-    const date_b = new Date(b.created_at).getTime();
-    return sort === 'desc' ? date_b - date_a : date_a - date_b;
+  let items = result.data.map(map_api_friend);
+
+  items.sort((a, b) => {
+    const da = new Date(a.created_at).getTime();
+    const db = new Date(b.created_at).getTime();
+    return sort === 'desc' ? db - da : da - db;
   });
 
-  const start_index = (page - 1) * limit;
-  const end_index = start_index + limit;
-  const paginated_friends = friends.slice(start_index, end_index);
-  const has_more = end_index < friends.length;
-
   return {
-    friends: paginated_friends,
-    page,
-    has_more,
+    friends: items,
+    page: result.page,
+    has_more: result.page < result.total_pages,
   };
 }
 
-/**
- * 根据 ID 获取单个友链
- */
 export async function get_friend_by_id(id: string): Promise<FriendItem | null> {
-  const friends = await fetch_all_friends();
-  return friends.find((friend) => friend.id === id) || null;
+  try {
+    const friend = await friends_api.get_friend_by_id(id);
+    return map_api_friend(friend);
+  } catch {
+    return null;
+  }
 }

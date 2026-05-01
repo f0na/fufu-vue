@@ -5,6 +5,7 @@ import { Icon } from '@iconify/vue';
 import { get_gallery_by_id } from '@/lib/gallery-data';
 import PostComments from '@/components/post/post-comments.vue';
 import type { PhotoState } from '@/lib/types/gallery';
+import { proxy_image_url } from '@/lib/image-proxy';
 
 const router = useRouter();
 
@@ -450,9 +451,8 @@ const photo_width = computed(() => (mobile.value ? 140 : 200));
           @mousedown="handle_photo_drag_start($event, state.id, state)"
         >
           <img
-            :src="state.id"
+            :src="proxy_image_url(state.id)"
             alt="photo"
-            :width="photo_width"
             :style="{
               minWidth: mobile ? '140px' : '200px',
               width: mobile ? '140px' : '200px',
@@ -492,7 +492,7 @@ const photo_width = computed(() => (mobile.value ? 140 : 200));
           }"
           @click.stop
         >
-          <img :src="lightbox_photo" alt="photo" class="max-w-[80vw] max-h-[80vh] object-contain" />
+          <img :src="proxy_image_url(lightbox_photo)" alt="photo" class="max-w-[80vw] max-h-[80vh] object-contain" />
         </div>
 
         <button

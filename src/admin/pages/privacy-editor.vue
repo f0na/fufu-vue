@@ -15,6 +15,7 @@ import {
 import MonacoEditor from '@/admin/components/editor/MonacoEditor.vue';
 import MarkdownPreview from '@/admin/components/editor/MarkdownPreview.vue';
 import { useRouter } from 'vue-router';
+import * as privacy_api from '@/lib/api/privacy';
 
 interface PolicyVersion {
   version: string;
@@ -34,25 +35,16 @@ const versions = reactive<PolicyVersion[]>([]);
 
 onMounted(async () => {
   try {
-    const res = await fetch('/content/privacy.json');
-    if (res.ok) {
-      const data: { versions: PolicyVersion[] } = await res.json();
-      if (Array.isArray(data.versions)) {
-        // Migrate old format: content was an array of sections, now it's a markdown string
-        const migrated = data.versions.map((v: Record<string, unknown>) => ({
-          version: v.version as string,
-          date: v.date as string,
-          content: Array.isArray(v.content)
-            ? (v.content as Array<{ title: string; items: string[] }>)
-                .map((s) => `## ${s.title}\n\n${s.items.map((i) => `- ${i}`).join('\n')}`)
-                .join('\n\n')
-            : (v.content as string) || '',
-        }));
-        versions.splice(0, versions.length, ...migrated);
-      }
+    const api_versions = await privacy_api.get_privacy_versions();
+    if (Array.isArray(api_versions)) {
+      versions.splice(0, versions.length, ...api_versions.map((v) => ({
+        version: v.version,
+        date: v.date || v.created_at?.split('T')[0] || '',
+        content: v.content || '',
+      })));
     }
   } catch {
-    // Use defaults
+    // Use defaults when backend is unavailable
   } finally {
     loading.value = false;
     if (versions.length === 0) {
@@ -82,18 +74,15 @@ function remove_version(idx: number) {
 async function save() {
   saving.value = true;
   try {
-    const res = await fetch('/api/privacy/save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        versions: versions.map((v) => ({ ...v })),
-      }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    if (data.success) {
-      toast.success('隐私政策已保存');
+    // Save each version individually via API
+    for (const v of versions) {
+      await privacy_api.create_privacy({
+        version: v.version,
+        date: v.date,
+        content: v.content,
+      });
     }
+    toast.success('隐私政策已保存');
   } catch (e) {
     toast.error('保存失败：' + (e instanceof Error ? e.message : '未知错误'));
   } finally {

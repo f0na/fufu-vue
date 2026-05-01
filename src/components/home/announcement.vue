@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import * as settings_api from '@/lib/api/settings';
 
 export interface AnnouncementItem {
   id: string;
@@ -31,12 +32,15 @@ const settings_announcements = ref<AnnouncementItem[]>([]);
 
 onMounted(async () => {
   try {
-    const res = await fetch('/content/settings.json');
-    if (res.ok) {
-      const data = await res.json();
-      if (data.announcements && Array.isArray(data.announcements)) {
-        settings_announcements.value = data.announcements;
-      }
+    const announcements = await settings_api.get_announcements();
+    if (Array.isArray(announcements)) {
+      settings_announcements.value = announcements
+        .filter((a) => a.active)
+        .map((a) => ({
+          id: a.id,
+          content: a.content,
+          time: a.created_at?.split('T')[0] || '',
+        }));
     }
   } catch {
     // fallback to props

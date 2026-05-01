@@ -1,16 +1,25 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { Icon } from '@iconify/vue';
 import { RouterLink } from 'vue-router';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { get_dashboard } from '@/lib/api/dashboard';
+import type { DashboardStats } from '@/lib/types/dashboard';
 
-const stats = ref([
-  { label: '文章', value: '12', icon: 'lucide:file-text', change: '+2', trend: 'up' },
-  { label: '友人', value: '8', icon: 'lucide:users', change: '0', trend: 'neutral' },
-  { label: '链接', value: '15', icon: 'lucide:link', change: '+3', trend: 'up' },
-  { label: '相册', value: '6', icon: 'lucide:image', change: '+1', trend: 'up' },
-]);
+const data = ref<DashboardStats | null>(null);
+const loading = ref(true);
+const error = ref('');
+
+onMounted(async () => {
+  try {
+    data.value = await get_dashboard();
+  } catch (e) {
+    error.value = '无法连接后端 API，请检查服务是否启动';
+  } finally {
+    loading.value = false;
+  }
+});
 
 const quick_actions = [
   { label: '写文章', icon: 'lucide:pen-square', to: '/admin/posts' },
@@ -18,40 +27,142 @@ const quick_actions = [
   { label: '友人帐', icon: 'lucide:users', to: '/admin/friends' },
   { label: '系统设置', icon: 'lucide:settings', to: '/admin/settings' },
 ];
-
-const recent_activities = [
-  { text: '添加了友人 "喵桑"', time: '2 小时前' },
-  { text: '更新了相册 "旅行日记"', time: '5 小时前' },
-  { text: '删除了链接 "旧博客"', time: '1 天前' },
-  { text: '发布了新文章 "网站开发笔记"', time: '2 天前' },
-];
 </script>
 
 <template>
   <div>
     <div class="mb-8">
       <h1 class="text-2xl font-semibold text-foreground">仪表盘</h1>
-      <p class="text-sm text-muted-foreground mt-1">这是您站点的概览</p>
+      <p class="text-sm text-muted-foreground mt-1">全站运营数据概览</p>
     </div>
 
-    <!-- 统计卡片 -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      <Card v-for="stat in stats" :key="stat.label" size="sm">
-        <CardHeader class="flex flex-row items-center justify-between pb-2">
-          <CardTitle class="text-sm font-medium text-muted-foreground">{{ stat.label }}</CardTitle>
-          <Icon :icon="stat.icon" class="size-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div class="text-2xl font-bold text-foreground">{{ stat.value }}</div>
-          <p class="text-xs text-muted-foreground mt-1">
-            较上月
-            <span :class="stat.trend === 'up' ? 'text-green-600' : ''">{{ stat.change }}</span>
-          </p>
+    <template v-if="loading">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <Card v-for="i in 4" :key="i" size="sm">
+          <CardHeader class="flex flex-row items-center justify-between pb-2">
+            <div class="h-4 w-16 animate-pulse rounded bg-muted" />
+          </CardHeader>
+          <CardContent>
+            <div class="h-8 w-24 animate-pulse rounded bg-muted" />
+          </CardContent>
+        </Card>
+      </div>
+    </template>
+
+    <template v-else-if="error">
+      <Card size="sm" class="mb-8">
+        <CardContent class="flex flex-col items-center py-10">
+          <Icon icon="lucide:cloud-off" class="size-10 text-muted-foreground mb-3" />
+          <p class="text-sm text-muted-foreground">{{ error }}</p>
         </CardContent>
       </Card>
-    </div>
+    </template>
 
-    <!-- 快捷操作 + 最近动态 -->
+    <template v-else-if="data">
+      <!-- 今日数据 -->
+      <h2 class="text-sm font-medium text-muted-foreground mb-3">今日</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <Card size="sm">
+          <CardHeader class="flex flex-row items-center justify-between pb-2">
+            <CardTitle class="text-sm font-medium text-muted-foreground">请求数</CardTitle>
+            <Icon icon="lucide:activity" class="size-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div class="text-2xl font-bold text-foreground">{{ data.today.requests.toLocaleString() }}</div>
+          </CardContent>
+        </Card>
+        <Card size="sm">
+          <CardHeader class="flex flex-row items-center justify-between pb-2">
+            <CardTitle class="text-sm font-medium text-muted-foreground">带宽</CardTitle>
+            <Icon icon="lucide:database" class="size-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div class="text-2xl font-bold text-foreground">{{ data.today.bandwidth }}</div>
+          </CardContent>
+        </Card>
+        <Card size="sm">
+          <CardHeader class="flex flex-row items-center justify-between pb-2">
+            <CardTitle class="text-sm font-medium text-muted-foreground">平均响应</CardTitle>
+            <Icon icon="lucide:clock" class="size-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div class="text-2xl font-bold text-foreground">{{ data.today.avg_duration_ms }}ms</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <!-- 月度 + 总量 -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <Card size="sm">
+          <CardHeader>
+            <CardTitle class="text-sm">本月统计</CardTitle>
+          </CardHeader>
+          <CardContent class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-muted-foreground">请求数</span>
+              <span class="text-sm font-medium text-foreground">{{ data.this_month.requests.toLocaleString() }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-muted-foreground">带宽</span>
+              <span class="text-sm font-medium text-foreground">{{ data.this_month.bandwidth }}</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card size="sm">
+          <CardHeader>
+            <CardTitle class="text-sm">全部累计</CardTitle>
+          </CardHeader>
+          <CardContent class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-muted-foreground">请求数</span>
+              <span class="text-sm font-medium text-foreground">{{ data.total.requests.toLocaleString() }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-muted-foreground">带宽</span>
+              <span class="text-sm font-medium text-foreground">{{ data.total.bandwidth }}</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <!-- 状态码分布 -->
+      <Card size="sm" class="mb-6">
+        <CardHeader>
+          <CardTitle class="text-sm">状态码分布</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div class="flex items-end gap-3 h-28">
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <span class="text-xs font-medium text-foreground">{{ data.status_codes['2xx'].toLocaleString() }}</span>
+              <div
+                class="w-full rounded-t"
+                :style="{ height: `${Math.max(4, (data.status_codes['2xx'] / data.total.requests) * 100)}px`, background: 'hsl(142, 71%, 45%)' }"
+              />
+              <span class="text-xs text-muted-foreground">2xx</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <span class="text-xs font-medium text-foreground">{{ data.status_codes['4xx'].toLocaleString() }}</span>
+              <div
+                class="w-full rounded-t"
+                :style="{ height: `${Math.max(4, (data.status_codes['4xx'] / data.total.requests) * 100)}px`, background: 'hsl(38, 92%, 50%)' }"
+              />
+              <span class="text-xs text-muted-foreground">4xx</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <span class="text-xs font-medium text-foreground">{{ data.status_codes['5xx'].toLocaleString() }}</span>
+              <div
+                class="w-full rounded-t"
+                :style="{ height: `${Math.max(4, (data.status_codes['5xx'] / data.total.requests) * 100)}px`, background: 'hsl(0, 72%, 51%)' }"
+              />
+              <span class="text-xs text-muted-foreground">5xx</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </template>
+
+    <!-- 快捷操作 -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <Card size="sm">
         <CardHeader>
@@ -80,19 +191,7 @@ const recent_activities = [
           <CardTitle class="text-sm">最近动态</CardTitle>
         </CardHeader>
         <CardContent>
-          <ul class="space-y-3">
-            <li
-              v-for="(activity, idx) in recent_activities"
-              :key="idx"
-              class="flex items-start gap-3"
-            >
-              <div class="size-1.5 rounded-full bg-primary/50 mt-2 shrink-0" />
-              <div class="flex-1 min-w-0">
-                <p class="text-sm text-foreground">{{ activity.text }}</p>
-                <p class="text-xs text-muted-foreground">{{ activity.time }}</p>
-              </div>
-            </li>
-          </ul>
+          <p class="text-sm text-muted-foreground py-4 text-center">暂无动态数据</p>
         </CardContent>
       </Card>
     </div>

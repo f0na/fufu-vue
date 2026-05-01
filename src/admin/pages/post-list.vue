@@ -14,6 +14,7 @@ import {
   TableCell,
 } from '@/admin/components/ui/table';
 import type { Post } from '@/lib/types/post';
+import * as posts_api from '@/lib/api/posts';
 
 const posts = reactive<Post[]>([]);
 const loading = ref(true);
@@ -21,12 +22,13 @@ const load_error = ref('');
 
 onMounted(async () => {
   try {
-    const res = await fetch('/content/posts/_index.json');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data: Post[] = await res.json();
-    posts.splice(0, posts.length, ...(Array.isArray(data) ? data : []));
+    const result = await posts_api.get_posts({ page: 1, page_size: 100 });
+    posts.splice(0, posts.length, ...result.data.map((p) => ({
+      ...p,
+      date: p.published_at || p.created_at?.split('T')[0],
+    })));
   } catch (e) {
-    load_error.value = e instanceof Error ? e.message : '加载失败';
+    load_error.value = e instanceof Error ? e.message : '从后端加载文章列表失败';
   } finally {
     loading.value = false;
   }
@@ -79,20 +81,32 @@ function select_all() {
   }
 }
 
-function delete_post(slug: string) {
-  const idx = posts.findIndex((p) => p.slug === slug);
-  if (idx >= 0) posts.splice(idx, 1);
-  const sel_idx = selected_slugs.value.indexOf(slug);
-  if (sel_idx >= 0) selected_slugs.value.splice(sel_idx, 1);
+async function delete_post(slug: string) {
+  try {
+    await posts_api.delete_post(slug);
+    const idx = posts.findIndex((p) => p.slug === slug);
+    if (idx >= 0) posts.splice(idx, 1);
+    const sel_idx = selected_slugs.value.indexOf(slug);
+    if (sel_idx >= 0) selected_slugs.value.splice(sel_idx, 1);
+  } catch {
+    load_error.value = '删除失败';
+  }
 }
 
-function delete_selected() {
+async function delete_selected() {
   if (selected_slugs.value.length === 0) return;
-  const slug_set = new Set(selected_slugs.value);
-  for (let i = posts.length - 1; i >= 0; i--) {
-    if (slug_set.has(posts[i].slug)) posts.splice(i, 1);
+  try {
+    for (const slug of [...selected_slugs.value]) {
+      await posts_api.delete_post(slug);
+    }
+    const slug_set = new Set(selected_slugs.value);
+    for (let i = posts.length - 1; i >= 0; i--) {
+      if (slug_set.has(posts[i].slug)) posts.splice(i, 1);
+    }
+    selected_slugs.value = [];
+  } catch {
+    load_error.value = '批量删除失败';
   }
-  selected_slugs.value = [];
 }
 </script>
 

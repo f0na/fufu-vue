@@ -25,6 +25,7 @@ import {
   TableCell,
 } from '@/admin/components/ui/table';
 import type { LinkItem } from '@/lib/types/link';
+import * as links_api from '@/lib/api/links';
 
 interface FormData {
   title: string;
@@ -45,15 +46,17 @@ const empty_form: FormData = {
 const links = reactive<LinkItem[]>([]);
 const loading = ref(true);
 const load_error = ref('');
+const saving = ref(false);
 
 onMounted(async () => {
   try {
-    const res = await fetch('/content/links/links.json');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data: { links: LinkItem[] } = await res.json();
-    links.splice(0, links.length, ...(Array.isArray(data.links) ? data.links : []));
+    const result = await links_api.get_links({ page: 1, page_size: 1000 });
+    links.splice(0, links.length, ...result.data.map((l) => ({
+      ...l,
+      is_starred: l.favorite === 1,
+    })));
   } catch (e) {
-    load_error.value = e instanceof Error ? e.message : '加载失败';
+    load_error.value = e instanceof Error ? e.message : '从后端加载链接数据失败';
   } finally {
     loading.value = false;
   }
@@ -70,10 +73,19 @@ function toggle_expand(id: string) {
 }
 const tag_input = ref('');
 const link_tags = ref<string[]>([]);
+const is_composing = ref(false);
+
 function add_link_tag() {
-  const t = tag_input.value.trim();
-  if (t && !link_tags.value.includes(t)) {
-    link_tags.value.push(t);
+  const raw = tag_input.value.trim();
+  if (!raw) return;
+  const tags = raw
+    .split(/[,，、\s]+/)
+    .map((t) => t.trim())
+    .filter(Boolean);
+  for (const t of tags) {
+    if (!link_tags.value.includes(t)) {
+      link_tags.value.push(t);
+    }
   }
   tag_input.value = '';
 }
@@ -122,21 +134,11 @@ function select_all() {
   }
 }
 
-function generate_id(): string {
-  const existing_ids = links.map((l) => l.id);
-  let num = links.length + 1;
-  let id: string;
-  do {
-    id = `link-${String(num).padStart(3, '0')}`;
-    num++;
-  } while (existing_ids.includes(id));
-  return id;
-}
-
 function open_add_sheet() {
   editing_id.value = null;
   Object.assign(form_data, empty_form);
   link_tags.value = [];
+  tag_input.value = '';
   sheet_open.value = true;
 }
 
@@ -146,62 +148,92 @@ function open_edit_sheet(link: LinkItem) {
   form_data.url = link.url;
   form_data.description = link.description ?? '';
   link_tags.value = [...link.tags];
+  tag_input.value = '';
   form_data.is_starred = link.is_starred ?? false;
   sheet_open.value = true;
 }
 
-function save_link() {
+async function save_link() {
   if (!form_data.title.trim() || !form_data.url.trim()) return;
 
+  // 先刷新标签输入框的残留内容
+  add_link_tag();
+
+  saving.value = true;
+
   const url = normalize_url(form_data.url);
+  const data = {
+    title: form_data.title.trim(),
+    url,
+    description: form_data.description.trim() || undefined,
+    tags: [...link_tags.value],
+    favorite: form_data.is_starred ? 1 : 0,
+    sort_order: 0,
+  };
 
-  if (editing_id.value) {
-    const idx = links.findIndex((l) => l.id === editing_id.value);
-    if (idx >= 0) {
-      links[idx] = {
-        ...links[idx],
-        title: form_data.title.trim(),
-        url,
-        description: form_data.description.trim(),
-        tags: [...link_tags.value],
-        is_starred: form_data.is_starred,
-      };
+  try {
+    if (editing_id.value) {
+      await links_api.update_link(editing_id.value, data);
+      const idx = links.findIndex((l) => l.id === editing_id.value);
+      if (idx >= 0) {
+        links[idx] = { ...links[idx], ...data, is_starred: form_data.is_starred };
+      }
+    } else {
+      const created = await links_api.create_link(data);
+      links.unshift({
+        ...created,
+        is_starred: created.favorite === 1,
+      });
     }
-  } else {
-    links.unshift({
-      id: generate_id(),
-      title: form_data.title.trim(),
-      url,
-      description: form_data.description.trim() || undefined,
-      tags: [...link_tags.value],
-      created_at: new Date().toISOString().split('T')[0],
-      is_starred: form_data.is_starred || undefined,
-    });
+
+    toast.success(editing_id.value ? '链接已更新' : '链接已添加');
+    sheet_open.value = false;
+  } catch (err) {
+    toast.error(err instanceof Error ? err.message : '保存失败');
+  } finally {
+    saving.value = false;
   }
-
-  toast.success(editing_id.value ? '链接已更新' : '链接已添加');
-  sheet_open.value = false;
 }
 
-function delete_link(id: string) {
-  const idx = links.findIndex((l) => l.id === id);
-  if (idx >= 0) links.splice(idx, 1);
-  const sel_idx = selected_ids.value.indexOf(id);
-  if (sel_idx >= 0) selected_ids.value.splice(sel_idx, 1);
+async function delete_link(id: string) {
+  try {
+    await links_api.delete_link(id);
+    const idx = links.findIndex((l) => l.id === id);
+    if (idx >= 0) links.splice(idx, 1);
+    const sel_idx = selected_ids.value.indexOf(id);
+    if (sel_idx >= 0) selected_ids.value.splice(sel_idx, 1);
+    toast.success('已删除');
+  } catch (err) {
+    toast.error(err instanceof Error ? err.message : '删除失败');
+  }
 }
 
-function delete_selected() {
+async function delete_selected() {
   if (selected_ids.value.length === 0) return;
-  const id_set = new Set(selected_ids.value);
-  for (let i = links.length - 1; i >= 0; i--) {
-    if (id_set.has(links[i].id)) links.splice(i, 1);
+  try {
+    for (const id of [...selected_ids.value]) {
+      await links_api.delete_link(id);
+    }
+    const id_set = new Set(selected_ids.value);
+    for (let i = links.length - 1; i >= 0; i--) {
+      if (id_set.has(links[i].id)) links.splice(i, 1);
+    }
+    selected_ids.value = [];
+    toast.success('已删除选中项');
+  } catch (err) {
+    toast.error(err instanceof Error ? err.message : '删除失败');
   }
-  selected_ids.value = [];
 }
 
-function toggle_star(link: LinkItem) {
-  link.is_starred = !link.is_starred;
-  if (!link.is_starred) delete link.is_starred;
+async function toggle_star(link: LinkItem) {
+  const new_val = !link.is_starred;
+  link.is_starred = new_val;
+  try {
+    await links_api.update_link(link.id, { favorite: new_val ? 1 : 0 });
+  } catch {
+    link.is_starred = !new_val;
+    toast.error('操作失败');
+  }
 }
 
 function truncate_url(url: string, max = 40): string {
@@ -492,7 +524,11 @@ function normalize_url(url: string): string {
           <div class="space-y-2">
             <Label>标签</Label>
             <div class="flex items-center gap-2">
-              <Input v-model="tag_input" placeholder="输入标签后添加" class="flex-1" @keydown.enter.prevent="add_link_tag" />
+              <Input v-model="tag_input" placeholder="输入标签，用逗号/空格分隔" class="flex-1"
+                @compositionstart="is_composing = true"
+                @compositionend="is_composing = false"
+                @keydown.enter.prevent="!is_composing && add_link_tag()"
+              />
               <Button variant="outline" size="sm" @click="add_link_tag" :disabled="!tag_input.trim()">添加</Button>
             </div>
             <div v-if="link_tags.length" class="flex flex-wrap gap-2 pt-1">

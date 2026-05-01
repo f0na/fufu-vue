@@ -10,12 +10,13 @@ import PostRecommend from '@/components/post/post-recommend.vue';
 const PostComments = defineAsyncComponent(() => import('@/components/post/post-comments.vue'));
 import type { Post } from '@/lib/types/post';
 import type { TocHeading } from '@/components/post/post-toc.vue';
+import * as posts_api from '@/lib/api/posts';
 
 const comments_config = {
-  repo: 'f0na/fufu-next',
-  repo_id: 'R_kgDOSF1Eww',
-  category: 'Announcements',
-  category_id: 'DIC_kwDOSF1Ew8C7HmC',
+  repo: import.meta.env.VITE_GISCUS_REPO || 'f0na/fufu-next',
+  repo_id: import.meta.env.VITE_GISCUS_REPO_ID || 'R_kgDOSF1Eww',
+  category: import.meta.env.VITE_GISCUS_CATEGORY || 'Announcements',
+  category_id: import.meta.env.VITE_GISCUS_CATEGORY_ID || 'DIC_kwDOSF1Ew8C7HmC',
   mapping: 'pathname' as const,
 };
 
@@ -55,45 +56,27 @@ async function fetch_post(slug: string) {
   comments_count.value = 0;
 
   try {
-    const res = await fetch('/content/posts/_index.json');
-    if (!res.ok) {
-      error.value = true;
-      return;
-    }
-    const data = await res.json();
-    const post_data = Array.isArray(data)
-      ? data.find((p: Post) => p.slug === slug)
-      : data.posts?.find((p: Post) => p.slug === slug);
-
-    if (!post_data) {
-      error.value = true;
-      return;
-    }
-
+    const post_data = await posts_api.get_post_by_slug(slug);
     post.value = post_data;
 
-    const content_res = await fetch(`/content/posts/${slug}.md`);
-    if (content_res.ok) {
-      const text = await content_res.text();
-      if (!text.startsWith('<!DOCTYPE') && !text.startsWith('<html')) {
-        content.value = text;
-      }
+    if (post_data.content) {
+      content.value = post_data.content;
     }
 
     fetch_comments_count(slug);
 
+    // Fetch recommended posts
     if (post_data.tags?.length > 0) {
-      nextTick(() => {
-        const all_posts = Array.isArray(data)
-          ? data.filter(
-              (p: Post) =>
-                p.slug !== slug && p.tags?.some((t: string) => post_data!.tags!.includes(t))
-            )
-          : data.posts?.filter(
-              (p: Post) =>
-                p.slug !== slug && p.tags?.some((t: string) => post_data!.tags!.includes(t))
-            ) || [];
-        recommended_posts.value = all_posts.slice(0, 3);
+      nextTick(async () => {
+        try {
+          const rec = await posts_api.get_posts({ page: 1, page_size: 50 });
+          const related = rec.data
+            .filter((p) => p.slug !== slug && p.tags?.some((t) => post_data.tags!.includes(t)))
+            .slice(0, 3);
+          recommended_posts.value = related;
+        } catch {
+          // ignore recommendation errors
+        }
       });
     }
   } catch {

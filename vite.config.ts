@@ -285,14 +285,7 @@ export default defineConfig({
   },
   server: {
     watch: {
-      ignored: ['**/public/content/**'],
-    },
-    proxy: {
-      '/api/bangumi': {
-        target: 'https://api.bgm.tv',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/bangumi/, ''),
-      },
+      ignored: ['**/imgs/**'],
     },
   },
 })

@@ -1,14 +1,19 @@
 {
     "permissions": {
         "allow": [
-            "Bash(*)",
-            "Write(*)",
-            "Edit(*)",
-            "Read(*)",
-            "Glob(*)",
-            "Grep(*)",
+            "Bash(bun *)",
+            "Bash(bunx *)",
+            "Bash(git *)",
+            "Bash(npm *)",
+            "Bash(npx *)",
+            "Bash(ls *)",
+            "Bash(rtk *)",
             "WebFetch(*)",
             "WebSearch(*)"
+        ],
+        "deny": [
+            "Read(.env)",
+            "Read(.env.local)"
         ]
     }
 }

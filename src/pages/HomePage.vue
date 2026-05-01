@@ -3,6 +3,7 @@ import { ref, onMounted, nextTick } from 'vue';
 import PageWrapper from '@/components/layout/page-wrapper.vue';
 import HomeLayout from '@/components/home/home-layout.vue';
 import { render_markdown, post_process_rendered, setup_copy_handler } from '@/lib/markdown';
+import * as settings_api from '@/lib/api/settings';
 
 const description_html = ref('');
 const loading = ref(true);
@@ -10,16 +11,10 @@ const loading = ref(true);
 onMounted(async () => {
   setup_copy_handler();
   try {
-    const res = await fetch('/content/settings.json');
-    if (res.ok) {
-      const data = await res.json();
-      const desc = data?.site?.description || '';
-      const { html } = render_markdown(desc);
-      description_html.value = html;
-    } else {
-      const { html } = render_markdown('这里是可爱芙芙的小窝，欢迎大家^^');
-      description_html.value = html;
-    }
+    const profile = await settings_api.get_profile();
+    const desc = profile.data.description || '';
+    const { html } = render_markdown(desc);
+    description_html.value = html;
   } catch {
     const { html } = render_markdown('这里是可爱芙芙的小窝，欢迎大家^^');
     description_html.value = html;

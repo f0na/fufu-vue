@@ -1,18 +1,42 @@
-// 相册相关类型定义
+export interface GalleryPhoto {
+  id: string;
+  gallery_id: string;
+  path: string;
+  created_at: string;
+  deleted_at: string | null;
+}
 
 export interface Gallery {
   id: string;
   title: string;
-  cover_path: string; // 封面图片路径
-  photos: string[]; // 图片路径数组
-  tags: string[]; // 标签
+  cover_path: string;
+  tags: string[];
+  photos: string[] | GalleryPhoto[];
   created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export interface GalleryCreate {
+  title: string;
+  cover_path?: string;
+  tags?: string[];
+}
+
+export interface GalleryUpdate {
+  title?: string;
+  cover_path?: string;
+  tags?: string[];
+}
+
+export interface PhotosCreate {
+  paths: string[];
 }
 
 export interface PhotoState {
-  id: string; // 照片路径作为 id
-  x: number; // 位置 x
-  y: number; // 位置 y
-  rotation: number; // 旋转角度
-  z_index: number; // 层级
+  id: string;
+  x: number;
+  y: number;
+  rotation: number;
+  z_index: number;
 }

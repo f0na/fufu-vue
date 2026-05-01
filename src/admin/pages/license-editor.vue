@@ -8,6 +8,8 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
+import * as license_api from '@/lib/api/license';
+
 const loading = ref(true);
 const saving = ref(false);
 const show_preview = ref(false);
@@ -16,13 +18,10 @@ const content = ref('');
 
 onMounted(async () => {
   try {
-    const res = await fetch('/content/license.json');
-    if (res.ok) {
-      const data = await res.json();
-      content.value = data.content || '';
-    }
+    const data = await license_api.get_latest_license();
+    content.value = data.content || '';
   } catch {
-    // Use defaults
+    // Use defaults when backend is unavailable
   } finally {
     loading.value = false;
   }
@@ -35,16 +34,11 @@ function toggle_preview() {
 async function save() {
   saving.value = true;
   try {
-    const res = await fetch('/api/license/save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: content.value }),
+    await license_api.create_license({
+      version: `v${Date.now()}`,
+      content: content.value,
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    if (data.success) {
-      toast.success('许可证已保存');
-    }
+    toast.success('许可证已保存');
   } catch (e) {
     toast.error('保存失败：' + (e instanceof Error ? e.message : '未知错误'));
   } finally {

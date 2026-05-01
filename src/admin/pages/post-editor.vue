@@ -6,14 +6,6 @@ import { Icon } from '@iconify/vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/admin/components/ui/input';
 import { Label } from '@/admin/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectItemText,
-  SelectTrigger,
-  SelectValue,
-} from '@/admin/components/ui/select';
 import { Badge } from '@/admin/components/ui/badge';
 import {
   Sheet,
@@ -27,6 +19,7 @@ import MarkdownPreview from '@/admin/components/editor/MarkdownPreview.vue';
 import EditorSettings from '@/admin/components/editor/EditorSettings.vue';
 import { useEditorSettingsStore } from '@/admin/stores/editor-settings';
 import { translate_zh_to_en, text_to_slug } from '@/lib/translate';
+import * as posts_api from '@/lib/api/posts';
 
 const router = useRouter();
 const route = useRoute();
@@ -36,19 +29,19 @@ const settings_open = ref(false);
 const show_preview = ref(false);
 const meta_open = ref(false);
 const translating = ref(false);
+const saving = ref(false);
 const vim_status = ref({ mode: 'NORMAL', line: 1, col: 1, chars: 0 });
 const editor_content = ref('');
 
 const title = ref('');
+const excerpt = ref('');
+const cover_image_url = ref('');
 const slug = ref('');
-const category = ref('技术');
 const status = ref<'draft' | 'published'>('draft');
 const tags = ref<string[]>([]);
 const tag_input = ref('');
 
 let auto_slug_timer: ReturnType<typeof setTimeout> | null = null;
-
-const categories = ['技术', '生活', '杂谈', '旅行', '音乐'];
 
 const toggle_preview = () => {
   show_preview.value = !show_preview.value;
@@ -98,10 +91,11 @@ onMounted(async () => {
   const post = await get_post_by_slug(post_slug);
   if (post) {
     title.value = post.title || '';
+    excerpt.value = post.excerpt || '';
+    cover_image_url.value = post.cover || '';
     slug.value = post.slug || '';
     tags.value = post.tags ? [...post.tags] : [];
-    category.value = (post as Record<string, any>).category || '技术';
-    status.value = (post as Record<string, any>).status || 'draft';
+    status.value = post.status || 'draft';
     const result = await get_post_content(post_slug);
     if (result) {
       editor_content.value = result.content;
@@ -109,9 +103,51 @@ onMounted(async () => {
   }
 });
 
-function handle_save() {
-  // TODO: save to backend
-  toast.success('文章已保存');
+function extract_title(content: string): string {
+  const match = content.match(/^#\s+(.+)$/m);
+  if (match) return match[1].trim();
+  const plain = content
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/[#*`\[\]]/g, '')
+    .replace(/\n+/g, ' ')
+    .trim();
+  return plain.length > 60 ? plain.slice(0, 60) + '...' : plain;
+}
+
+async function handle_save(override_status?: 'draft' | 'published') {
+  saving.value = true;
+  try {
+    const post_slug = route.params.slug as string | undefined;
+    let resolved_title = title.value.trim() || extract_title(editor_content.value);
+    if (!title.value.trim() && /[一-鿿]/.test(resolved_title)) {
+      translating.value = true;
+      resolved_title = await translate_zh_to_en(resolved_title);
+    }
+    const data = {
+      title: resolved_title,
+      excerpt: excerpt.value || undefined,
+      cover: cover_image_url.value || undefined,
+      slug: slug.value || undefined,
+      content: editor_content.value,
+      tags: tags.value.length > 0 ? tags.value : undefined,
+      status: override_status || status.value,
+    };
+
+    if (post_slug) {
+      await posts_api.update_post(post_slug, data);
+    } else {
+      const created = await posts_api.create_post(data);
+      // Redirect to edit mode with the new slug
+      if (created.slug && !post_slug) {
+        router.replace(`/admin/posts/${created.slug}/edit`);
+      }
+    }
+    toast.success('文章已保存');
+  } catch (err) {
+    toast.error('保存失败：' + (err instanceof Error ? err.message : '未知错误'));
+  } finally {
+    saving.value = false;
+  }
 }
 </script>
 
@@ -161,17 +197,28 @@ function handle_save() {
                 </div>
               </div>
               <div class="space-y-2">
-                <Label for="meta-category">分类</Label>
-                <Select v-model="category">
-                  <SelectTrigger id="meta-category">
-                    <SelectValue>{{ category }}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem v-for="c in categories" :key="c" :value="c">
-                      <SelectItemText>{{ c }}</SelectItemText>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label for="meta-excerpt">摘要</Label>
+                <textarea
+                  id="meta-excerpt"
+                  v-model="excerpt"
+                  placeholder="文章摘要，不填则自动截取正文前200字"
+                  class="w-full min-h-[72px] px-3 py-2 rounded-md border border-border bg-bg text-text text-sm placeholder:text-text-dim/50 resize-y focus:outline-none focus:ring-1 focus:ring-accent"
+                />
+              </div>
+              <div class="space-y-2">
+                <Label for="meta-cover">封面图 URL</Label>
+                <Input id="meta-cover" v-model="cover_image_url" placeholder="https://example.com/cover.jpg" />
+                <div
+                  v-if="cover_image_url"
+                  class="relative mt-2 rounded-lg overflow-hidden border border-border bg-bg-alt"
+                >
+                  <img
+                    :src="cover_image_url"
+                    alt="封面预览"
+                    class="w-full h-32 object-cover"
+                    @error="($event.target as HTMLImageElement).style.display = 'none'"
+                  />
+                </div>
               </div>
               <div class="space-y-2">
                 <Label>状态</Label>
@@ -246,14 +293,16 @@ function handle_save() {
         </Sheet>
         <div class="w-px h-4 bg-border mx-1" />
         <button
-          class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs cursor-pointer border-none text-text hover:bg-bg-hover"
-          @click="handle_save"
+          class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs cursor-pointer border-none text-text hover:bg-bg-hover disabled:opacity-40 disabled:cursor-not-allowed"
+          :disabled="saving"
+          @click="handle_save()"
         >
           保存
         </button>
         <button
-          class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs cursor-pointer border-none bg-accent text-white hover:bg-accent-hover"
-          @click="handle_save"
+          class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs cursor-pointer border-none bg-accent text-white hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed"
+          :disabled="saving"
+          @click="handle_save('published')"
         >
           发布
         </button>

@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import * as PIXI from 'pixi.js';
 import type { Live2DModel } from 'pixi-live2d-display/cubism4';
+import { useAuthStore } from '@/stores/auth';
 
 const CUBISM4_SDK_LOADED = (): boolean =>
   typeof window !== 'undefined' &&
@@ -44,6 +45,8 @@ let click_timer: ReturnType<typeof setTimeout> | null = null;
 let click_count = 0;
 let last_click_time = 0;
 let is_mounted = false;
+let secret_count = 0;
+let secret_start = 0;
 
 function trigger_dialog() {
   const now = Date.now();
@@ -83,6 +86,24 @@ function trigger_dialog() {
 
 function handle_click() {
   if (!model_ref || !is_loaded.value) return;
+
+  // 秘密入口：4 秒内连击 10 次跳转管理登录页
+  const now = Date.now();
+  if (now - secret_start > 4000) {
+    secret_count = 0;
+    secret_start = now;
+  }
+  secret_count++;
+  if (secret_count >= 10) {
+    secret_count = 0;
+    const auth = useAuthStore();
+    if (auth.is_authenticated) {
+      router.push('/admin/dashboard');
+    } else {
+      router.push('/admin/login');
+    }
+    return;
+  }
 
   const canvas = canvas_ref.value;
   if (!canvas) return;

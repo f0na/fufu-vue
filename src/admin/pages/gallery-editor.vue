@@ -7,7 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/admin/components/ui/input';
 import { Badge } from '@/admin/components/ui/badge';
 import { Label } from '@/admin/components/ui/label';
-import type { Gallery } from '@/lib/types/gallery';
+import type { GalleryPhoto } from '@/lib/types/gallery';
+import * as galleries_api from '@/lib/api/galleries';
+import { upload_to_github } from '@/lib/api/upload';
+import { proxy_image_url } from '@/lib/image-proxy';
 
 const router = useRouter();
 const route = useRoute();
@@ -20,7 +23,7 @@ const not_found = ref(false);
 
 const title = ref('');
 const tags = ref<string[]>([]);
-const photos = ref<string[]>([]);
+const photos = ref<GalleryPhoto[]>([]);
 const cover_path = ref('');
 
 // Tags management
@@ -38,13 +41,17 @@ function remove_tag(t: string) {
 
 // URL add
 const url_input = ref('');
-function add_photo_url() {
+async function add_photo_url() {
   const url = url_input.value.trim();
-  if (url && !photos.value.includes(url)) {
-    photos.value.push(url);
-    if (!cover_path.value) cover_path.value = url;
-  }
+  if (!url) return;
   url_input.value = '';
+  try {
+    const created = await galleries_api.add_photos(gallery_id, [url]);
+    photos.value.push(...created);
+    if (!cover_path.value) cover_path.value = url;
+  } catch (e) {
+    toast.error('添加图片链接失败：' + (e instanceof Error ? e.message : '未知错误'));
+  }
 }
 
 // File upload
@@ -54,25 +61,32 @@ const file_input = ref<HTMLInputElement | null>(null);
 async function handle_upload(files: FileList | null) {
   if (!files?.length) return;
   upload_loading.value = true;
-  let success_count = 0;
+  const uploaded_urls: string[] = [];
   let fail_count = 0;
+  let last_error = '';
   try {
     for (const file of Array.from(files)) {
       try {
-        const path = await upload_file(file);
-        photos.value.push(path);
-        if (!cover_path.value) cover_path.value = path;
-        success_count++;
-      } catch {
+        const url = await upload_to_github(file);
+        uploaded_urls.push(url);
+      } catch (e) {
+        last_error = e instanceof Error ? e.message : '未知错误';
         fail_count++;
       }
     }
-    if (success_count > 0 && fail_count === 0) {
-      toast.success(`成功上传 ${success_count} 张照片`);
-    } else if (success_count > 0 && fail_count > 0) {
-      toast.warning(`成功 ${success_count} 张，${fail_count} 张失败`);
+    if (uploaded_urls.length > 0) {
+      const created = await galleries_api.add_photos(gallery_id, uploaded_urls);
+      photos.value.push(...created);
+      if (!cover_path.value && created.length > 0) {
+        cover_path.value = created[0].path;
+      }
+    }
+    if (uploaded_urls.length > 0 && fail_count === 0) {
+      toast.success(`成功上传 ${uploaded_urls.length} 张照片`);
+    } else if (uploaded_urls.length > 0 && fail_count > 0) {
+      toast.warning(`成功 ${uploaded_urls.length} 张，${fail_count} 张失败`);
     } else {
-      toast.error('上传失败');
+      toast.error(`上传失败：${last_error}`);
     }
   } finally {
     upload_loading.value = false;
@@ -80,37 +94,19 @@ async function handle_upload(files: FileList | null) {
   }
 }
 
-async function upload_file(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const base64 = (reader.result as string).split(',')[1];
-      try {
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ filename: file.name, data: base64 }),
-        });
-        if (!res.ok) throw new Error('上传失败');
-        const result = await res.json();
-        resolve(result.path);
-      } catch (e) {
-        reject(e);
-      }
-    };
-    reader.onerror = () => reject(new Error('读取文件失败'));
-    reader.readAsDataURL(file);
-  });
+function set_cover(photo: GalleryPhoto) {
+  cover_path.value = cover_path.value === photo.path ? '' : photo.path;
 }
 
-function set_cover(path: string) {
-  cover_path.value = cover_path.value === path ? '' : path;
-}
-
-function remove_photo(path: string) {
-  photos.value = photos.value.filter((p) => p !== path);
-  if (cover_path.value === path) {
-    cover_path.value = photos.value.length > 0 ? photos.value[0] : '';
+async function remove_photo(photo: GalleryPhoto) {
+  try {
+    await galleries_api.delete_photo(photo.id);
+    photos.value = photos.value.filter((p) => p.id !== photo.id);
+    if (cover_path.value === photo.path) {
+      cover_path.value = photos.value.length > 0 ? photos.value[0].path : '';
+    }
+  } catch (e) {
+    toast.error('删除失败：' + (e instanceof Error ? e.message : '未知错误'));
   }
 }
 
@@ -123,20 +119,15 @@ function move_photo(from: number, direction: -1 | 1) {
 // Load gallery data
 onMounted(async () => {
   try {
-    const res = await fetch('/content/gallery.json');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data: { galleries: Gallery[] } = await res.json();
-    const gallery = data.galleries.find((g) => g.id === gallery_id);
-    if (!gallery) {
-      not_found.value = true;
-      return;
-    }
+    const gallery = await galleries_api.get_gallery_by_id(gallery_id);
     title.value = gallery.title;
-    tags.value = [...gallery.tags];
-    photos.value = [...gallery.photos];
-    cover_path.value = gallery.cover_path || (gallery.photos.length > 0 ? gallery.photos[0] : '');
+    tags.value = typeof gallery.tags === 'string' ? JSON.parse(gallery.tags as string) : gallery.tags;
+    cover_path.value = gallery.cover_path || '';
+    photos.value = Array.isArray(gallery.photos)
+      ? gallery.photos.map((p) => (typeof p === 'object' && p !== null ? (p as GalleryPhoto) : { id: '', gallery_id: gallery_id, path: p, created_at: '', deleted_at: null }))
+      : [];
   } catch (e) {
-    load_error.value = e instanceof Error ? e.message : '加载失败';
+    load_error.value = e instanceof Error ? e.message : '从后端加载相册失败';
   } finally {
     loading.value = false;
   }
@@ -144,28 +135,17 @@ onMounted(async () => {
 
 async function save() {
   if (!title.value.trim()) return;
+  // 把输入框中未添加的文本也作为标签
+  const t = tag_input.value.trim();
+  if (t && !tags.value.includes(t)) tags.value.push(t);
+  tag_input.value = '';
   saving.value = true;
   try {
-    const res = await fetch('/content/gallery.json');
-    const data: { galleries: Gallery[] } = await res.json();
-    const idx = data.galleries.findIndex((g) => g.id === gallery_id);
-    if (idx < 0) throw new Error('相册不存在');
-
-    data.galleries[idx] = {
-      ...data.galleries[idx],
+    await galleries_api.update_gallery(gallery_id, {
       title: title.value.trim(),
       cover_path: cover_path.value,
       tags: [...tags.value],
-      photos: [...photos.value],
-    };
-
-    const save_res = await fetch('/api/gallery/save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ galleries: data.galleries }),
     });
-
-    if (!save_res.ok) throw new Error('保存失败');
     toast.success('相册已保存');
   } catch (e) {
     toast.error('保存失败：' + (e instanceof Error ? e.message : '未知错误'));
@@ -287,12 +267,12 @@ async function save() {
         <div v-if="photos.length" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pt-2">
           <div
             v-for="(photo, idx) in photos"
-            :key="photo"
+            :key="photo.id || photo.path"
             class="group relative rounded-lg border border-border overflow-hidden aspect-square bg-muted"
-            :class="{ 'ring-2 ring-primary': photo === cover_path }"
+            :class="{ 'ring-2 ring-primary': photo.path === cover_path }"
           >
             <img
-              :src="photo"
+              :src="proxy_image_url(photo.path)"
               alt=""
               class="size-full object-cover cursor-pointer"
               @click="set_cover(photo)"
@@ -300,7 +280,7 @@ async function save() {
             />
             <!-- Cover badge -->
             <div
-              v-if="photo === cover_path"
+              v-if="photo.path === cover_path"
               class="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-primary text-primary-foreground text-[10px] font-medium"
             >
               封面

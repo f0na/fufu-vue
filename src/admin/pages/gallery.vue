@@ -25,6 +25,9 @@ import {
   TableCell,
 } from '@/admin/components/ui/table';
 import type { Gallery } from '@/lib/types/gallery';
+import type { GalleryPhoto } from '@/lib/types/gallery';
+import * as galleries_api from '@/lib/api/galleries';
+import { proxy_image_url } from '@/lib/image-proxy';
 
 interface FormData {
   title: string;
@@ -36,15 +39,20 @@ const router = useRouter();
 const galleries = reactive<Gallery[]>([]);
 const loading = ref(true);
 const load_error = ref('');
+const saving = ref(false);
 
 onMounted(async () => {
   try {
-    const res = await fetch('/content/gallery.json');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data: { galleries: Gallery[] } = await res.json();
-    galleries.splice(0, galleries.length, ...(Array.isArray(data.galleries) ? data.galleries : []));
+    const result = await galleries_api.get_galleries({ page: 1, page_size: 100 });
+    galleries.splice(0, galleries.length, ...result.data.map((g) => ({
+      ...g,
+      tags: typeof g.tags === 'string' ? JSON.parse(g.tags as string) : g.tags,
+      photos: Array.isArray(g.photos)
+        ? g.photos.map((p) => (typeof p === 'object' && p !== null ? (p as GalleryPhoto).path : p))
+        : [],
+    })));
   } catch (e) {
-    load_error.value = e instanceof Error ? e.message : '加载失败';
+    load_error.value = e instanceof Error ? e.message : '从后端加载相册数据失败';
   } finally {
     loading.value = false;
   }
@@ -117,51 +125,68 @@ function select_all() {
   }
 }
 
-function generate_id(): string {
-  const existing_ids = galleries.map((g) => g.id);
-  let num = galleries.length + 1;
-  let id: string;
-  do {
-    id = `gallery-${String(num).padStart(3, '0')}`;
-    num++;
-  } while (existing_ids.includes(id));
-  return id;
-}
-
 function open_add_sheet() {
   Object.assign(form_data, empty_form);
   gallery_tags.value = [];
   sheet_open.value = true;
 }
 
-function save_gallery() {
+async function save_gallery() {
   if (!form_data.title.trim()) return;
-  galleries.unshift({
-    id: generate_id(),
-    title: form_data.title.trim(),
-    cover_path: '',
-    tags: [...gallery_tags.value],
-    photos: [],
-    created_at: new Date().toISOString().split('T')[0],
-  });
-  toast.success('相册已添加');
-  sheet_open.value = false;
-}
-
-function delete_gallery(id: string) {
-  const idx = galleries.findIndex((g) => g.id === id);
-  if (idx >= 0) galleries.splice(idx, 1);
-  const sel_idx = selected_ids.value.indexOf(id);
-  if (sel_idx >= 0) selected_ids.value.splice(sel_idx, 1);
-}
-
-function delete_selected() {
-  if (selected_ids.value.length === 0) return;
-  const id_set = new Set(selected_ids.value);
-  for (let i = galleries.length - 1; i >= 0; i--) {
-    if (id_set.has(galleries[i].id)) galleries.splice(i, 1);
+  // 把输入框中未添加的文本也作为标签
+  const t = tag_input.value.trim();
+  if (t && !gallery_tags.value.includes(t)) gallery_tags.value.push(t);
+  tag_input.value = '';
+  saving.value = true;
+  try {
+    const created = await galleries_api.create_gallery({
+      title: form_data.title.trim(),
+      tags: [...gallery_tags.value],
+    });
+    galleries.unshift({
+      ...created,
+      tags: typeof created.tags === 'string' ? JSON.parse(created.tags as string) : created.tags,
+      photos: Array.isArray(created.photos)
+        ? created.photos.map((p) => (typeof p === 'object' && p !== null ? (p as GalleryPhoto).path : p))
+        : [],
+    });
+    toast.success('相册已添加');
+    sheet_open.value = false;
+  } catch (err) {
+    toast.error(err instanceof Error ? err.message : '保存失败');
+  } finally {
+    saving.value = false;
   }
-  selected_ids.value = [];
+}
+
+async function delete_gallery(id: string) {
+  try {
+    await galleries_api.delete_gallery(id);
+    const idx = galleries.findIndex((g) => g.id === id);
+    if (idx >= 0) galleries.splice(idx, 1);
+    const sel_idx = selected_ids.value.indexOf(id);
+    if (sel_idx >= 0) selected_ids.value.splice(sel_idx, 1);
+    toast.success('已删除');
+  } catch (err) {
+    toast.error(err instanceof Error ? err.message : '删除失败');
+  }
+}
+
+async function delete_selected() {
+  if (selected_ids.value.length === 0) return;
+  try {
+    for (const id of [...selected_ids.value]) {
+      await galleries_api.delete_gallery(id);
+    }
+    const id_set = new Set(selected_ids.value);
+    for (let i = galleries.length - 1; i >= 0; i--) {
+      if (id_set.has(galleries[i].id)) galleries.splice(i, 1);
+    }
+    selected_ids.value = [];
+    toast.success('已删除选中项');
+  } catch (err) {
+    toast.error(err instanceof Error ? err.message : '删除失败');
+  }
 }
 
 function navigate_edit(id: string) {
@@ -169,8 +194,11 @@ function navigate_edit(id: string) {
 }
 
 function display_cover(gallery: Gallery): string {
-  if (gallery.cover_path) return gallery.cover_path;
-  if (gallery.photos.length > 0) return gallery.photos[0];
+  if (gallery.cover_path) return proxy_image_url(gallery.cover_path);
+  if (gallery.photos.length > 0) {
+    const first = gallery.photos[0];
+    return proxy_image_url(typeof first === 'string' ? first : first.path);
+  }
   return '';
 }
 </script>
@@ -239,7 +267,6 @@ function display_cover(gallery: Gallery): string {
             </TableHead>
             <TableHead class="w-56">标题</TableHead>
             <TableHead class="w-36">标签</TableHead>
-            <TableHead class="w-20">照片数</TableHead>
             <TableHead class="w-24">创建日期</TableHead>
             <TableHead class="w-24 text-right">操作</TableHead>
           </TableRow>
@@ -296,7 +323,6 @@ function display_cover(gallery: Gallery): string {
                   </span>
                 </div>
               </TableCell>
-              <TableCell class="text-sm text-muted-foreground">{{ gallery.photos.length }}</TableCell>
               <TableCell class="text-sm text-muted-foreground">{{ gallery.created_at }}</TableCell>
               <TableCell class="text-right" @click.stop>
                 <div class="flex items-center justify-end gap-1">
@@ -318,7 +344,7 @@ function display_cover(gallery: Gallery): string {
 
             <!-- 相册详情展开 -->
             <TableRow v-if="expanded_ids.has(gallery.id)" class="bg-muted/20">
-              <TableCell :colspan="6" class="p-0">
+              <TableCell :colspan="5" class="p-0">
                 <div class="px-6 py-3 space-y-2 text-sm border-t border-border">
                   <div class="flex gap-3">
                     <span class="text-muted-foreground shrink-0 w-16">标题:</span>
@@ -331,10 +357,6 @@ function display_cover(gallery: Gallery): string {
                     </div>
                   </div>
                   <div class="flex gap-3">
-                    <span class="text-muted-foreground shrink-0 w-16">照片数:</span>
-                    <span>{{ gallery.photos.length }} 张</span>
-                  </div>
-                  <div class="flex gap-3">
                     <span class="text-muted-foreground shrink-0 w-16">创建日期:</span>
                     <span class="text-muted-foreground">{{ gallery.created_at }}</span>
                   </div>
@@ -345,7 +367,7 @@ function display_cover(gallery: Gallery): string {
 
           <!-- 空状态 -->
           <TableRow v-if="paged_galleries.length === 0">
-            <TableCell :colspan="6" class="text-center py-12 text-muted-foreground">
+            <TableCell :colspan="5" class="text-center py-12 text-muted-foreground">
               没有找到匹配的相册
             </TableCell>
           </TableRow>

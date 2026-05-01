@@ -1,16 +1,13 @@
+import { api } from '@/lib/api-client';
 import type { BangumiSubjectInfo } from '@/lib/types/bangumi';
-
-// 在客户端使用相对路径（通过 Vite proxy / CF Workers 代理）
-// Vite proxy 配置: /api/bangumi/* -> https://api.bgm.tv/*
-const API_PROXY = '/api/bangumi';
 
 // 条目类型枚举
 export const SUBJECT_TYPES = {
-  book: 1, // 书籍
-  anime: 2, // 动漫
-  music: 3, // 音乐
-  game: 4, // 游戏
-  real: 6, // 三次元
+  book: 1,
+  anime: 2,
+  music: 3,
+  game: 4,
+  real: 6,
 };
 
 // 排序类型
@@ -50,7 +47,7 @@ interface SearchSubjectsResult {
   offset: number;
 }
 
-// 搜索番剧（通过代理）
+// 搜索番剧（通过后端代理）
 export async function search_bangumi_subjects(
   params: SearchSubjectsParams
 ): Promise<SearchSubjectsResult> {
@@ -63,70 +60,44 @@ export async function search_bangumi_subjects(
   } = params;
 
   try {
-    const response = await fetch(
-      `${API_PROXY}/v0/search/subjects?limit=${limit}&offset=${offset}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          keyword,
-          sort,
-          filter,
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to search bangumi: ${response.status}`);
-    }
-
-    return await response.json();
+    return await api.post<SearchSubjectsResult>('/api/bangumi/search', {
+      keyword,
+      sort,
+      filter,
+      limit,
+      offset,
+    });
   } catch (error) {
     console.error('Failed to search bangumi subjects:', error);
     return { data: [], total: 0, limit, offset };
   }
 }
 
-// 获取番剧详情（通过代理）
+// 获取番剧详情（通过后端代理）
 export async function fetch_bangumi_subject(id: number): Promise<BangumiSubjectInfo | null> {
   try {
-    const response = await fetch(`${API_PROXY}/v0/subjects/${id}`);
-
-    if (!response.ok) {
-      if (response.status === 404) return null;
-      throw new Error(`Failed to fetch bangumi subject: ${response.status}`);
-    }
-
-    return await response.json();
+    return await api.get<BangumiSubjectInfo>(`/api/bangumi/subjects/${id}`);
   } catch (error) {
     console.error(`Failed to fetch bangumi subject ${id}:`, error);
     return null;
   }
 }
 
-// 获取每周放送番剧（通过代理）
+// 获取每周放送番剧（通过后端代理）
 export async function fetch_calendar(): Promise<
   Array<{ weekday: number; items: BangumiSubjectInfo[] }>
 > {
   try {
-    // Vite proxy rewrites /api/bangumi/* -> api.bgm.tv/*
-    const response = await fetch(`${API_PROXY}/calendar`);
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch calendar: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    // 确保返回的是数组
+    const data = await api.get<Array<{ weekday?: { id: number }; items?: unknown[] }>>(
+      '/api/bangumi/calendar'
+    );
     if (!Array.isArray(data)) {
       console.warn('Calendar API returned non-array:', data);
       return [];
     }
-
-    return data.map((day: { weekday?: { id: number }; items?: unknown[] }) => ({
+    return data.map((day) => ({
       weekday: day.weekday?.id ?? 0,
-      items: day.items || [],
+      items: (day.items || []) as BangumiSubjectInfo[],
     }));
   } catch (error) {
     console.error('Failed to fetch calendar:', error);
@@ -141,7 +112,7 @@ export async function fetch_weekday_bangumi(weekday: number): Promise<BangumiSub
   return day_data?.items || [];
 }
 
-// 浏览条目（通过代理）
+// 浏览条目（通过后端代理）
 interface BrowseSubjectsParams {
   type: number;
   cat?: number;
@@ -160,24 +131,18 @@ export async function browse_subjects(
   const { type, cat, series, platform, sort, year, month, limit = 20, offset = 0 } = params;
 
   try {
-    const query_params = new URLSearchParams();
-    query_params.set('type', String(type));
-    if (cat) query_params.set('cat', String(cat));
-    if (series !== undefined) query_params.set('series', String(series));
-    if (platform) query_params.set('platform', platform);
-    if (sort) query_params.set('sort', sort);
-    if (year) query_params.set('year', String(year));
-    if (month) query_params.set('month', String(month));
-    query_params.set('limit', String(limit));
-    query_params.set('offset', String(offset));
+    const query_params: Record<string, string> = { type: String(type), limit: String(limit), offset: String(offset) };
+    if (cat) query_params.cat = String(cat);
+    if (series !== undefined) query_params.series = String(series);
+    if (platform) query_params.platform = platform;
+    if (sort) query_params.sort = sort;
+    if (year) query_params.year = String(year);
+    if (month) query_params.month = String(month);
 
-    const response = await fetch(`${API_PROXY}/v0/subjects?${query_params.toString()}`);
-
-    if (!response.ok) {
-      throw new Error(`Failed to browse subjects: ${response.status}`);
-    }
-
-    return await response.json();
+    return await api.get<{ data: BangumiSubjectInfo[]; total: number }>(
+      '/api/bangumi/browse',
+      query_params
+    );
   } catch (error) {
     console.error('Failed to browse subjects:', error);
     return { data: [], total: 0 };

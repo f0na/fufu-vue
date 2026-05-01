@@ -1,6 +1,5 @@
 import type { AnimeResource } from '@/lib/types/bangumi';
-
-const API_BASE_URL = 'https://api.animes.garden';
+import { api_request } from '@/lib/api-client';
 
 export interface AnimeGardenSearchParams {
   page?: number;
@@ -160,13 +159,7 @@ export async function fetch_resources(
       url_params.set('tracker', 'true');
     }
 
-    const response = await fetch(`${API_BASE_URL}/resources?${url_params.toString()}`);
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch resources: ${response.status} ${response.statusText}`);
-    }
-
-    const data: AnimeGardenApiResponse = await response.json();
+    const data = await api_request<AnimeGardenApiResponse>(`/api/anime-garden/resources?${url_params.toString()}`);
 
     if (data.status !== 'OK') {
       throw new Error(`API returned error status: ${data.status}`);

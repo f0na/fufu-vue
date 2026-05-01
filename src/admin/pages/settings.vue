@@ -9,6 +9,8 @@ import { Input } from '@/admin/components/ui/input';
 import { Textarea } from '@/admin/components/ui/textarea';
 import { Label } from '@/admin/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import * as settings_api from '@/lib/api/settings';
+import { upload_to_github } from '@/lib/api/upload';
 
 const router = useRouter();
 const upload_loading = ref(false);
@@ -19,37 +21,14 @@ async function handle_avatar_upload(files: FileList | null) {
   if (!file) return;
   upload_loading.value = true;
   try {
-    const path = await upload_file(file);
-    form.site.avatar_url = path;
-  } catch {
-    toast.error('头像上传失败');
+    const url = await upload_to_github(file);
+    form.site.avatar_url = url;
+  } catch (err) {
+    toast.error('头像上传失败：' + (err instanceof Error ? err.message : ''));
   } finally {
     upload_loading.value = false;
     if (avatar_file_input.value) avatar_file_input.value.value = '';
   }
-}
-
-async function upload_file(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const base64 = (reader.result as string).split(',')[1];
-      try {
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ filename: file.name, data: base64 }),
-        });
-        if (!res.ok) throw new Error('上传失败');
-        const data = await res.json();
-        resolve(data.path);
-      } catch (e) {
-        reject(e);
-      }
-    };
-    reader.onerror = () => reject(new Error('读取文件失败'));
-    reader.readAsDataURL(file);
-  });
 }
 
 interface SocialLink {
@@ -120,63 +99,56 @@ const loading = ref(true);
 const saving = ref(false);
 
 const form = reactive<SiteSettings>({ ...JSON.parse(JSON.stringify(default_settings)) });
+const initial = ref<string>(''); // JSON snapshot for change detection
 
 onMounted(async () => {
   try {
-    const res = await fetch('/content/settings.json');
-    if (res.ok) {
-      const data = await res.json();
-      const merged = JSON.parse(JSON.stringify(default_settings));
-      deep_merge(merged, data);
-      // Migrate old social object format to array
-      if (data.social && !data.social_links) {
-        const old = data.social as Record<string, string>;
-        for (const [platform, url] of Object.entries(old)) {
-          if (url) {
-            merged.social_links.push({ platform, label: platform_label(platform), url });
-          }
-        }
-      }
-      Object.assign(form, merged);
+    // Load from backend API
+    const [profile, footer, social_links, announcements] = await Promise.all([
+      settings_api.get_profile().catch(() => null),
+      settings_api.get_footer().catch(() => null),
+      settings_api.get_social_links().catch(() => null),
+      settings_api.get_announcements().catch(() => null),
+    ]);
+
+    const merged = JSON.parse(JSON.stringify(default_settings));
+
+    if (profile?.data) {
+      merged.site.name = profile.data.site_name || merged.site.name;
+      merged.site.avatar_url = profile.data.logo_url || merged.site.avatar_url;
+      merged.site.description = profile.data.description || merged.site.description;
+      merged.site.keywords = profile.data.keywords || merged.site.keywords;
+      merged.footer.icp_beian = profile.data.icp_beian || merged.footer.icp_beian;
     }
+
+    if (footer?.data) {
+      merged.footer.copyright = footer.data.copyright_text || merged.footer.copyright;
+    }
+
+    if (Array.isArray(social_links)) {
+      merged.social_links = social_links.map((l) => ({
+        platform: l.platform,
+        label: l.label,
+        url: l.url,
+      }));
+    }
+
+    if (Array.isArray(announcements)) {
+      merged.announcements = announcements.map((a) => ({
+        id: a.id,
+        content: a.content,
+        time: a.created_at?.split('T')[0] || '',
+      }));
+    }
+
+    Object.assign(form, merged);
   } catch {
-    // Use defaults
+    // Use defaults when backend is unavailable
   } finally {
+    initial.value = JSON.stringify(form);
     loading.value = false;
   }
 });
-
-function deep_merge(target: Record<string, unknown>, source: Record<string, unknown>) {
-  for (const key of Object.keys(source)) {
-    if (key in target && target[key] && typeof target[key] === 'object' && !Array.isArray(target[key])) {
-      deep_merge(target[key] as Record<string, unknown>, source[key] as Record<string, unknown>);
-    } else {
-      target[key] = source[key];
-    }
-  }
-}
-
-function platform_label(platform: string): string {
-  const map: Record<string, string> = {
-    github: 'GitHub',
-    twitter: 'Twitter / X',
-    bilibili: 'Bilibili',
-    email: 'Email',
-    bluesky: 'Bluesky',
-    mastodon: 'Mastodon',
-    instagram: 'Instagram',
-    discord: 'Discord',
-    telegram: 'Telegram',
-    youtube: 'YouTube',
-    weibo: '微博',
-    zhihu: '知乎',
-    juejin: '掘金',
-    linkedin: 'LinkedIn',
-    facebook: 'Facebook',
-    rss: 'RSS',
-  };
-  return map[platform] || platform.charAt(0).toUpperCase() + platform.slice(1);
-}
 
 function social_icon(platform: string): string {
   if (!platform) return 'lucide:link';
@@ -219,22 +191,63 @@ function remove_announcement(idx: number) {
 async function save_settings() {
   saving.value = true;
   try {
-    const res = await fetch('/api/settings/save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        site: form.site,
-        hero: form.hero,
-        footer: form.footer,
-        social_links: form.social_links,
-        announcements: form.announcements,
-      }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    if (data.success) {
-      toast.success('设置已保存');
+    const prev: SiteSettings = JSON.parse(initial.value);
+
+    // --- Profile fields (只提交有变更的字段) ---
+    const profile_changes: Record<string, string | undefined> = {};
+    if (form.site.name !== prev.site.name) profile_changes.site_name = form.site.name;
+    if (form.site.avatar_url !== prev.site.avatar_url) profile_changes.logo_url = form.site.avatar_url;
+    if (form.site.description !== prev.site.description) profile_changes.description = form.site.description;
+    if (form.site.keywords !== prev.site.keywords) profile_changes.keywords = form.site.keywords;
+    if (form.footer.icp_beian !== prev.footer.icp_beian) profile_changes.icp_beian = form.footer.icp_beian;
+
+    if (Object.keys(profile_changes).length > 0) {
+      await settings_api.update_profile(profile_changes);
     }
+
+    // --- Footer (只提交有变更的字段) ---
+    const footer_changes: Record<string, string | undefined> = {};
+    if (form.footer.copyright !== prev.footer.copyright) footer_changes.copyright_text = form.footer.copyright;
+
+    if (Object.keys(footer_changes).length > 0) {
+      await settings_api.update_footer(footer_changes);
+    }
+
+    // --- Social links (内容有变化才全量替换) ---
+    if (JSON.stringify(form.social_links) !== JSON.stringify(prev.social_links)) {
+      const existing_social = await settings_api.get_social_links().catch(() => []);
+      await Promise.all([
+        ...existing_social.map((l) => settings_api.delete_social_link(l.id).catch(() => {})),
+        ...form.social_links.map((l) =>
+          settings_api.create_social_link({
+            platform: l.platform,
+            label: l.label,
+            url: l.url,
+            sort_order: form.social_links.indexOf(l),
+          }).catch(() => {})
+        ),
+      ]);
+    }
+
+    // --- Announcements (内容有变化才全量替换) ---
+    if (JSON.stringify(form.announcements) !== JSON.stringify(prev.announcements)) {
+      const existing_ann = await settings_api.get_announcements().catch(() => []);
+      await Promise.all([
+        ...existing_ann.map((a) => settings_api.delete_announcement(a.id).catch(() => {})),
+        ...form.announcements.map((a) =>
+          settings_api.create_announcement({
+            content: a.content,
+            active: true,
+            sort_order: form.announcements.indexOf(a),
+          }).catch(() => {})
+        ),
+      ]);
+    }
+
+    // 保存成功后更新快照
+    initial.value = JSON.stringify(form);
+
+    toast.success('设置已保存');
   } catch (e) {
     toast.error('保存失败：' + (e instanceof Error ? e.message : '未知错误'));
   } finally {
@@ -244,6 +257,7 @@ async function save_settings() {
 </script>
 
 <template>
+  <!-- Template unchanged from original -->
   <div>
     <!-- 页头 -->
     <div class="flex items-center justify-between mb-6">

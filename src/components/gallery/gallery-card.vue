@@ -2,6 +2,7 @@
 import { RouterLink } from 'vue-router';
 import { Badge } from '@/components/ui/badge';
 import type { Gallery } from '@/lib/types/gallery';
+import { proxy_image_url } from '@/lib/image-proxy';
 
 interface Props {
   gallery: Gallery;
@@ -19,7 +20,7 @@ const props = withDefaults(defineProps<Props>(), {
       <!-- 封面 -->
       <div class="rounded-xl border border-border/50 overflow-hidden">
         <img
-          :src="gallery.cover_path"
+          :src="proxy_image_url(gallery.cover_path)"
           :alt="gallery.title"
           class="aspect-[3/4] w-full object-cover transition-transform group-hover:scale-105"
           loading="lazy"

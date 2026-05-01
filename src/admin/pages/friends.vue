@@ -24,6 +24,7 @@ import {
   TableCell,
 } from '@/admin/components/ui/table';
 import type { FriendItem, FriendStatus } from '@/lib/types/friend';
+import * as friends_api from '@/lib/api/friends';
 
 interface FormData {
   name: string;
@@ -45,12 +46,15 @@ const load_error = ref('');
 
 onMounted(async () => {
   try {
-    const res = await fetch('/content/friends/friends.json');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data: { friends: FriendItem[] } = await res.json();
-    friends.splice(0, friends.length, ...(Array.isArray(data.friends) ? data.friends : []));
+    const result = await friends_api.get_friends({ page: 1, page_size: 1000 });
+    // Map API response to FriendItem format
+    const items = result.data.map((f) => ({
+      ...f,
+      avatar: f.avatar_url || f.avatar,
+    }));
+    friends.splice(0, friends.length, ...items);
   } catch (e) {
-    load_error.value = e instanceof Error ? e.message : '加载失败';
+    load_error.value = e instanceof Error ? e.message : '从后端加载友人数据失败';
   } finally {
     loading.value = false;
   }
@@ -69,11 +73,11 @@ function toggle_expand(id: string) {
   else set.add(id);
 }
 
-// Sheet state
 const sheet_open = ref(false);
 const editing_id = ref<string | null>(null);
 const form_data = reactive<FormData>({ ...empty_form });
 const avatar_dirty = ref(false);
+const saving = ref(false);
 
 watch(
   () => form_data.url,
@@ -126,17 +130,6 @@ function select_all() {
   }
 }
 
-function generate_id(): string {
-  const existing_ids = friends.map((f) => f.id);
-  let num = friends.length + 1;
-  let id: string;
-  do {
-    id = `friend-${String(num).padStart(3, '0')}`;
-    num++;
-  } while (existing_ids.includes(id));
-  return id;
-}
-
 function open_add_sheet() {
   editing_id.value = null;
   Object.assign(form_data, empty_form);
@@ -154,62 +147,96 @@ function open_edit_sheet(friend: FriendItem) {
   sheet_open.value = true;
 }
 
-function save_friend() {
+async function save_friend() {
   if (!form_data.name.trim() || !form_data.url.trim()) return;
+  saving.value = true;
 
   const url = normalize_url(form_data.url);
+  const data = {
+    name: form_data.name.trim(),
+    url,
+    avatar_url: form_data.avatar.trim() || undefined,
+    description: form_data.description.trim() || undefined,
+  };
 
-  if (editing_id.value) {
-    const idx = friends.findIndex((f) => f.id === editing_id.value);
-    if (idx >= 0) {
-      friends[idx] = {
-        ...friends[idx],
-        name: form_data.name.trim(),
-        url,
-        avatar: form_data.avatar.trim() || undefined,
-        description: form_data.description.trim() || undefined,
-      };
+  try {
+    if (editing_id.value) {
+      await friends_api.update_friend(editing_id.value, data);
+      const idx = friends.findIndex((f) => f.id === editing_id.value);
+      if (idx >= 0) {
+        friends[idx] = {
+          ...friends[idx],
+          ...data,
+          avatar: data.avatar_url,
+        };
+      }
+    } else {
+      const created = await friends_api.create_friend(data);
+      friends.unshift({
+        ...created,
+        avatar: created.avatar_url || created.avatar,
+      });
     }
-  } else {
-    friends.unshift({
-      id: generate_id(),
-      name: form_data.name.trim(),
-      url,
-      avatar: form_data.avatar.trim() || undefined,
-      description: form_data.description.trim() || undefined,
-      created_at: new Date().toISOString().split('T')[0],
-      status: 'approved',
-    });
+
+    toast.success(editing_id.value ? '友人已更新' : '友人已添加');
+    sheet_open.value = false;
+  } catch (err) {
+    toast.error(err instanceof Error ? err.message : '保存失败');
+  } finally {
+    saving.value = false;
   }
-
-  toast.success(editing_id.value ? '友人已更新' : '友人已添加');
-  sheet_open.value = false;
 }
 
-function delete_friend(id: string) {
-  const idx = friends.findIndex((f) => f.id === id);
-  if (idx >= 0) friends.splice(idx, 1);
-  const sel_idx = selected_ids.value.indexOf(id);
-  if (sel_idx >= 0) selected_ids.value.splice(sel_idx, 1);
+async function delete_friend(id: string) {
+  try {
+    await friends_api.delete_friend(id);
+    const idx = friends.findIndex((f) => f.id === id);
+    if (idx >= 0) friends.splice(idx, 1);
+    const sel_idx = selected_ids.value.indexOf(id);
+    if (sel_idx >= 0) selected_ids.value.splice(sel_idx, 1);
+    toast.success('已删除');
+  } catch (err) {
+    toast.error(err instanceof Error ? err.message : '删除失败');
+  }
 }
 
-function delete_selected() {
+async function delete_selected() {
   if (selected_ids.value.length === 0) return;
-  const id_set = new Set(selected_ids.value);
-  for (let i = friends.length - 1; i >= 0; i--) {
-    if (id_set.has(friends[i].id)) friends.splice(i, 1);
+  try {
+    for (const id of [...selected_ids.value]) {
+      await friends_api.delete_friend(id);
+    }
+    const id_set = new Set(selected_ids.value);
+    for (let i = friends.length - 1; i >= 0; i--) {
+      if (id_set.has(friends[i].id)) friends.splice(i, 1);
+    }
+    selected_ids.value = [];
+    toast.success('已删除选中项');
+  } catch (err) {
+    toast.error(err instanceof Error ? err.message : '删除失败');
   }
-  selected_ids.value = [];
 }
 
-function approve_friend(id: string) {
-  const item = friends.find((f) => f.id === id);
-  if (item) item.status = 'approved';
+async function approve_friend(id: string) {
+  try {
+    await friends_api.update_friend_status(id, 'approved');
+    const item = friends.find((f) => f.id === id);
+    if (item) item.status = 'approved';
+    toast.success('已通过');
+  } catch (err) {
+    toast.error(err instanceof Error ? err.message : '操作失败');
+  }
 }
 
-function reject_friend(id: string) {
-  const item = friends.find((f) => f.id === id);
-  if (item) item.status = 'rejected';
+async function reject_friend(id: string) {
+  try {
+    await friends_api.update_friend_status(id, 'rejected');
+    const item = friends.find((f) => f.id === id);
+    if (item) item.status = 'rejected';
+    toast.success('已拒绝');
+  } catch (err) {
+    toast.error(err instanceof Error ? err.message : '操作失败');
+  }
 }
 
 function status_badge_variant(status?: FriendStatus): string {
@@ -565,10 +592,10 @@ function normalize_url(url: string): string {
             <Button variant="outline">取消</Button>
           </SheetClose>
           <Button
-            :disabled="!form_data.name.trim() || !form_data.url.trim()"
+            :disabled="!form_data.name.trim() || !form_data.url.trim() || saving"
             @click="save_friend"
           >
-            {{ editing_id ? '保存' : '添加' }}
+            {{ saving ? '保存中...' : editing_id ? '保存' : '添加' }}
           </Button>
         </SheetFooter>
       </SheetContent>

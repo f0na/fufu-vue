@@ -13,15 +13,14 @@ const saving = ref(false);
 const show_preview = ref(false);
 const content = ref('');
 
+import * as settings_api from '@/lib/api/settings';
+
 onMounted(async () => {
   try {
-    const res = await fetch('/content/settings.json');
-    if (res.ok) {
-      const data = await res.json();
-      content.value = data?.site?.description || '';
-    }
+    const profile = await settings_api.get_profile();
+    content.value = profile.data.description || '';
   } catch {
-    // Use defaults
+    // Use defaults when backend is unavailable
   } finally {
     loading.value = false;
   }
@@ -34,24 +33,8 @@ function toggle_preview() {
 async function save() {
   saving.value = true;
   try {
-    // Load existing settings, update description, save back
-    const res = await fetch('/content/settings.json');
-    let settings: Record<string, unknown> = {};
-    if (res.ok) settings = await res.json();
-
-    if (!settings.site) settings.site = {};
-    (settings.site as Record<string, unknown>).description = content.value;
-
-    const save_res = await fetch('/api/settings/save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(settings),
-    });
-    if (!save_res.ok) throw new Error(`HTTP ${save_res.status}`);
-    const data = await save_res.json();
-    if (data.success) {
-      toast.success('首页内容已保存');
-    }
+    await settings_api.update_profile({ description: content.value });
+    toast.success('首页内容已保存');
   } catch (e) {
     toast.error('保存失败：' + (e instanceof Error ? e.message : '未知错误'));
   } finally {
