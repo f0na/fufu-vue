@@ -13,6 +13,7 @@ import {
   InputOTPSlot,
 } from '@/components/ui/input-otp';
 import { useAuthStore } from '@/stores/auth';
+import type { TokenPair } from '@/lib/types/auth';
 import { login, login_2fa, login_verify, register, get_me } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api-client';
 
@@ -50,13 +51,32 @@ async function submit_credentials() {
   if (!email.value || !password.value) return;
   loading.value = true;
 
+  async function handle_login_response(result: any) {
+    // Direct token response — no 2FA/email verify needed
+    if (result.access_token) {
+      const tokens = result as TokenPair;
+      auth.set_tokens(tokens.access_token, tokens.refresh_token);
+      try {
+        const user = await get_me();
+        auth.set_user(user);
+      } catch { /* non-critical */ }
+      const redirect = (route.query.redirect as string) || '/admin/dashboard';
+      toast.success('登录成功');
+      router.push(redirect);
+      return true;
+    }
+
+    // Need verification step
+    temp_token.value = result.temp_token;
+    require_2fa.value = result.require_2fa;
+    step.value = 'verify';
+    return true;
+  }
+
   async function do_login(): Promise<boolean> {
     try {
       const result = await login(email.value, password.value);
-      temp_token.value = result.temp_token;
-      require_2fa.value = result.require_2fa;
-      step.value = 'verify';
-      return true;
+      return await handle_login_response(result);
     } catch {
       return false;
     }
@@ -76,7 +96,6 @@ async function submit_credentials() {
       );
       toast.success('管理员账号已创建，请输入验证码完成验证');
     } catch (reg_err) {
-      // 409 means account already exists — wrong password
       if (reg_err instanceof ApiError && reg_err.code === 1005) {
         toast.error('邮箱或密码错误');
       } else {
@@ -86,7 +105,10 @@ async function submit_credentials() {
     }
 
     // Register succeeded, retry login
-    await do_login();
+    const ok2 = await do_login();
+    if (!ok2) {
+      toast.error('登录失败，请重试');
+    }
   } catch (err) {
     handle_error(err);
   } finally {
