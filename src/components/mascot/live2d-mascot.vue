@@ -84,10 +84,10 @@ function trigger_dialog() {
   }
 }
 
-function handle_click() {
-  if (!model_ref || !is_loaded.value) return;
+function on_model_pointerdown() {
+  if (!is_loaded.value) return;
 
-  // 秘密入口：4 秒内连击 10 次跳转管理登录页
+  // 秘密入口：4 秒内连击 10 次跳转管理页面
   const now = Date.now();
   if (now - secret_start > 4000) {
     secret_count = 0;
@@ -105,22 +105,7 @@ function handle_click() {
     return;
   }
 
-  const canvas = canvas_ref.value;
-  if (!canvas) return;
-
-  const model = model_ref;
-  const center_x = model.x;
-  const center_y = model.y;
-  const half_width = ((model.width || 100) / 2) * 0.6;
-  const half_height = ((model.height || 100) / 2) * 0.6;
-
-  const rect = canvas.getBoundingClientRect();
-  const css_x = rect.width / 2;
-  const css_y = rect.height / 2;
-
-  if (Math.abs(css_x - center_x) <= half_width && Math.abs(css_y - center_y) <= half_height) {
-    trigger_dialog();
-  }
+  trigger_dialog();
 }
 
 onMounted(async () => {
@@ -177,6 +162,9 @@ onMounted(async () => {
 
     app.stage.addChild(model);
     model.autoUpdate = true;
+    model.interactive = true;
+    model.cursor = 'pointer';
+    model.on('pointerdown', on_model_pointerdown);
 
     is_loaded.value = true;
   } catch (error) {
@@ -206,7 +194,6 @@ onUnmounted(() => {
       :class="is_loaded ? 'opacity-100' : 'opacity-0'"
       width="160"
       height="200"
-      @click="handle_click"
     />
 
     <Transition name="fade">
