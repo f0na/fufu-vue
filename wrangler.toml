@@ -1,15 +1,3 @@
-# Cloudflare Pages SPA fallback - 所有未匹配路由指向 index.html
-# 此配置由 wrangler 自动处理，无需额外文件
-# 但保留此文件用于文档目的
-
 name = "fufu-vue"
-main = "src/workers/bangumi-proxy.ts"
 compatibility_date = "2026-04-01"
-
-[vars]
-BANGUMI_API_BASE = "https://api.bgm.tv"
-
-# Workers 路由规则（部署时自动配置）
-# routes = [
-#   { pattern = "yourdomain.com/api/bangumi/*", zone_name = "yourdomain.com" }
-# ]
+pages_build_output_dir = "dist"

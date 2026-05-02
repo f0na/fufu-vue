@@ -34,8 +34,3 @@ declare module 'markdown-it-task-lists' {
   export default plugin;
 }
 
-// Cloudflare Workers ExecutionContext for bangumi-proxy.ts
-declare class ExecutionContext {
-  waitUntil(promise: Promise<unknown>): void;
-  passThroughOnException(): void;
-}
