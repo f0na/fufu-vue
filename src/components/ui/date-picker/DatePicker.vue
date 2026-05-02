@@ -29,7 +29,7 @@ const date = ref(to_date_value(props.modelValue)) as ReturnType<typeof ref<DateV
   <Popover v-slot="{ close }">
     <PopoverTrigger as-child>
       <Button variant="outline" size="sm" class="w-36 justify-between font-normal">
-        {{ date.toDate(getLocalTimeZone()).toLocaleDateString() }}
+        {{ date?.toDate(getLocalTimeZone())?.toLocaleDateString() || '' }}
         <Icon icon="lucide:chevron-down" class="size-3.5 opacity-50" />
       </Button>
     </PopoverTrigger>
@@ -37,7 +37,7 @@ const date = ref(to_date_value(props.modelValue)) as ReturnType<typeof ref<DateV
       <Calendar
         :model-value="date"
         layout="month-and-year"
-        @update:model-value="(val: DateValue) => {
+        @update:model-value="(val: DateValue | undefined) => {
           if (val) {
             date = val;
             emit('update:modelValue', val.toString());

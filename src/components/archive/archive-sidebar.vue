@@ -72,7 +72,7 @@ onUnmounted(() => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
           <Button
             :variant="sort === 'desc' ? 'default' : 'outline'"
             size="sm"

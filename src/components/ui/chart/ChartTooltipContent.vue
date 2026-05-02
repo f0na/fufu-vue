@@ -33,7 +33,7 @@ const payload = computed(() => {
     .map(([key, value]) => {
       // const key = `${props.nameKey || item.name || item.dataKey || "value"}`
       const itemConfig = props.config[key];
-      const indicatorColor = props.config[key]?.color ?? props.payload.fill;
+      const indicatorColor = (props.config[key]?.color ?? props.payload.fill) as string;
 
       return { key, value, itemConfig, indicatorColor };
     })
@@ -90,8 +90,8 @@ const tooltipLabel = computed(() => {
                 })
               "
               :style="{
-                '--color-bg': indicatorColor,
-                '--color-border': indicatorColor,
+                '--color-bg': indicatorColor as string,
+                '--color-border': indicatorColor as string,
               }"
             />
           </template>

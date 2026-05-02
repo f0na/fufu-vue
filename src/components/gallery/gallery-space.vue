@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { Icon } from '@iconify/vue';
 import { get_gallery_by_id } from '@/lib/gallery-data';
@@ -112,7 +112,7 @@ async function load_gallery(gallery_id: string) {
   }
 
   gallery_title.value = g.title;
-  photos.value = g.photos;
+  photos.value = g.photos.map((p) => (typeof p === 'string' ? p : p.id));
 
   const storage_key = get_storage_key(gallery_id);
   const saved = localStorage.getItem(storage_key);
@@ -129,7 +129,7 @@ async function load_gallery(gallery_id: string) {
       const viewport_height = window.innerHeight;
       const photo_width = mobile.value ? 140 : DEFAULT_PHOTO_WIDTH;
 
-      const all_states = g.photos.map((photo, index) => {
+      const all_states = photos.value.map((photo, index) => {
         const existing = parsed.photo_states?.find((s) => s.id === photo);
         return (
           existing || {
@@ -147,12 +147,12 @@ async function load_gallery(gallery_id: string) {
       photo_states.value = all_states;
       max_z_index.value = Math.max(...all_states.map((s) => s.z_index)) + 1;
     } catch {
-      photo_states.value = init_photo_states(g.photos);
-      max_z_index.value = g.photos.length;
+      photo_states.value = init_photo_states(photos.value);
+      max_z_index.value = photos.value.length;
     }
   } else {
-    photo_states.value = init_photo_states(g.photos);
-    max_z_index.value = g.photos.length;
+    photo_states.value = init_photo_states(photos.value);
+    max_z_index.value = photos.value.length;
   }
 
   loading.value = false;
@@ -363,8 +363,6 @@ function handle_reset() {
   canvas_offset_y.value = 0;
 }
 
-// 画布照片宽度
-const photo_width = computed(() => (mobile.value ? 140 : 200));
 </script>
 
 <template>

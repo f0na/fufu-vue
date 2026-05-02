@@ -21,7 +21,8 @@ const props = withDefaults(defineProps<Props>(), {
 const giscus_ref = ref<HTMLDivElement>();
 
 function get_theme(): string {
-  return 'light';
+  const theme = document.documentElement.getAttribute('data-theme');
+  return theme === 'ras' ? 'dark' : 'light';
 }
 
 let message_handler: ((event: MessageEvent) => void) | null = null;

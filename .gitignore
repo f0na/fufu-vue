@@ -24,5 +24,6 @@ dist-ssr
 *.sw?
 
 .playwright-cli/
+.playwright-mcp/
 .env*
 !.env.example

@@ -25,6 +25,7 @@ const { sentinelRef } = useInfiniteScroll({
   root_margin: '100px',
   disabled: props.is_loading || props.posts.length === 0,
 });
+void sentinelRef;
 
 interface GroupedPosts {
   [year: string]: Post[];
@@ -33,7 +34,7 @@ interface GroupedPosts {
 function group_posts_by_year(posts: Post[]): GroupedPosts {
   const grouped: GroupedPosts = {};
   for (const post of posts) {
-    const year = new Date(post.date).getFullYear().toString();
+    const year = new Date(post.date || '').getFullYear().toString();
     if (!grouped[year]) {
       grouped[year] = [];
     }
@@ -71,7 +72,7 @@ const years = computed(() =>
             :class="cn('flex items-start gap-4 py-2', 'hover:text-primary transition-colors')"
           >
             <time class="text-sm text-muted-foreground shrink-0 tabular-nums">
-              {{ format_date(post.date) }}
+              {{ format_date(post.date || '') }}
             </time>
             <span class="line-clamp-2">{{ post.title }}</span>
           </RouterLink>

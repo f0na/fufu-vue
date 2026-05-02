@@ -7,6 +7,7 @@ export interface Theme {
 export const THEMES: Theme[] = [
   { name: 'avemujica', label: 'AM', color: '#5a8fa8' },
   { name: 'mygo', label: 'MG', color: '#ff8899' },
+  { name: 'ras', label: 'RAS', color: '#7c5cfc' },
 ];
 
 export function get_theme_name(): string {

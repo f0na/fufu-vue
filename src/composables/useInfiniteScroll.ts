@@ -21,6 +21,7 @@ export function useInfiniteScroll({
   onLoadMore,
   initial_loading = false,
   root = null,
+  root_margin = undefined,
   disabled = false,
 }: UseInfiniteScrollOptions): UseInfiniteScrollReturn {
   const isLoading = ref(initial_loading);
@@ -87,7 +88,7 @@ export function useInfiniteScroll({
       },
       {
         root: root?.value || null,
-        rootMargin,
+        rootMargin: root_margin,
         threshold: 0,
       }
     );

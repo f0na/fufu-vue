@@ -26,6 +26,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const portal_target_ref = ref<HTMLDivElement | null>(null);
+void portal_target_ref;
 </script>
 
 <template>

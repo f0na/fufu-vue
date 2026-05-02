@@ -65,6 +65,7 @@ const emit_vim_status = () => {
 const update_vim_status = () => {
   if (!editor) return;
   const pos = editor.getPosition();
+  if (!pos) return;
   cursor_line.value = pos.lineNumber;
   cursor_col.value = pos.column;
   const model = editor.getModel();
@@ -120,7 +121,7 @@ const init_editor = async () => {
     lineNumbers: settings_store.editor_settings.lineNumbers,
     automaticLayout: true,
     scrollbar: { vertical: 'hidden', horizontal: 'hidden', alwaysConsumeMouseWheel: false },
-    scrollBeyondLastColumn: false,
+    scrollBeyondLastColumn: 0,
     renderWhitespace: 'selection',
     cursorSmoothCaretAnimation: 'on',
     smoothScrolling: true,
@@ -228,9 +229,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   if (vim_adapter) {
-    if ((vim_adapter as VimAdapterWithObserver)._modeObserver) {
-      (vim_adapter as VimAdapterWithObserver)._modeObserver.disconnect();
-    }
+    (vim_adapter as VimAdapterWithObserver)._modeObserver?.disconnect();
     vim_adapter.dispose();
     vim_adapter = null;
   }

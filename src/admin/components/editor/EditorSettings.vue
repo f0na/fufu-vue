@@ -341,6 +341,7 @@ const delete_keybinding = (index: number) => settings_store.remove_keybinding(in
 
 const new_keybinding = ref<Keybinding>({ key: '', command: '', description: '' });
 const new_key_input = ref<HTMLInputElement | null>(null);
+void new_key_input;
 
 const capture_new_key = (e: KeyboardEvent) => {
   const keys = [];

@@ -63,19 +63,20 @@ function date_to_filter_string(date: string, prefix: string): string | undefined
 }
 
 function add_tag(
-  target: typeof tags | typeof include_tags | typeof exclude_tags,
+  target: string[],
   input: string,
   set_input: (v: string) => void
 ) {
   const tag = input.trim();
   if (tag) {
-    target.value = [...target.value, tag];
+    target.push(tag);
     set_input('');
   }
 }
 
-function remove_tag(target: typeof tags | typeof include_tags | typeof exclude_tags, tag: string) {
-  target.value = target.value.filter((t) => t !== tag);
+function remove_tag(target: string[], tag: string) {
+  const idx = target.indexOf(tag);
+  if (idx !== -1) target.splice(idx, 1);
 }
 
 const has_filters = computed(

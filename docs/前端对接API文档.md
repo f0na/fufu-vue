@@ -1,313 +1,184 @@
-# fufu-rs API 对接文档（前端版）
+# fufu-rs API 文档
 
-> 最后更新：2026-05-01
+> 基于 Cloudflare Workers + axum 的个人博客后端 API
+
+**基础路径**: `/api`
 
 ---
 
 ## 目录
 
-1. [基础约定](#1-基础约定)
-2. [认证系统](#2-认证系统)
-3. [仪表盘](#3-仪表盘)
-4. [站点设置](#4-站点设置)
-5. [博客](#5-博客)
-6. [搜索](#6-搜索)
-7. [点赞系统](#7-点赞系统)
-8. [友人帐](#8-友人帐)
-9. [链接收藏](#9-链接收藏)
-10. [相册](#10-相册)
-11. [法律文档](#11-法律文档)
-12. [番剧记录](#12-番剧记录)
-13. [外部 API 代理](#13-外部-api-代理)
-14. [翻译](#14-翻译)
-15. [垃圾桶](#15-垃圾桶)
-16. [健康检查](#16-健康检查)
+1. [通用说明](#通用说明)
+2. [健康检查 & 状态](#1-健康检查--状态)
+3. [身份验证](#2-身份验证)
+4. [站点设置](#3-站点设置)
+5. [博客文章](#4-博客文章)
+6. [点赞系统](#5-点赞系统)
+7. [友人帐](#6-友人帐)
+8. [链接收藏](#7-链接收藏)
+9. [相册](#8-相册)
+10. [法律文档](#9-法律文档)
+11. [番剧记录](#10-番剧记录)
+12. [外部 API 代理](#11-外部-api-代理)
+13. [全站搜索](#12-全站搜索)
+14. [翻译](#13-翻译)
+15. [仪表盘](#14-仪表盘)
+16. [垃圾桶](#15-垃圾桶)
 
 ---
 
-## 1. 基础约定
+## 通用说明
 
-### 1.1 基本信息
+### 认证方式
 
-| 项目 | 值 |
-|------|-----|
-| 基础路径 | `/api` |
-| 请求/响应体 | `application/json` |
-| 时间格式 | RFC 3339（如 `2026-05-01T12:00:00Z`） |
-| 主键 | UUID v7 字符串 |
+- **Bearer Token**: 在请求头中添加 `Authorization: Bearer <access_token>`
+- **access_token** 有效期 15 分钟
+- **refresh_token** 有效期 7 天，用于刷新 access_token
 
-### 1.2 分页格式
+### 通用错误响应格式
 
-所有列表接口统一使用以下查询参数和响应格式：
+```json
+{
+  "error": {
+    "code": 1001,
+    "message": "错误描述"
+  }
+}
+```
 
-**请求参数：**
+### 业务错误码
+
+| code | 说明 |
+|------|------|
+| 1001 | 请求参数错误 |
+| 1002 | 认证失败（邮箱/密码错误） |
+| 1003 | 需要 TOTP 第二步验证 |
+| 1004 | 资源不存在 |
+| 1005 | 资源冲突（重复注册等） |
+| 1006 | 请求频率超限 |
+| 2001 | TOTP 验证码错误 |
+| 2002 | 邮箱验证码错误或已过期 |
+| 2003 | 临时令牌已过期 |
+| 5001 | 服务器内部错误 |
+| 5002 | 外部 API 调用失败 |
+
+### HTTP 状态码
+
+| 状态码 | 说明 |
+|--------|------|
+| 200 | 成功 |
+| 400 | 请求参数错误 |
+| 401 | 未认证/认证失败 |
+| 404 | 资源不存在 |
+| 409 | 冲突 |
+| 429 | 请求频率超限 |
+| 500 | 服务器内部错误 |
+| 502 | 外部 API 调用失败 |
+
+### 分页说明
+
+列表接口统一支持分页参数：
 
 | 参数 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
-| `page` | number | 1 | 页码，从 1 开始 |
-| `page_size` | number | 10~20 | 每页条数，最大 100 |
+| `page` | int | 1 | 页码，从 1 开始 |
+| `page_size` | int | 10~20 | 每页数量，最大 100 |
 
-**响应结构：**
+分页响应统一格式：
 
 ```json
 {
   "data": [...],
   "total": 100,
   "page": 1,
-  "page_size": 10,
-  "total_pages": 10
+  "page_size": 20,
+  "total_pages": 5
 }
 ```
 
-### 1.3 鉴权方式
+---
 
-需要登录的接口在请求头携带：
+## 1. 健康检查 & 状态
 
-```
-Authorization: Bearer <access_token>
-```
+### GET /api/health
 
-Token 类型：
+健康检查（检测 D1、KV 连通性）。
 
-| Token | 用途 | 过期时间 |
-|-------|------|----------|
-| `access_token` | 访问受保护 API | 短时效（默认 15 分钟） |
-| `refresh_token` | 刷新 access_token | 长时效（默认 7 天） |
-| `temp_token` | 登录第二步验证 | 短时效（默认 5 分钟） |
+**认证**: 不需要
 
-### 1.4 统一响应格式
-
-**成功响应：** 直接返回 JSON 数据体，没有外层包装。
-
-**错误响应：**
+**响应**:
 
 ```json
 {
-  "error": {
-    "code": 1004,
-    "message": "文章不存在或已被删除"
+  "status": "ok",
+  "uptime": 12345,
+  "checks": {
+    "d1": { "status": "ok", "latency_ms": 12 },
+    "kv": { "status": "ok", "latency_ms": 5 },
+    "bangumi_api": { "status": "skipped" },
+    "anime_garden_api": { "status": "skipped" }
   }
 }
 ```
 
-**HTTP 状态码：**
+### GET /api/status
 
-| 状态码 | 含义 | 说明 |
-|--------|------|------|
-| 200 | OK | 请求成功 |
-| 201 | Created | 创建成功 |
-| 400 | Bad Request | 参数错误 |
-| 401 | Unauthorized | 未登录或 token 过期 |
-| 403 | Forbidden | 无权限 |
-| 404 | Not Found | 资源不存在 |
-| 409 | Conflict | 冲突（如重复数据） |
-| 422 | Unprocessable Entity | 验证失败 |
-| 429 | Too Many Requests | 频率超限 |
-| 500 | Internal Server Error | 服务器错误 |
-| 502 | Bad Gateway | 外部 API 调用失败 |
+站点公开状态信息（含各模块数据统计）。
 
-**业务错误码：**
+**认证**: 不需要
 
-| 业务码 | HTTP 状态 | 说明 |
-|--------|-----------|------|
-| `1001` | 400 | 参数校验不通过 |
-| `1002` | 401 | 邮箱或密码错误 |
-| `1003` | 401 | 需要 TOTP 第二步验证 |
-| `1004` | 404 | 资源不存在 |
-| `1005` | 409 | 资源冲突 |
-| `1006` | 429 | 请求频率超限 |
-| `2001` | 401 | TOTP 验证码错误 |
-| `2002` | 401 | 邮箱验证码错误或已过期 |
-| `2003` | 401 | 临时令牌已过期 |
-| `5001` | 500 | 服务器内部错误 |
-| `5002` | 502 | 外部 API 调用失败 |
+**响应**:
+
+```json
+{
+  "api": {
+    "status": "ok",
+    "uptime": 12345,
+    "version": "0.1.0",
+    "d1": { "status": "ok", "latency_ms": 10 },
+    "kv": { "status": "ok", "latency_ms": 3 }
+  },
+  "site": {
+    "site_name": "我的博客",
+    "subtitle": "子标题",
+    "description": "站点描述",
+    "logo_url": "https://example.com/logo.png"
+  },
+  "stats": {
+    "posts": 10,
+    "friends": 5,
+    "links": 20,
+    "galleries": 3,
+    "bangumi_records": 15
+  }
+}
+```
 
 ---
 
-## 2. 认证系统
+## 2. 身份验证
 
-### 2.1 注册（首次设置）
+### POST /api/auth/register
 
-#### POST /api/auth/register — 注册管理员
+首次注册管理员（仅限尚无管理员时使用）。
 
-> **限制：** 仅当系统中没有任何管理员时可用，用于首次部署时初始化账号。
-> 已有管理员后该接口返回 409，防止被滥用。
+**认证**: 不需要
 
-**请求：**
+**请求**:
 
 ```json
 {
   "username": "admin",
   "email": "admin@example.com",
-  "password": "your_password"
+  "password": "your-password"
 }
 ```
 
-**响应：**
+**响应** `201`:
 
 ```json
 {
-  "id": "0194f...",
-  "username": "admin",
-  "email": "admin@example.com",
-  "totp_enabled": false,
-  "role": "admin",
-  "created_at": "2026-05-01T00:00:00Z"
-}
-```
-
-### 2.2 登录流程
-
-登录分两步：
-
-1. **第一步：** 提交邮箱+密码 → 返回 `temp_token` 和下一步方式
-2. **第二步：** 根据第一步的指示，提交 `temp_token` + 验证码
-
-```
-登录流程图示：
-
-用户提交邮箱密码
-      │
-      ▼
-  验证密码
-      │
-      ├── 2FA 已开启 ──→ 返回 require_2fa=true
-      │                      │
-      │                      ▼
-      │                  POST /login/2fa (temp_token + TOTP码) ──→ 得到 JWT
-      │
-      └── 2FA 未开启 ──→ 返回 require_email_verify=true
-                           │
-                           ▼
-                      发送邮箱验证码（6位）
-                           │
-                           ▼
-                      POST /login/verify (temp_token + 验证码) ──→ 得到 JWT
-```
-
-#### POST /api/auth/login — 第一步：验证邮箱密码
-
-**请求：**
-
-```json
-{
-  "email": "admin@example.com",
-  "password": "your_password"
-}
-```
-
-**响应（2FA 已开启）：**
-
-```json
-{
-  "temp_token": "eyJ...",
-  "require_2fa": true,
-  "require_email_verify": false
-}
-```
-
-**响应（2FA 未开启，需邮箱验证码）：**
-
-```json
-{
-  "temp_token": "eyJ...",
-  "require_2fa": false,
-  "require_email_verify": true
-}
-```
-
-#### POST /api/auth/login/2fa — 第二步：TOTP 验证
-
-**请求：**
-
-```json
-{
-  "temp_token": "eyJ...",
-  "code": "123456"
-}
-```
-
-**响应：**
-
-```json
-{
-  "access_token": "eyJ...",
-  "refresh_token": "eyJ..."
-}
-```
-
-#### POST /api/auth/login/verify — 第二步：邮箱验证码验证
-
-**请求：**
-
-```json
-{
-  "temp_token": "eyJ...",
-  "code": "483921"
-}
-```
-
-**响应：**
-
-```json
-{
-  "access_token": "eyJ...",
-  "refresh_token": "eyJ..."
-}
-```
-
-### 2.2 Token 刷新 & 登出
-
-#### POST /api/auth/refresh — 刷新 Token
-
-**请求：**
-
-```json
-{
-  "refresh_token": "eyJ..."
-}
-```
-
-**响应（返回新的 token 对，旧的 refresh_token 加入黑名单）：**
-
-```json
-{
-  "access_token": "eyJ...",
-  "refresh_token": "eyJ..."
-}
-```
-
-#### POST /api/auth/logout — 登出
-
-> 需要 `Authorization` header
-
-**请求：**
-
-```json
-{
-  "refresh_token": "eyJ..."
-}
-```
-
-**响应：**
-
-```json
-{
-  "message": "已登出"
-}
-```
-
-### 2.3 管理员信息
-
-#### GET /api/auth/me — 获取当前管理员信息
-
-> 需要 `Authorization` header
-
-**响应：**
-
-```json
-{
-  "id": "0194f...",
+  "id": "uuid-v7",
   "username": "admin",
   "email": "admin@example.com",
   "totp_enabled": false,
@@ -316,28 +187,175 @@ Token 类型：
 }
 ```
 
-### 2.4 2FA 管理
+### POST /api/auth/login
 
-> 以下接口均需要 `Authorization` header
+第一步：邮箱密码验证。根据管理员配置，返回需要 TOTP 或邮箱验证码。
 
-#### POST /api/auth/2fa/setup — 生成 TOTP 密钥
+**认证**: 不需要
 
-返回 TOTP 密钥和 `otpauth://` URI，前端可用此 URI 生成二维码供用户扫描。
-
-**响应：**
+**请求**:
 
 ```json
 {
-  "secret": "JBSWY3DPEHPK3PXP",
+  "email": "admin@example.com",
+  "password": "your-password"
+}
+```
+
+**响应**（需要 TOTP）:
+
+```json
+{
+  "temp_token": "jwt-temp-token",
+  "require_2fa": true,
+  "require_email_verify": false
+}
+```
+
+**响应**（需要邮箱验证码）:
+
+```json
+{
+  "temp_token": "jwt-temp-token",
+  "require_2fa": false,
+  "require_email_verify": true
+}
+```
+
+### POST /api/auth/login/2fa
+
+第二步：TOTP 验证登录。
+
+**认证**: 不需要
+
+**请求**:
+
+```json
+{
+  "temp_token": "jwt-temp-token",
+  "code": "123456"
+}
+```
+
+**响应**:
+
+```json
+{
+  "access_token": "jwt-access-token",
+  "refresh_token": "jwt-refresh-token"
+}
+```
+
+### POST /api/auth/login/verify
+
+第二步：邮箱验证码验证登录。
+
+**认证**: 不需要
+
+**请求**:
+
+```json
+{
+  "temp_token": "jwt-temp-token",
+  "code": "123456"
+}
+```
+
+**响应**:
+
+```json
+{
+  "access_token": "jwt-access-token",
+  "refresh_token": "jwt-refresh-token"
+}
+```
+
+### POST /api/auth/refresh
+
+刷新 access_token。
+
+**认证**: 不需要
+
+**请求**:
+
+```json
+{
+  "refresh_token": "jwt-refresh-token"
+}
+```
+
+**响应**:
+
+```json
+{
+  "access_token": "new-access-token",
+  "refresh_token": "new-refresh-token"
+}
+```
+
+### GET /api/auth/me
+
+获取当前登录管理员信息。
+
+**认证**: Bearer Token
+
+**响应**:
+
+```json
+{
+  "id": "uuid-v7",
+  "username": "admin",
+  "email": "admin@example.com",
+  "totp_enabled": false,
+  "role": "admin",
+  "created_at": "2026-01-01T00:00:00Z"
+}
+```
+
+### POST /api/auth/logout
+
+登出（将 refresh_token 加入黑名单）。
+
+**认证**: Bearer Token
+
+**请求**:
+
+```json
+{
+  "refresh_token": "jwt-refresh-token"
+}
+```
+
+**响应**:
+
+```json
+{
+  "message": "已登出"
+}
+```
+
+### POST /api/auth/2fa/setup
+
+生成 TOTP 密钥和 URI（用于绑定 Authenticator App）。
+
+**认证**: Bearer Token
+
+**响应**:
+
+```json
+{
+  "secret": "BASE32SECRET",
   "uri": "otpauth://totp/fufu-rs:admin@example.com?secret=...&issuer=fufu-rs"
 }
 ```
 
-#### POST /api/auth/2fa/verify — 确认开启 2FA
+### POST /api/auth/2fa/verify
 
-用户首次绑定 TOTP 后，提交一个验证码来确认设置正确。
+确认开启 2FA（需先调用 setup）。
 
-**请求：**
+**认证**: Bearer Token
+
+**请求**:
 
 ```json
 {
@@ -345,7 +363,7 @@ Token 类型：
 }
 ```
 
-**响应：**
+**响应**:
 
 ```json
 {
@@ -353,19 +371,21 @@ Token 类型：
 }
 ```
 
-#### POST /api/auth/2fa/disable — 关闭 2FA
+### POST /api/auth/2fa/disable
 
-需要验证密码。
+关闭 2FA（需验证密码）。
 
-**请求：**
+**认证**: Bearer Token
+
+**请求**:
 
 ```json
 {
-  "password": "your_password"
+  "password": "your-password"
 }
 ```
 
-**响应：**
+**响应**:
 
 ```json
 {
@@ -375,759 +395,561 @@ Token 类型：
 
 ---
 
-## 3. 仪表盘
+## 3. 站点设置
 
-#### GET /api/auth/dashboard — 全站运营数据
+### GET /api/settings/profile
 
-> 需要 `Authorization` header
+获取站点基本信息。
 
-从 Cloudflare GraphQL Analytics 聚合获取运营数据，同时包含站点运行状态和各模块统计。
+**认证**: 不需要
 
-**响应：**
+**响应**:
 
 ```json
 {
-  "today": {
-    "requests": 1289,
-    "bandwidth": "45.6 MB",
-    "avg_duration_ms": 23
-  },
-  "this_month": {
-    "requests": 38420,
-    "bandwidth": "1.2 GB"
-  },
-  "total": {
-    "requests": 284123,
-    "bandwidth": "8.5 GB"
-  },
-  "status_codes": {
-    "2xx": 281000,
-    "4xx": 2800,
-    "5xx": 323
-  },
-  "health": {
-    "status": "ok",
-    "uptime": 123456,
-    "version": "0.1.0",
-    "d1": { "status": "ok", "latency_ms": 5 },
-    "kv": { "status": "ok", "latency_ms": 3 }
-  },
-  "stats": {
-    "posts": 42,
-    "friends": 8,
-    "links": 20,
-    "galleries": 5,
-    "bangumi_records": 30
+  "data": {
+    "id": "uuid-v7",
+    "site_name": "我的博客",
+    "subtitle": "个人博客",
+    "logo_url": "https://example.com/logo.png",
+    "description": "个人技术博客",
+    "keywords": "技术,博客,Rust",
+    "icp_beian": "京ICP备00000000号",
+    "created_at": "2026-01-01T00:00:00Z",
+    "updated_at": "2026-01-01T00:00:00Z"
   }
 }
 ```
 
-> 注意：仪表盘的 `health` 和 `stats` 字段与公开的 `/api/status` 接口数据一致，管理面板可以直接使用仪表盘接口获取全部信息。
+### PUT /api/settings/profile
+
+更新站点基本信息。
+
+**认证**: Bearer Token
+
+**请求**（所有字段可选）:
+
+```json
+{
+  "site_name": "我的博客",
+  "subtitle": "个人博客",
+  "logo_url": "https://example.com/logo.png",
+  "description": "个人技术博客",
+  "keywords": "技术,博客,Rust",
+  "icp_beian": "京ICP备00000000号"
+}
+```
+
+**响应**: 同 GET profile
 
 ---
 
-## 4. 站点设置
+### GET /api/settings/footer
 
-### 4.1 站点信息 Profile
+获取页脚配置。
 
-> 需要 `Authorization` header
+**认证**: 不需要
 
-#### GET /api/settings/profile
-
-**响应：**
+**响应**:
 
 ```json
 {
   "data": {
-    "id": "0194f...",
-    "site_name": "我的站点",
-    "subtitle": "副标题",
-    "logo_url": "https://...",
-    "description": "站点描述",
-    "keywords": "关键词1,关键词2",
-    "icp_beian": "京ICP备xxxx号",
-    "created_at": "2026-01-01T00:00:00Z",
-    "updated_at": "2026-05-01T00:00:00Z"
-  }
-}
-```
-
-#### PUT /api/settings/profile
-
-**请求（全部可选，只传需要更新的字段）：**
-
-```json
-{
-  "site_name": "我的站点",
-  "subtitle": "副标题",
-  "logo_url": "https://...",
-  "description": "站点描述",
-  "keywords": "关键词1,关键词2",
-  "icp_beian": "京ICP备xxxx号"
-}
-```
-
-**响应：** 同 GET 的 `{ "data": {...} }` 格式。
-
-### 4.2 页脚信息 Footer
-
-> 需要 `Authorization` header
-
-#### GET /api/settings/footer
-
-**响应：**
-
-```json
-{
-  "data": {
-    "id": "0194f...",
+    "id": "uuid-v7",
     "content": "页脚内容",
-    "copyright_text": "© 2026",
-    "created_at": "...",
-    "updated_at": "..."
+    "copyright_text": "© 2026 My Blog",
+    "created_at": "2026-01-01T00:00:00Z",
+    "updated_at": "2026-01-01T00:00:00Z"
   }
 }
 ```
 
-#### PUT /api/settings/footer
+### PUT /api/settings/footer
 
-**请求（全部可选）：**
+更新页脚配置。
+
+**认证**: Bearer Token
+
+**请求**（所有字段可选）:
 
 ```json
 {
   "content": "页脚内容",
-  "copyright_text": "© 2026"
+  "copyright_text": "© 2026 My Blog"
 }
 ```
 
-### 4.3 页脚链接 Footer Links
+**响应**: 同 GET footer
 
-> 需要 `Authorization` header
+---
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/settings/footer-links | 列表 |
-| POST | /api/settings/footer-links | 添加 |
-| PUT | /api/settings/footer-links/:id | 更新 |
-| DELETE | /api/settings/footer-links/:id | 删除 |
+### GET /api/settings/footer-links
 
-#### GET /api/settings/footer-links
+获取页脚链接列表。
 
-**响应：** 直接返回数组
+**认证**: 不需要
+
+**响应**: `FooterLink[]`
 
 ```json
 [
   {
-    "id": "0194f...",
-    "name": "隐私政策",
-    "url": "/privacy",
+    "id": "uuid-v7",
+    "name": "关于我们",
+    "url": "/about",
     "sort_order": 1,
-    "created_at": "...",
-    "updated_at": "...",
+    "created_at": "2026-01-01T00:00:00Z",
+    "updated_at": "2026-01-01T00:00:00Z",
     "deleted_at": null
   }
 ]
 ```
 
-#### POST /api/settings/footer-links
+### POST /api/settings/footer-links
 
-**请求：**
+添加页脚链接。
+
+**认证**: Bearer Token
+
+**请求**:
 
 ```json
 {
-  "name": "隐私政策",
-  "url": "/privacy",
+  "name": "关于我们",
+  "url": "/about",
   "sort_order": 1
 }
 ```
 
-**响应：** 返回创建后的完整对象
+**响应**: `FooterLink`
 
-#### PUT /api/settings/footer-links/:id
+### PUT /api/settings/footer-links/{id}
 
-**请求：** 同 POST
+更新页脚链接。
 
-**响应：** 返回更新后的完整对象
+**认证**: Bearer Token
 
-#### DELETE /api/settings/footer-links/:id
-
-**响应：**
+**请求**:
 
 ```json
-{ "message": "已删除" }
+{
+  "name": "关于我们（更新）",
+  "url": "/about",
+  "sort_order": 2
+}
 ```
 
-### 4.4 社交链接 Social Links
+**响应**: `FooterLink`
 
-> 需要 `Authorization` header
+### DELETE /api/settings/footer-links/{id}
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/settings/social-links | 列表 |
-| POST | /api/settings/social-links | 添加 |
-| PUT | /api/settings/social-links/:id | 更新 |
-| DELETE | /api/settings/social-links/:id | 删除 |
+删除页脚链接（逻辑删除）。
 
-#### GET /api/settings/social-links
+**认证**: Bearer Token
 
-**响应：** 直接返回数组
+**响应**:
+
+```json
+{
+  "message": "已删除"
+}
+```
+
+---
+
+### GET /api/settings/social-links
+
+获取社交链接列表。
+
+**认证**: 不需要
+
+**响应**: `SocialLink[]`
 
 ```json
 [
   {
-    "id": "0194f...",
-    "platform": "bilibili",
-    "label": "B 站",
-    "url": "https://space.bilibili.com/...",
-    "icon": "",
+    "id": "uuid-v7",
+    "platform": "GitHub",
+    "label": "GitHub",
+    "url": "https://github.com/username",
+    "icon": "github",
     "sort_order": 1,
-    "created_at": "...",
-    "updated_at": "...",
+    "created_at": "2026-01-01T00:00:00Z",
+    "updated_at": "2026-01-01T00:00:00Z",
     "deleted_at": null
   }
 ]
 ```
 
-#### POST /api/settings/social-links
+### POST /api/settings/social-links
 
-**请求：**
+添加社交链接。
+
+**认证**: Bearer Token
+
+**请求**:
 
 ```json
 {
-  "platform": "bilibili",
-  "label": "B 站",
-  "url": "https://space.bilibili.com/...",
-  "icon": "",
+  "platform": "GitHub",
+  "label": "GitHub",
+  "url": "https://github.com/username",
+  "icon": "github",
   "sort_order": 1
 }
 ```
 
-### 4.5 公告 Announcements
+**响应**: `SocialLink`
 
-> 需要 `Authorization` header
+### PUT /api/settings/social-links/{id}
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/settings/announcements | 列表 |
-| POST | /api/settings/announcements | 添加 |
-| PUT | /api/settings/announcements/:id | 更新 |
-| DELETE | /api/settings/announcements/:id | 删除 |
+更新社交链接。
 
-#### GET /api/settings/announcements
+**认证**: Bearer Token
 
-**响应：** 直接返回数组
+**请求**:
+
+```json
+{
+  "platform": "GitHub",
+  "label": "GitHub",
+  "url": "https://github.com/username",
+  "icon": "github",
+  "sort_order": 1
+}
+```
+
+**响应**: `SocialLink`
+
+### DELETE /api/settings/social-links/{id}
+
+删除社交链接（逻辑删除）。
+
+**认证**: Bearer Token
+
+**响应**:
+
+```json
+{
+  "message": "已删除"
+}
+```
+
+---
+
+### GET /api/settings/announcements
+
+获取公告列表。
+
+**认证**: 不需要
+
+**响应**: `Announcement[]`
 
 ```json
 [
   {
-    "id": "0194f...",
-    "content": "公告内容",
+    "id": "uuid-v7",
+    "content": "站点维护通知",
     "active": true,
     "sort_order": 1,
-    "created_at": "...",
-    "updated_at": "...",
+    "created_at": "2026-01-01T00:00:00Z",
+    "updated_at": "2026-01-01T00:00:00Z",
     "deleted_at": null
   }
 ]
 ```
 
-#### POST /api/settings/announcements
+### POST /api/settings/announcements
 
-**请求：**
+添加公告。
+
+**认证**: Bearer Token
+
+**请求**:
 
 ```json
 {
-  "content": "公告内容",
+  "content": "站点维护通知",
   "active": true,
   "sort_order": 1
 }
 ```
 
+**响应**: `Announcement`
+
+### PUT /api/settings/announcements/{id}
+
+更新公告。
+
+**认证**: Bearer Token
+
+**请求**:
+
+```json
+{
+  "content": "站点维护通知（更新）",
+  "active": true,
+  "sort_order": 1
+}
+```
+
+**响应**: `Announcement`
+
+### DELETE /api/settings/announcements/{id}
+
+删除公告（逻辑删除）。
+
+**认证**: Bearer Token
+
+**响应**:
+
+```json
+{
+  "message": "已删除"
+}
+```
+
 ---
 
-## 5. 博客
+## 4. 博客文章
 
-### 5.1 文章列表
+### GET /api/posts
 
-#### GET /api/posts
+获取文章列表。
 
-> 不需要登录，但登录后可查看非 published 状态的文章
+**认证**: 可选（未登录只能看 published）
 
-**查询参数：**
+**查询参数**:
 
 | 参数 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
-| `page` | number | 1 | 页码 |
-| `page_size` | number | 10 | 每页条数 |
-| `tag` | string | - | 按标签筛选 |
-| `year` | string | - | 按年份筛选，如 `2026` |
-| `status` | string | `published` | 仅登录后可用 |
+| page | int | 1 | 页码 |
+| page_size | int | 10 | 每页数量（最大 100） |
+| tag | string | - | 按标签筛选 |
+| year | string | - | 按年份筛选（如 `2026`） |
+| status | string | published | 按状态筛选（需登录） |
 
-**响应：**
+**响应**: `PaginatedPosts`
 
 ```json
 {
   "data": [
     {
-      "id": "0194f...",
-      "title": "文章标题",
-      "slug": "article-slug",
-      "excerpt": "摘要内容...",
-      "tags": ["技术", "Rust"],
+      "id": "uuid-v7",
+      "title": "测试文章",
+      "slug": "test-post",
+      "excerpt": "文章摘要",
+      "tags": ["rust", "web"],
       "status": "published",
-      "view_count": 128,
+      "view_count": 100,
       "created_at": "2026-01-01T00:00:00Z",
       "updated_at": "2026-01-01T00:00:00Z",
       "published_at": "2026-01-01T00:00:00Z"
     }
   ],
-  "total": 42,
+  "total": 10,
   "page": 1,
   "page_size": 10,
-  "total_pages": 5
+  "total_pages": 1
 }
 ```
 
-### 5.2 文章详情
+### GET /api/posts/{slug}
 
-#### GET /api/posts/:slug
+获取文章详情（含正文 Markdown 内容）。
 
-**响应：**
+**认证**: 不需要
+
+**路径参数**: `slug` - 文章 slug
+
+**响应**: `Post`
 
 ```json
 {
-  "id": "0194f...",
-  "title": "文章标题",
-  "slug": "article-slug",
-  "content": "# Markdown 正文...",
-  "excerpt": "摘要",
-  "tags": ["技术", "Rust"],
+  "id": "uuid-v7",
+  "title": "测试文章",
+  "slug": "test-post",
+  "content": "# 正文 Markdown",
+  "excerpt": "文章摘要",
+  "tags": ["rust", "web"],
   "status": "published",
-  "view_count": 128,
-  "github_discussion_number": 5,
+  "view_count": 100,
+  "github_discussion_number": 1,
   "created_at": "2026-01-01T00:00:00Z",
   "updated_at": "2026-01-01T00:00:00Z",
   "published_at": "2026-01-01T00:00:00Z"
 }
 ```
 
-### 5.3 创建文章
+### POST /api/posts
 
-#### POST /api/posts
+创建文章。
 
-> 需要 `Authorization` header
+**认证**: Bearer Token
 
-**请求：**
+**请求**:
 
 ```json
 {
-  "title": "文章标题",
-  "slug": "custom-slug",
-  "content": "# Markdown 正文",
-  "excerpt": "摘要（可选，不传则自动截取正文前200字）",
-  "tags": ["技术", "Rust"],
-  "status": "draft",
-  "github_discussion_number": 5
+  "title": "测试文章",
+  "slug": "test-post",
+  "content": "# 测试\n\n这是一篇测试文章",
+  "excerpt": "测试文章摘要",
+  "tags": ["rust", "web"],
+  "status": "published",
+  "github_discussion_number": 1
 }
 ```
 
-**说明：**
-- `slug` 不传则自动从 title 生成
-- `status` 默认为 `draft`，发布请传 `published`
-- `status` 为 `published` 时会自动设置 `published_at`
+> 说明: `slug` 可选，不传则自动从 title 生成；如有冲突自动追加随机后缀。`status` 默认 `draft`，设为 `published` 时自动设置发布时间。
 
-**响应：** 返回完整的 Post 对象
+**响应**: `Post`（201）
 
-### 5.4 更新文章
+### PUT /api/posts/{slug}
 
-#### PUT /api/posts/:slug
+更新文章。
 
-> 需要 `Authorization` header
+**认证**: Bearer Token
 
-**请求（全部可选）：**
+**路径参数**: `slug` - 文章 slug
+
+**请求**（所有字段可选）:
 
 ```json
 {
-  "title": "新标题",
-  "slug": "new-slug",
-  "content": "# 新正文",
-  "excerpt": "新摘要",
-  "tags": ["技术", "Rust"],
+  "title": "测试文章（更新）",
+  "slug": "updated-slug",
+  "content": "# 更新\n\n内容已更新",
+  "excerpt": "更新摘要",
+  "tags": ["rust"],
   "status": "published",
   "published_at": "2026-01-01T00:00:00Z",
-  "github_discussion_number": 5
+  "github_discussion_number": 1
 }
 ```
 
-**响应：** 返回更新后的完整 Post 对象
+**响应**: `Post`
 
-### 5.5 删除文章
+### DELETE /api/posts/{slug}
 
-#### DELETE /api/posts/:slug
+逻辑删除文章（移入垃圾桶）。
 
-> 需要 `Authorization` header — 逻辑删除
+**认证**: Bearer Token
 
-**响应：**
+**路径参数**: `slug` - 文章 slug
 
-```json
-{ "message": "已删除" }
-```
-
-### 5.6 增加浏览量
-
-#### POST /api/posts/:slug/views
-
-**响应：**
-
-```json
-{ "message": "ok" }
-```
-
-### 5.7 评论数代理
-
-#### GET /api/posts/:slug/comments-count
-
-通过 GitHub Discussion API 获取评论数，结果缓存在 KV（5 分钟）。
-
-**响应：**
+**响应**:
 
 ```json
 {
-  "count": 12
+  "message": "已删除"
+}
+```
+
+### POST /api/posts/{slug}/views
+
+增加文章浏览量。
+
+**认证**: 不需要
+
+**路径参数**: `slug` - 文章 slug
+
+**响应**:
+
+```json
+{
+  "message": "ok"
+}
+```
+
+### GET /api/posts/{slug}/comments-count
+
+获取文章的 GitHub Discussion 评论数。
+
+**认证**: 不需要
+
+**路径参数**: `slug` - 文章 slug
+
+**响应**:
+
+```json
+{
+  "count": 5
 }
 ```
 
 ---
 
-## 6. 搜索
+## 5. 点赞系统
 
-### 6.1 全站搜索
+### GET /api/likes/{target_type}/{target_id}
 
-#### GET /api/search
+获取点赞数和当前访问者是否已点赞。
 
-> 搜索全站内容，包括文章、收藏链接、相册、友人帐、公告。
+**认证**: 不需要
 
-**请求参数：**
+**路径参数**: `target_type` - 目标类型（如 `post`），`target_id` - 目标 ID
 
-| 参数 | 类型 | 必填 | 默认 | 说明 |
-|------|------|------|------|------|
-| `q` | string | 是 | - | 搜索关键词，最少 2 个字符 |
-| `page` | number | 否 | 1 | 页码 |
-| `page_size` | number | 否 | 10 | 每页条数，最大 100 |
-
-**响应结构：**
+**响应**:
 
 ```json
 {
-  "data": [
-    {
-      "type": "post",
-      "title": "用 Rust 构建 Web 应用",
-      "url": "/posts/building-web-apps-with-rust",
-      "snippet": "…本文将介绍如何用 Rust 构建高性能 Web 应用…",
-      "published_at": "2026-04-28T00:00:00Z"
-    }
-  ],
-  "total": 12,
-  "page": 1,
-  "page_size": 10,
-  "total_pages": 2,
-  "query": "rust"
-}
-```
-
-**`type` 字段说明：**
-
-| type | 对应内容 | 搜索字段 | title 来源 | url 说明 |
-|------|---------|---------|-----------|---------|
-| `post` | 文章 | title / content / excerpt | 文章标题 | `/posts/{slug}` |
-| `link` | 收藏链接 | title / description | 链接标题 | 原始 URL |
-| `gallery` | 相册 | title | 相册标题 | null（无独立页） |
-| `friend` | 友人帐 | name / description | 友链名称 | 友链网站 URL |
-| `announcement` | 公告 | content | 内容前 50 字 | null（无独立页） |
-
-**排序规则：** 标题匹配 > 摘要/描述匹配 > 正文匹配 → 发布/创建时间降序
-
----
-
-## 7. 点赞系统
-
-### 6.1 点赞/取消点赞
-
-#### POST /api/likes/:target_type/:target_id
-
-> `target_type` 支持：`post`（文章）、`site`（站点点赞）
-> `target_id`：post 用 slug，site 用 `main`
-
-通过 KV 记录访客点赞状态，30 天内同一访客再次请求会取消点赞。
-
-**响应：**
-
-```json
-{
-  "count": 42,
-  "liked": true
-}
-```
-
-### 6.2 获取点赞数
-
-#### GET /api/likes/:target_type/:target_id
-
-**响应：**
-
-```json
-{
-  "count": 42,
+  "count": 10,
   "liked": false
 }
 ```
 
----
+### POST /api/likes/{target_type}/{target_id}
 
-## 7. 友人帐
+切换点赞/取消点赞（基于 KV 的访客标识）。
 
-### 7.1 友链列表
+**认证**: 不需要
 
-#### GET /api/friends
+**路径参数**: `target_type` - 目标类型（如 `post`），`target_id` - 目标 ID
 
-**查询参数：**
-
-| 参数 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `page` | number | 1 | |
-| `page_size` | number | 20 | |
-| `status` | string | `approved` | 未登录仅看 approved，登录后可筛选 |
-
-**响应：** 分页格式，`data` 中每个元素：
+**响应**:
 
 ```json
 {
-  "id": "0194f...",
-  "name": "友人站点",
-  "url": "https://example.com",
-  "avatar_url": "https://example.com/avatar.png",
-  "description": "站点描述",
-  "email": "contact@example.com",
-  "status": "approved",
-  "sort_order": 1,
-  "created_at": "...",
-  "updated_at": "...",
-  "deleted_at": null
+  "count": 11,
+  "liked": true
 }
 ```
-
-### 7.2 友链详情
-
-#### GET /api/friends/:id
-
-**响应：** 返回单个 Friend 对象
-
-### 7.3 添加友链
-
-#### POST /api/friends
-
-> 需要 `Authorization` header
-
-**请求：**
-
-```json
-{
-  "name": "友人站点",
-  "url": "https://example.com",
-  "avatar_url": "https://example.com/avatar.png",
-  "description": "站点描述",
-  "email": "contact@example.com"
-}
-```
-
-> 新添加的友链状态默认为 `pending`，需管理员审核。
-
-### 7.4 更新友链
-
-#### PUT /api/friends/:id
-
-> 需要 `Authorization` header
-
-**请求（全部可选）：**
-
-```json
-{
-  "name": "新名称",
-  "url": "https://new-url.com",
-  "avatar_url": "https://...",
-  "description": "新描述",
-  "email": "new@example.com",
-  "sort_order": 2
-}
-```
-
-### 7.5 删除友链
-
-#### DELETE /api/friends/:id
-
-> 需要 `Authorization` header
-
-### 7.6 审核友链
-
-#### PATCH /api/friends/:id/status
-
-> 需要 `Authorization` header
-
-**请求：**
-
-```json
-{
-  "status": "approved"
-}
-```
-
-`status` 值：`approved` | `rejected`
 
 ---
 
-## 8. 链接收藏
+## 6. 友人帐
 
-### 8.1 链接列表
+### GET /api/friends
 
-#### GET /api/links
+获取友链列表。
 
-**查询参数：**
+**认证**: 可选（未登录只能看 `approved` 状态的）
+
+**查询参数**:
 
 | 参数 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
-| `page` | number | 1 | |
-| `page_size` | number | 20 | |
-| `tag` | string | - | 按标签筛选 |
-| `favorite` | number | - | 1 表示只看收藏 |
+| page | int | 1 | 页码 |
+| page_size | int | 20 | 每页数量（最大 100） |
+| status | string | approved | 按状态筛选（需登录） |
 
-**响应：** 分页格式
+**响应**: `PaginatedFriends`
 
 ```json
 {
   "data": [
     {
-      "id": "0194f...",
-      "title": "链接标题",
+      "id": "uuid-v7",
+      "name": "友链名称",
       "url": "https://example.com",
-      "description": "描述",
-      "favicon_url": "https://example.com/favicon.ico",
-      "tags": ["前端", "工具"],
-      "favorite": 1,
-      "sort_order": 0,
-      "created_at": "...",
-      "updated_at": "...",
-      "deleted_at": null
-    }
-  ],
-  "total": 20,
-  "page": 1,
-  "page_size": 20,
-  "total_pages": 1
-}
-```
-
-> `favorite` 为 1 表示收藏，0 表示未收藏。
-
-### 8.2 标签元数据
-
-#### GET /api/links/meta
-
-返回全量标签及其出现次数。
-
-**响应：**
-
-```json
-{
-  "tags": [
-    { "tag": "前端", "count": 5 },
-    { "tag": "工具", "count": 3 }
-  ]
-}
-```
-
-### 8.3 链接详情
-
-#### GET /api/links/:id
-
-返回单个 Link 对象。
-
-### 8.4 添加链接
-
-#### POST /api/links
-
-> 需要 `Authorization` header
-
-**请求：**
-
-```json
-{
-  "title": "链接标题",
-  "url": "https://example.com",
-  "description": "描述",
-  "favicon_url": "https://example.com/favicon.ico",
-  "tags": ["前端", "工具"],
-  "favorite": 1,
-  "sort_order": 0
-}
-```
-
-> `favorite` 为可选，1 表示收藏，0 或留空表示不收藏。
-
-### 8.5 更新链接
-
-#### PUT /api/links/:id
-
-> 需要 `Authorization` header
-
-**请求（全部可选）：**
-
-```json
-{
-  "title": "新标题",
-  "url": "https://new-url.com",
-  "description": "新描述",
-  "favicon_url": "https://...",
-  "tags": ["新标签"],
-  "favorite": 1,
-  "sort_order": 1
-}
-```
-
-### 8.6 删除链接
-
-#### DELETE /api/links/:id
-
-> 需要 `Authorization` header
-
----
-
-## 9. 相册
-
-### 9.1 相册列表
-
-#### GET /api/galleries
-
-**查询参数：**
-
-| 参数 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `page` | number | 1 | |
-| `page_size` | number | 20 | |
-| `tag` | string | - | 按标签筛选 |
-
-**响应：** 分页格式
-
-```json
-{
-  "data": [
-    {
-      "id": "0194f...",
-      "title": "相册标题",
-      "cover_path": "https://.../cover.jpg",
-      "tags": ["旅行", "风景"],
-      "created_at": "...",
-      "updated_at": "...",
+      "avatar_url": "https://example.com/avatar.png",
+      "description": "友链描述",
+      "email": "webmaster@example.com",
+      "status": "approved",
+      "sort_order": 1,
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
       "deleted_at": null
     }
   ],
@@ -1138,482 +960,246 @@ Token 类型：
 }
 ```
 
-### 9.2 相册详情（含照片列表）
+### GET /api/friends/{id}
 
-#### GET /api/galleries/:id
+获取友链详情。
 
-**响应：**
+**认证**: 不需要
+
+**响应**: `Friend`
+
+### POST /api/friends
+
+添加友链（被认证，可改为公开提交）。
+
+**认证**: Bearer Token
+
+**请求**:
 
 ```json
 {
-  "id": "0194f...",
-  "title": "相册标题",
-  "cover_path": "https://.../cover.jpg",
-  "tags": ["旅行", "风景"],
-  "created_at": "...",
-  "updated_at": "...",
-  "photos": [
-    {
-      "id": "0194f...",
-      "gallery_id": "0194f...",
-      "path": "https://.../photo1.jpg",
-      "created_at": "...",
-      "deleted_at": null
-    }
-  ]
+  "name": "友链名称",
+  "url": "https://example.com",
+  "avatar_url": "https://example.com/avatar.png",
+  "description": "友链描述",
+  "email": "webmaster@example.com"
 }
 ```
 
-### 9.3 创建相册
+**响应**: `Friend`（状态自动设为 `pending`）
 
-#### POST /api/galleries
+### PUT /api/friends/{id}
 
-> 需要 `Authorization` header
+更新友链。
 
-**请求：**
+**认证**: Bearer Token
+
+**请求**（所有字段可选）:
 
 ```json
 {
-  "title": "相册标题",
-  "cover_path": "https://.../cover.jpg",
-  "tags": ["旅行", "风景"]
+  "name": "友链名称（更新）",
+  "url": "https://example.com",
+  "avatar_url": "https://example.com/avatar.png",
+  "description": "更新描述",
+  "email": "webmaster@example.com",
+  "sort_order": 1
 }
 ```
 
-### 9.4 更新相册
+**响应**: `Friend`
 
-#### PUT /api/galleries/:id
+### PATCH /api/friends/{id}/status
 
-> 需要 `Authorization` header
+审核友链状态（通过/拒绝）。
 
-**请求（全部可选）：**
+**认证**: Bearer Token
+
+**请求**:
 
 ```json
 {
-  "title": "新标题",
-  "cover_path": "https://.../new-cover.jpg",
-  "tags": ["旅行"]
+  "status": "approved"
 }
 ```
 
-### 9.5 删除相册
+> `status` 取值: `approved` | `rejected`
 
-#### DELETE /api/galleries/:id
+**响应**: `Friend`
 
-> 需要 `Authorization` header — 逻辑删除
+### DELETE /api/friends/{id}
 
-### 9.6 添加照片
+逻辑删除友链（移入垃圾桶）。
 
-#### POST /api/galleries/:id/photos
+**认证**: Bearer Token
 
-> 需要 `Authorization` header
-> 前端自行处理图片上传，将图片 URL 传给后端。
-
-**请求：**
+**响应**:
 
 ```json
 {
-  "paths": [
-    "https://.../photo1.jpg",
-    "https://.../photo2.jpg"
-  ]
-}
-```
-
-**响应：** 返回创建的照片数组
-
-```json
-[
-  {
-    "id": "0194f...",
-    "gallery_id": "0194f...",
-    "path": "https://.../photo1.jpg",
-    "created_at": "...",
-    "deleted_at": null
-  }
-]
-```
-
-### 9.7 删除照片
-
-#### DELETE /api/photos/:id
-
-> 需要 `Authorization` header — 逻辑删除
-
-### 9.8 图片加速代理
-
-通过 jsDelivr CDN 加速 GitHub raw 图片加载，**无需后端处理，不消耗任何服务端资源**。
-
-#### 配置方式
-
-前端 `.env` 设置：
-```bash
-VITE_IMAGE_PROXY_BASE=jsdelivr
-```
-
-URL 转换规则：
-```
-原始: https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{path}
-jsDelivr: https://cdn.jsdelivr.net/gh/{owner}/{repo}@{branch}/{path}
-```
-
-示例：
-```
-原始: https://raw.githubusercontent.com/f0na/fufu-vue/main/content/imgs/xxx.png
-结果: https://cdn.jsdelivr.net/gh/f0na/fufu-vue@main/content/imgs/xxx.png
-```
-
-> jsDelivr 是专门加速 GitHub 内容的免费 CDN，国内访问速度快，无需任何后端改动。
-> 如果不想用 jsDelivr，也可将 `VITE_IMAGE_PROXY_BASE` 设为自定义代理地址。
-
----
-
-## 10. 法律文档
-
-### 10.1 许可证
-
-#### GET /api/license
-
-获取最新版本的许可证。
-
-**响应：**
-
-```json
-{
-  "id": "0194f...",
-  "version": "v1.0",
-  "content": "## 许可证\n\n...（Markdown 内容）",
-  "created_at": "2026-01-01T00:00:00Z"
-}
-```
-
-#### GET /api/license/versions
-
-获取所有版本历史。
-
-**响应：**
-
-```json
-[
-  {
-    "id": "0194f...",
-    "version": "v1.0",
-    "content": "...",
-    "created_at": "..."
-  }
-]
-```
-
-#### POST /api/license
-
-> 需要 `Authorization` header
-
-**请求：**
-
-```json
-{
-  "version": "v1.0",
-  "content": "## 许可证\n\n...（Markdown 内容）"
-}
-```
-
-### 10.2 隐私政策
-
-#### GET /api/privacy
-
-获取最新版本的隐私政策。
-
-**响应：**
-
-```json
-{
-  "id": "0194f...",
-  "version": "v1.0",
-  "date": "2026-01-01",
-  "content": "## 隐私政策\n\n...",
-  "created_at": "..."
-}
-```
-
-#### GET /api/privacy/versions
-
-**响应：**
-
-```json
-[
-  {
-    "id": "0194f...",
-    "version": "v1.0",
-    "date": "2026-01-01",
-    "content": "...",
-    "created_at": "..."
-  }
-]
-```
-
-#### POST /api/privacy
-
-> 需要 `Authorization` header
-
-**请求：**
-
-```json
-{
-  "version": "v1.0",
-  "date": "2026-01-01",
-  "content": "## 隐私政策\n\n..."
+  "message": "已删除"
 }
 ```
 
 ---
 
-## 11. 番剧记录
+## 7. 链接收藏
 
-### 11.1 追番列表
+### GET /api/links
 
-#### GET /api/bangumi/records
+获取收藏链接列表。
 
-**查询参数：**
+**认证**: 可选（未登录只能看非收藏链接，即 `favorite = 0`）
+
+**查询参数**:
 
 | 参数 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
-| `page` | number | 1 | |
-| `page_size` | number | 20 | |
-| `status` | string | - | 筛选：`watching` / `want_to_watch` / `watched` / `dropped` |
-| `subject_id` | number | - | 按 Bangumi 条目 ID 查询 |
+| page | int | 1 | 页码 |
+| page_size | int | 20 | 每页数量（最大 100） |
+| tag | string | - | 按标签筛选 |
+| favorite | int | - | 按收藏状态筛选 |
 
-**响应：** 分页格式
+**响应**: `PaginatedLinks`
 
 ```json
 {
   "data": [
     {
-      "id": "0194f...",
-      "subject_id": 12345,
-      "title": "番剧标题",
-      "status": "watching",
-      "progress": "12/24",
-      "cover_url": "https://...",
-      "fansub": "字幕组",
-      "added_at": "...",
-      "updated_at": "...",
+      "id": "uuid-v7",
+      "title": "Rust 官方文档",
+      "url": "https://www.rust-lang.org/",
+      "description": "Rust 编程语言官方网站",
+      "favicon_url": "",
+      "tags": ["rust", "programming"],
+      "favorite": 0,
+      "sort_order": 1,
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
       "deleted_at": null
     }
   ],
-  "total": 30,
+  "total": 20,
   "page": 1,
   "page_size": 20,
-  "total_pages": 2
+  "total_pages": 1
 }
 ```
 
-**状态枚举：**
+### GET /api/links/meta
 
-| 值 | 说明 |
-|----|------|
-| `watching` | 在看 |
-| `want_to_watch` | 想看 |
-| `watched` | 已看 |
-| `dropped` | 弃番 |
+获取链接标签统计信息。
 
-### 11.2 添加追番
+**认证**: 不需要
 
-#### POST /api/bangumi/records
-
-> 需要 `Authorization` header
-
-**请求：**
+**响应**:
 
 ```json
 {
-  "subject_id": 12345,
-  "title": "番剧标题",
-  "status": "watching",
-  "progress": "12/24",
-  "cover_url": "https://...",
-  "fansub": "字幕组"
-}
-```
-
-`status` 默认为 `want_to_watch`
-
-### 11.3 更新追番
-
-#### PUT /api/bangumi/records/:id
-
-> 需要 `Authorization` header
-
-**请求（全部可选）：**
-
-```json
-{
-  "title": "新标题",
-  "status": "watched",
-  "progress": "24/24",
-  "cover_url": "https://...",
-  "fansub": "新字幕组"
-}
-```
-
-### 11.4 删除追番
-
-#### DELETE /api/bangumi/records/:id
-
-> 需要 `Authorization` header — 逻辑删除
-
----
-
-## 12. 外部 API 代理
-
-后端透传请求解决跨域，前端无需关心原始 API 地址。
-
-### 12.1 Bangumi 搜索
-
-#### POST /api/bangumi/search
-
-**请求（JSON Body）：**
-
-```json
-{
-  "keyword": "进击的巨人",
-  "sort": "heat",
-  "filter": {
-    "type": [2],
-    "rating": [">=7"]
-  },
-  "limit": 10,
-  "offset": 0
-}
-```
-
-**参数说明：**
-
-| 参数 | 类型 | 必填 | 默认 | 说明 |
-|------|------|------|------|------|
-| `keyword` | string | 是 | - | 搜索关键词 |
-| `sort` | string | 否 | `"match"` | 排序：`match`=匹配度, `heat`=收藏人数, `rank`=排名, `score`=评分 |
-| `filter` | object | 否 | - | 筛选条件，见下方 |
-| `limit` | number | 否 | 10 | 每页条数 |
-| `offset` | number | 否 | 0 | 偏移量 |
-
-**filter 字段说明：**
-
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `type` | number[] | 条目类型：`[1]`=书籍, `[2]`=动画, `[3]`=音乐, `[4]`=游戏, `[6]`=三次元 |
-| `tag` | string[] | 标签，多值 `且`，可用 `-` 排除 |
-| `meta_tags` | string[] | 公共标签 |
-| `air_date` | string[] | 播出/发售日期，如 `[">=2020-07-01"]` |
-| `rating` | string[] | 评分范围，如 `[">=6", "<8"]` |
-| `rating_count` | string[] | 评分人数，如 `[">=200"]` |
-| `rank` | string[] | 排名范围 |
-| `nsfw` | boolean | `true`=仅 R18, `false`=排除 R18, 不传=全部 |
-
-**缓存：** 1 小时（按完整请求参数组合缓存）
-
-### 12.2 Bangumi 条目详情
-
-#### GET /api/bangumi/subjects/:id
-
-**缓存：** 24 小时
-
-### 12.3 Bangumi 每日放送
-
-#### GET /api/bangumi/calendar
-
-**缓存：** 1 小时
-
-### 12.4 Bangumi 浏览
-
-#### GET /api/bangumi/browse
-
-查询参数透传给 bangumi API（如 `?page=1&limit=24&type=2`）。
-
-**缓存：** 1 小时
-
-### 12.5 AnimeGarden 资源
-
-#### GET /api/anime-garden/resources
-
-查询参数透传给 anime-garden API（如 `?query=...&provider=...`）。
-
-**缓存：** 30 分钟
-
----
-
-## 13. 翻译
-
-#### POST /api/translate
-
-百度翻译 API 代理。默认中译英。
-
-**请求：**
-
-```json
-{
-  "text": "你好世界",
-  "from": "auto",
-  "to": "en"
-}
-```
-
-**响应：** 透传百度翻译 API 原始返回。
-
-```json
-{
-  "from": "zh",
-  "to": "en",
-  "trans_result": [
-    {
-      "src": "你好世界",
-      "dst": "Hello World"
-    }
+  "tags": [
+    { "tag": "rust", "count": 5 },
+    { "tag": "programming", "count": 3 }
   ]
 }
 ```
 
+### GET /api/links/{id}
+
+获取链接详情。
+
+**认证**: 不需要
+
+**响应**: `Link`
+
+### POST /api/links
+
+添加收藏链接。
+
+**认证**: Bearer Token
+
+**请求**:
+
+```json
+{
+  "title": "Rust 官方文档",
+  "url": "https://www.rust-lang.org/",
+  "description": "Rust 编程语言官方网站",
+  "favicon_url": "https://www.rust-lang.org/favicon.ico",
+  "tags": ["rust", "programming"],
+  "favorite": 0,
+  "sort_order": 1
+}
+```
+
+**响应**: `Link`
+
+### PUT /api/links/{id}
+
+更新收藏链接。
+
+**认证**: Bearer Token
+
+**请求**（所有字段可选）:
+
+```json
+{
+  "title": "Rust 官方文档（更新）",
+  "url": "https://www.rust-lang.org/",
+  "description": "更新后的描述",
+  "favicon_url": "https://www.rust-lang.org/favicon.ico",
+  "tags": ["rust"],
+  "favorite": 1,
+  "sort_order": 2
+}
+```
+
+**响应**: `Link`
+
+### DELETE /api/links/{id}
+
+逻辑删除链接（移入垃圾桶）。
+
+**认证**: Bearer Token
+
+**响应**:
+
+```json
+{
+  "message": "已删除"
+}
+```
+
 ---
 
-## 14. 垃圾桶
+## 8. 相册
 
-### 14.1 垃圾桶列表
+### GET /api/galleries
 
-#### GET /api/trash/:resource
+获取相册列表。
 
-**支持的 `:resource` 值：** `posts`, `friends`, `links`, `galleries`, `bangumi/records`（也支持 `bangumi`、`bangumi-records`、`bangumi_records`）
+**认证**: 可选
 
-**查询参数：**
+**查询参数**:
 
-| 参数 | 类型 | 默认值 |
-|------|------|--------|
-| `page` | number | 1 |
-| `page_size` | number | 20 |
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| page | int | 1 | 页码 |
+| page_size | int | 20 | 每页数量（最大 100） |
+| tag | string | - | 按标签筛选 |
 
-**响应：** 分页格式，`data` 中每个 item 返回该资源的完整字段（不含大文本如 `content`），字段与各管理列表接口一致。
-
-各资源的响应字段：
-
-**posts：** `id`, `title`, `slug`, `excerpt`, `tags`, `status`, `view_count`, `created_at`, `updated_at`, `published_at`, `deleted_at`
-**friends：** `id`, `name`, `url`, `avatar_url`, `description`, `email`, `status`, `sort_order`, `created_at`, `updated_at`, `deleted_at`
-**links：** `id`, `title`, `url`, `description`, `favicon_url`, `tags`, `favorite`, `sort_order`, `created_at`, `updated_at`, `deleted_at`
-**galleries：** `id`, `title`, `cover_path`, `tags`, `created_at`, `updated_at`, `deleted_at`
-**bangumi-records：** `id`, `subject_id`, `title`, `status`, `progress`, `cover_url`, `fansub`, `added_at`, `updated_at`, `deleted_at`
+**响应**: `PaginatedGalleries`
 
 ```json
 {
   "data": [
     {
-      "id": "0194f...",
-      "title": "已删除的文章标题",
-      "slug": "deleted-article",
-      "excerpt": "文章摘要",
-      "tags": "[\"tag1\",\"tag2\"]",
-      "status": "published",
-      "view_count": 42,
-      "created_at": "2026-04-01T12:00:00Z",
-      "updated_at": "2026-04-15T12:00:00Z",
-      "published_at": "2026-04-01T12:00:00Z",
-      "deleted_at": "2026-05-01T12:00:00Z"
+      "id": "uuid-v7",
+      "title": "我的旅行相册",
+      "cover_path": "/images/travel/cover.jpg",
+      "tags": ["旅行", "摄影"],
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "deleted_at": null
     }
   ],
   "total": 3,
@@ -1623,160 +1209,608 @@ jsDelivr: https://cdn.jsdelivr.net/gh/{owner}/{repo}@{branch}/{path}
 }
 ```
 
-### 14.2 真删除
+### GET /api/galleries/{id}
 
-#### DELETE /api/trash/:resource/:id
+获取相册详情（含照片列表）。
 
-> 需要 `Authorization` header — 永久删除，不可恢复
+**认证**: 不需要
 
-**响应：**
+**响应**: `GalleryDetail`
 
 ```json
-{ "message": "已永久删除" }
+{
+  "id": "uuid-v7",
+  "title": "我的旅行相册",
+  "cover_path": "/images/travel/cover.jpg",
+  "tags": ["旅行", "摄影"],
+  "created_at": "2026-01-01T00:00:00Z",
+  "updated_at": "2026-01-01T00:00:00Z",
+  "photos": [
+    {
+      "id": "uuid-v7",
+      "gallery_id": "uuid-v7",
+      "path": "/images/travel/photo1.jpg",
+      "created_at": "2026-01-01T00:00:00Z",
+      "deleted_at": null
+    }
+  ]
+}
 ```
 
-### 14.3 恢复
+### POST /api/galleries
 
-#### POST /api/trash/:resource/:id/restore
+创建相册。
 
-> 需要 `Authorization` header
+**认证**: Bearer Token
 
-**响应：**
+**请求**:
 
 ```json
-{ "message": "已恢复" }
+{
+  "title": "我的旅行相册",
+  "cover_path": "/images/travel/cover.jpg",
+  "tags": ["旅行", "摄影"]
+}
+```
+
+**响应**: `Gallery`
+
+### PUT /api/galleries/{id}
+
+更新相册。
+
+**认证**: Bearer Token
+
+**请求**（所有字段可选）:
+
+```json
+{
+  "title": "我的旅行相册（更新）",
+  "cover_path": "/images/travel/new-cover.jpg",
+  "tags": ["旅行"]
+}
+```
+
+**响应**: `Gallery`
+
+### DELETE /api/galleries/{id}
+
+逻辑删除相册（移入垃圾桶）。
+
+**认证**: Bearer Token
+
+**响应**:
+
+```json
+{
+  "message": "已删除"
+}
+```
+
+### POST /api/galleries/{id}/photos
+
+向相册添加照片。
+
+**认证**: Bearer Token
+
+**请求**:
+
+```json
+{
+  "paths": ["/images/travel/photo1.jpg", "/images/travel/photo2.jpg"]
+}
+```
+
+**响应**: `Photo[]`
+
+```json
+[
+  {
+    "id": "uuid-v7",
+    "gallery_id": "uuid-v7",
+    "path": "/images/travel/photo1.jpg",
+    "created_at": "2026-01-01T00:00:00Z",
+    "deleted_at": null
+  }
+]
+```
+
+### DELETE /api/photos/{id}
+
+逻辑删除照片。
+
+**认证**: Bearer Token
+
+**响应**:
+
+```json
+{
+  "message": "已删除"
+}
 ```
 
 ---
 
-## 15. 站点状态（公开）
+## 9. 法律文档
 
-#### GET /api/status
+### GET /api/license
 
-无需认证，返回站点基本信息、各模块数据量和 API 健康状态。
+获取最新版本的许可证。
 
-> uptime 通过 KV 持久化，**重新部署不会重置**，只有手动清除 KV 才会归零。
+**认证**: 不需要
 
-**响应：**
+**响应**: `LicenseVersion`
 
 ```json
 {
-  "api": {
-    "status": "ok",
-    "uptime": 123456,
-    "version": "0.1.0",
-    "d1": { "status": "ok", "latency_ms": 12 },
-    "kv": { "status": "ok", "latency_ms": 8 }
+  "id": "uuid-v7",
+  "version": "v1.0",
+  "content": "## 许可证\n\n版权所有 © 2026",
+  "created_at": "2026-01-01T00:00:00Z"
+}
+```
+
+### GET /api/license/versions
+
+获取许可证版本历史。
+
+**认证**: 不需要
+
+**响应**: `LicenseVersion[]`
+
+### POST /api/license
+
+创建新的许可证版本。
+
+**认证**: Bearer Token
+
+**请求**:
+
+```json
+{
+  "version": "v1.0",
+  "content": "## 许可证\n\n版权所有 © 2026"
+}
+```
+
+**响应**: `LicenseVersion`
+
+---
+
+### GET /api/privacy
+
+获取最新版本的隐私政策。
+
+**认证**: 不需要
+
+**响应**: `PrivacyVersion`
+
+```json
+{
+  "id": "uuid-v7",
+  "version": "v1.0",
+  "date": "2026-01-01",
+  "content": "## 隐私政策\n\n我们重视您的隐私",
+  "created_at": "2026-01-01T00:00:00Z"
+}
+```
+
+### GET /api/privacy/versions
+
+获取隐私政策版本历史。
+
+**认证**: 不需要
+
+**响应**: `PrivacyVersion[]`
+
+### POST /api/privacy
+
+创建新的隐私政策版本。
+
+**认证**: Bearer Token
+
+**请求**:
+
+```json
+{
+  "version": "v1.0",
+  "date": "2026-01-01",
+  "content": "## 隐私政策\n\n我们重视您的隐私"
+}
+```
+
+**响应**: `PrivacyVersion`
+
+---
+
+## 10. 番剧记录
+
+### GET /api/bangumi/records
+
+获取番剧记录列表。
+
+**认证**: 不需要
+
+**查询参数**:
+
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| page | int | 1 | 页码 |
+| page_size | int | 20 | 每页数量（最大 100） |
+| status | string | - | 按状态筛选（如 `watching`） |
+| subject_id | int | - | 按 Bangumi 条目 ID 筛选 |
+
+**响应**: `PaginatedRecords`
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid-v7",
+      "subject_id": 123,
+      "title": "测试番剧",
+      "status": "watching",
+      "progress": "6/12",
+      "cover_url": "https://example.com/cover.jpg",
+      "fansub": "字幕组名",
+      "added_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "deleted_at": null
+    }
+  ],
+  "total": 15,
+  "page": 1,
+  "page_size": 20,
+  "total_pages": 1
+}
+```
+
+### POST /api/bangumi/records
+
+添加番剧记录。
+
+**认证**: Bearer Token
+
+**请求**:
+
+```json
+{
+  "subject_id": 123,
+  "title": "测试番剧",
+  "status": "watching",
+  "progress": "6/12",
+  "cover_url": "https://example.com/cover.jpg",
+  "fansub": "字幕组名"
+}
+```
+
+> `status` 默认值: `want_to_watch`
+
+**响应**: `BangumiRecord`
+
+### PUT /api/bangumi/records/{id}
+
+更新番剧记录。
+
+**认证**: Bearer Token
+
+**请求**（所有字段可选）:
+
+```json
+{
+  "title": "测试番剧",
+  "status": "watched",
+  "progress": "12/12",
+  "cover_url": "https://example.com/cover.jpg",
+  "fansub": "字幕组名"
+}
+```
+
+**响应**: `BangumiRecord`
+
+### DELETE /api/bangumi/records/{id}
+
+逻辑删除番剧记录（移入垃圾桶）。
+
+**认证**: Bearer Token
+
+**响应**:
+
+```json
+{
+  "message": "已删除"
+}
+```
+
+---
+
+## 11. 外部 API 代理
+
+### POST /api/bangumi/search
+
+搜索 Bangumi 条目（代理 [bgm.tv](https://bgm.tv) 搜索）。
+
+**认证**: 不需要
+
+**请求**:
+
+```json
+{
+  "keyword": "进击的巨人",
+  "sort": "match",
+  "filter": { "type": [1] },
+  "limit": 20,
+  "offset": 0
+}
+```
+
+> 兼容旧参数 `type`（整数），自动转为 `filter.type`。结果缓存 1 小时。
+
+**响应**: Bangumi API 原始返回数据（透传）
+
+### GET /api/bangumi/subjects/{id}
+
+获取 Bangumi 条目详情。缓存 24 小时。
+
+**认证**: 不需要
+
+**响应**: Bangumi API 原始返回数据（透传）
+
+### GET /api/bangumi/calendar
+
+获取 Bangumi 每日放送表。缓存 1 小时。
+
+**认证**: 不需要
+
+**响应**: Bangumi API 原始返回数据（透传）
+
+### GET /api/bangumi/browse
+
+浏览 Bangumi 条目（支持筛选参数）。缓存 1 小时。
+
+**认证**: 不需要
+
+**查询参数**: 透传到 Bangumi API
+
+**响应**: Bangumi API 原始返回数据（透传）
+
+### GET /api/anime-garden/resources
+
+获取 AnimeGarden 资源列表。缓存 30 分钟。
+
+**认证**: 不需要
+
+**查询参数**: 透传到 AnimeGarden API
+
+**响应**: AnimeGarden API 原始返回数据（透传）
+
+---
+
+## 12. 全站搜索
+
+### GET /api/search
+
+跨模块全文搜索（文章、链接、相册、友人帐、公告）。
+
+**认证**: 不需要
+
+**查询参数**:
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| q | string | 是 | 搜索关键词（至少 2 个字符） |
+| page | int | 否 | 页码，默认 1 |
+| page_size | int | 否 | 每页数量，默认 10，最大 100 |
+
+**响应**: `SearchResponse`
+
+```json
+{
+  "data": [
+    {
+      "type": "post",
+      "title": "测试文章",
+      "url": "/posts/test-post",
+      "snippet": "文章摘要...",
+      "published_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "type": "link",
+      "title": "Rust 官方文档",
+      "url": "https://www.rust-lang.org/",
+      "snippet": "Rust 编程语言官方网站",
+      "published_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "type": "gallery",
+      "title": "我的旅行相册",
+      "url": null,
+      "snippet": "我的旅行相册",
+      "published_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "type": "friend",
+      "title": "友链名称",
+      "url": "https://example.com",
+      "snippet": "友链描述",
+      "published_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "type": "announcement",
+      "title": "站点维护通知...",
+      "url": null,
+      "snippet": "站点维护通知",
+      "published_at": "2026-01-01T00:00:00Z"
+    }
+  ],
+  "total": 10,
+  "page": 1,
+  "page_size": 10,
+  "total_pages": 1,
+  "query": "测试"
+}
+```
+
+> `type` 取值: `post` | `link` | `gallery` | `friend` | `announcement`
+> 每个模块各取前 50 条，按相关性排序后分页返回。
+
+---
+
+## 13. 翻译
+
+### POST /api/translate
+
+使用百度翻译 API 进行翻译（中译英）。
+
+**认证**: 不需要（需配置 BAIDU_TRANSLATE_APPID / BAIDU_TRANSLATE_SECRET）
+
+**请求**:
+
+```json
+{
+  "text": "你好世界",
+  "from": "auto",
+  "to": "en"
+}
+```
+
+> `from` 默认 `auto`，`to` 默认 `en`
+
+**响应**: 百度翻译 API 原始返回数据（透传）
+
+---
+
+## 14. 仪表盘
+
+### GET /api/auth/dashboard
+
+获取 Cloudflare Analytics 仪表盘数据（需配置 CF_API_TOKEN / CF_ZONE_ID）。
+
+**认证**: Bearer Token
+
+**响应**:
+
+```json
+{
+  "today": {
+    "requests": 1000,
+    "bandwidth": "50.0 MB",
+    "avg_duration_ms": 120
   },
-  "site": {
-    "site_name": "我的站点",
-    "subtitle": "副标题",
-    "description": "站点描述",
-    "logo_url": "https://..."
+  "this_month": {
+    "requests": 30000,
+    "bandwidth": "1.5 GB"
+  },
+  "total": {
+    "requests": 100000,
+    "bandwidth": "5.0 GB"
+  },
+  "status_codes": {
+    "2xx": 90000,
+    "4xx": 8000,
+    "5xx": 2000
+  },
+  "health": {
+    "status": "ok",
+    "uptime": 12345,
+    "version": "0.1.0",
+    "d1": { "status": "ok", "latency_ms": null },
+    "kv": { "status": "ok", "latency_ms": 5 }
   },
   "stats": {
-    "posts": 42,
-    "friends": 8,
+    "posts": 10,
+    "friends": 5,
     "links": 20,
-    "galleries": 5,
-    "bangumi_records": 30
+    "galleries": 3,
+    "bangumi_records": 15
   }
 }
 ```
 
 ---
 
-## 16. 健康检查
+## 15. 垃圾桶
 
-#### GET /api/health
+垃圾桶管理逻辑删除的资源（统一管理 posts / friends / links / galleries / bangumi 的回收）。
 
-**响应：**
+### GET /api/trash/{resource}
+
+列出指定资源的垃圾桶内容。
+
+**认证**: Bearer Token
+
+**路径参数**:
+
+| 参数 | 说明 |
+|------|------|
+| `resource` | 资源类型: `posts`, `friends`, `links`, `galleries`, `bangumi`(或 `bangumi_records`, `bangumi-records`) |
+
+**查询参数**: 支持 `page`、`page_size`
+
+**响应**: `PaginatedTrash`
 
 ```json
 {
-  "status": "ok",
-  "uptime": 123456,
-  "checks": {
-    "d1": { "status": "ok", "latency_ms": 12 },
-    "kv": { "status": "ok", "latency_ms": 8 },
-    "bangumi_api": { "status": "ok", "latency_ms": 234 },
-    "anime_garden_api": { "status": "ok", "latency_ms": 156 }
-  }
+  "data": [
+    {
+      "id": "uuid-v7",
+      "title": "已删除的文章",
+      "deleted_at": "2026-01-01T00:00:00Z"
+    }
+  ],
+  "total": 2,
+  "page": 1,
+  "page_size": 20,
+  "total_pages": 1
+}
+```
+
+### POST /api/trash/{resource}/{id}/restore
+
+从垃圾桶恢复资源。
+
+**认证**: Bearer Token
+
+**响应**:
+
+```json
+{
+  "message": "已恢复"
+}
+```
+
+### DELETE /api/trash/{resource}/{id}
+
+从数据库中永久删除资源。
+
+**认证**: Bearer Token
+
+**响应**:
+
+```json
+{
+  "message": "已永久删除"
 }
 ```
 
 ---
 
-## 附录：接口速查表
+## 附录
 
-### 公开接口（无需登录）
+### 全局速率限制
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/health | 健康检查 |
-| GET | /api/status | 站点状态概览（公开） |
-| POST | /api/auth/register | 注册（仅首次无管理员时） |
-| POST | /api/auth/login | 登录第一步 |
-| POST | /api/auth/login/2fa | 登录第二步（TOTP） |
-| POST | /api/auth/login/verify | 登录第二步（邮箱验证码） |
-| POST | /api/auth/refresh | 刷新 Token |
-| GET | /api/posts | 文章列表 |
-| GET | /api/posts/:slug | 文章详情 |
-| POST | /api/posts/:slug/views | 增加浏览量 |
-| GET | /api/posts/:slug/comments-count | 评论数 |
-| GET/POST | /api/likes/:type/:id | 点赞 |
-| GET | /api/friends | 友链列表 |
-| GET | /api/friends/:id | 友链详情 |
-| GET | /api/links | 链接列表 |
-| GET | /api/links/meta | 标签元数据 |
-| GET | /api/links/:id | 链接详情 |
-| GET | /api/galleries | 相册列表 |
-| GET | /api/galleries/:id | 相册详情 |
-| GET | /api/license | 最新许可证 |
-| GET | /api/license/versions | 许可证历史 |
-| GET | /api/privacy | 最新隐私政策 |
-| GET | /api/privacy/versions | 隐私政策历史 |
-| GET | /api/bangumi/records | 追番列表 |
-| POST | /api/bangumi/search | Bangumi 搜索 |
-| GET | /api/bangumi/subjects/:id | Bangumi 条目 |
-| GET | /api/bangumi/calendar | Bangumi 日历 |
-| GET | /api/bangumi/browse | Bangumi 浏览 |
-| GET | /api/anime-garden/resources | AnimeGarden 资源 |
-| POST | /api/translate | 翻译 |
-| GET | /api/trash/:resource | 垃圾桶列表 |
+- **100 次请求 / 60 秒窗口**（基于 IP）
+- 超出返回 `429 Too Many Requests`（错误码 1006）
 
-### 需登录接口（需 `Authorization: Bearer <token>`）
+### 数据库分库设计
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/auth/me | 管理员信息 |
-| POST | /api/auth/logout | 登出 |
-| GET | /api/auth/dashboard | 仪表盘 |
-| POST | /api/auth/2fa/setup | 生成 TOTP 密钥 |
-| POST | /api/auth/2fa/verify | 确认开启 2FA |
-| POST | /api/auth/2fa/disable | 关闭 2FA |
-| GET/PUT | /api/settings/profile | 站点信息 |
-| GET/PUT | /api/settings/footer | 页脚信息 |
-| GET/POST | /api/settings/footer-links | 页脚链接 |
-| PUT/DELETE | /api/settings/footer-links/:id | 页脚链接 |
-| GET/POST | /api/settings/social-links | 社交链接 |
-| PUT/DELETE | /api/settings/social-links/:id | 社交链接 |
-| GET/POST | /api/settings/announcements | 公告 |
-| PUT/DELETE | /api/settings/announcements/:id | 公告 |
-| POST | /api/posts | 创建文章 |
-| PUT/DELETE | /api/posts/:slug | 更新/删除文章 |
-| POST | /api/friends | 添加友链 |
-| PUT/DELETE | /api/friends/:id | 更新/删除友链 |
-| PATCH | /api/friends/:id/status | 审核友链 |
-| POST | /api/links | 添加链接 |
-| PUT/DELETE | /api/links/:id | 更新/删除链接 |
-| POST | /api/galleries | 创建相册 |
-| PUT/DELETE | /api/galleries/:id | 更新/删除相册 |
-| POST | /api/galleries/:id/photos | 添加照片 |
-| DELETE | /api/photos/:id | 删除照片 |
-| POST | /api/license | 创建许可证版本 |
-| POST | /api/privacy | 创建隐私政策版本 |
-| POST | /api/bangumi/records | 添加追番 |
-| PUT/DELETE | /api/bangumi/records/:id | 更新/删除追番 |
-| DELETE | /api/trash/:resource/:id | 真删除 |
-| POST | /api/trash/:resource/:id/restore | 恢复 |
+| 数据库绑定 | 用途 |
+|-----------|------|
+| `FUFU_CORE` | 站点信息、页脚、社交链接、公告 |
+| `FUFU_POSTS` | 博客文章 |
+| `FUFU_MEDIA` | 相册、照片 |
+| `FUFU_BANGUMI` | 番剧记录 |
+| `FUFU_SOCIAL` | 友人帐、收藏链接 |
+| `FUFU_LIKES` | 点赞数据 |
+| `FUFU_LEGAL` | 法律文档 |
+| `FUFU_AUTH` | 管理员、登录日志、验证码 |

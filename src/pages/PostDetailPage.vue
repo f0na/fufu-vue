@@ -13,10 +13,10 @@ import type { TocHeading } from '@/components/post/post-toc.vue';
 import * as posts_api from '@/lib/api/posts';
 
 const comments_config = {
-  repo: import.meta.env.VITE_GISCUS_REPO || 'f0na/fufu-next',
-  repo_id: import.meta.env.VITE_GISCUS_REPO_ID || 'R_kgDOSF1Eww',
+  repo: import.meta.env.VITE_GISCUS_REPO || 'f0na/fufu-vue',
+  repo_id: import.meta.env.VITE_GISCUS_REPO_ID || 'R_kgDOSN6SWw',
   category: import.meta.env.VITE_GISCUS_CATEGORY || 'Announcements',
-  category_id: import.meta.env.VITE_GISCUS_CATEGORY_ID || 'DIC_kwDOSF1Ew8C7HmC',
+  category_id: import.meta.env.VITE_GISCUS_CATEGORY_ID || 'DIC_kwDOSN6SW84C8HmW',
   mapping: 'pathname' as const,
 };
 

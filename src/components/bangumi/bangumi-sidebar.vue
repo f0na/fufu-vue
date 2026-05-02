@@ -146,7 +146,7 @@ function handle_save_progress() {
               <div class="flex gap-2">
                 <Input
                   :model-value="progress_input"
-                  @update:model-value="handle_progress_change"
+                  @update:model-value="(val: string | number) => handle_progress_change(String(val))"
                   placeholder="如: EP05"
                   class="flex-1"
                 />

@@ -21,7 +21,7 @@ onMounted(async () => {
   } finally {
     loading.value = false;
     await nextTick();
-    const el = document.querySelector('.home-description');
+    const el = document.querySelector('.home-description') as HTMLElement | null;
     if (el) post_process_rendered(el);
   }
 });

@@ -10,7 +10,7 @@ import { fetch_bangumi_subject } from '@/lib/bangumi-api';
 import { fetch_resources } from '@/lib/anime-garden-client';
 import { merge_bangumi_with_resources, convert_subject_info_to_subject } from '@/lib/bangumi-utils';
 import { get_storage, generate_id } from '@/lib/bangumi-storage';
-import type { BangumiSubject, BangumiRecord } from '@/lib/types/bangumi';
+import type { BangumiSubject, BangumiRecord, BangumiStatus } from '@/lib/types/bangumi';
 
 const route = useRoute();
 const router = useRouter();
@@ -75,7 +75,7 @@ watch(
 );
 
 // 状态变更
-async function handle_status_change(subject_id_num: number, status: string) {
+async function handle_status_change(subject_id_num: number, status: BangumiStatus) {
   const storage = get_storage();
   const current = subject.value;
   if (!current) return;
@@ -92,7 +92,7 @@ async function handle_status_change(subject_id_num: number, status: string) {
       id: generate_id(),
       subject_id: subject_id_num,
       title: display_name,
-      status: status as string,
+      status: status as BangumiStatus,
       progress: '',
       added_at: new Date().toISOString(),
       cover_url: current.images?.large || current.cover_url,
@@ -121,7 +121,7 @@ async function handle_progress_change(subject_id_num: number, progress: string) 
       id: generate_id(),
       subject_id: subject_id_num,
       title: display_name,
-      status: 'watching',
+      status: 'watching' as BangumiStatus,
       progress,
       added_at: new Date().toISOString(),
       cover_url: current.images?.large || current.cover_url,

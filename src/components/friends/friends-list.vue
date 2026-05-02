@@ -18,6 +18,7 @@ const { sentinelRef } = useInfiniteScroll({
   root_margin: '100px',
   disabled: props.is_loading || props.friends.length === 0,
 });
+void sentinelRef;
 </script>
 
 <template>

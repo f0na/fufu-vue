@@ -72,7 +72,7 @@ export async function init_text_mate() {
       monaco.languages.setTokensProvider(lang_id, {
         getInitialState: () => INITIAL,
         tokenize: (line: string, state: monaco.languages.IState) => {
-          const result = grammar.tokenizeLine(line, state);
+          const result = grammar.tokenizeLine(line, state as any);
           return {
             endState: result.ruleStack,
             tokens: result.tokens.map((token) => ({

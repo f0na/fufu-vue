@@ -4,10 +4,12 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Spinner } from '@/components/ui/spinner';
 import { toast } from 'vue-sonner';
 import { Icon } from '@iconify/vue';
 import { RightSidebarPortalKey } from '@/context/right-sidebar-portal';
 import type { RightSidebarPortalValue } from '@/context/right-sidebar-portal';
+import { create_friend } from '@/lib/api/friends';
 interface Props {
   is_portal_target?: boolean;
 }
@@ -22,6 +24,7 @@ const avatar_loaded = ref(false);
 const favicon_loaded = ref(false);
 const name = ref('');
 const description = ref('');
+const submitting = ref(false);
 
 const portal_target_ref = ref<HTMLDivElement | null>(null);
 
@@ -68,15 +71,28 @@ watch(
   }
 );
 
-const handle_submit = () => {
+const handle_submit = async () => {
   const final_url = processed_url.value || link_url.value;
-  console.log('提交申请:', {
-    link_url: final_url,
-    name: name.value,
-    avatar_url: avatar_url.value,
-    description: description.value,
-  });
-  toast.success('友链申请已提交');
+  if (!final_url || !name.value) return;
+
+  submitting.value = true;
+  try {
+    await create_friend({
+      url: final_url,
+      name: name.value,
+      avatar_url: avatar_url.value || undefined,
+      description: description.value || undefined,
+    });
+    toast.success('友链申请已提交');
+    link_url.value = '';
+    avatar_url.value = '';
+    name.value = '';
+    description.value = '';
+  } catch {
+    toast.error('提交失败，请重试');
+  } finally {
+    submitting.value = false;
+  }
 };
 
 const preload_image = (src: string, success_cb: () => void, fail_cb?: () => void) => {
@@ -188,7 +204,8 @@ onUnmounted(() => {
           <label class="text-xs text-muted-foreground">描述</label>
           <Textarea placeholder="简短介绍您的站点..." v-model="description" class="min-h-[60px]" />
         </div>
-        <Button class="w-full" @click="handle_submit" :disabled="!link_url || !name">
+        <Button class="w-full" @click="handle_submit" :disabled="!link_url || !name || submitting">
+          <Spinner v-if="submitting" class="mr-2 size-4" />
           添加申请
         </Button>
       </CardContent>

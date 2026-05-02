@@ -46,13 +46,17 @@ const load_error = ref('');
 
 onMounted(async () => {
   try {
-    const result = await friends_api.get_friends({ page: 1, page_size: 1000 });
-    // Map API response to FriendItem format
-    const items = result.data.map((f) => ({
-      ...f,
-      avatar: f.avatar_url || f.avatar,
-    }));
-    friends.splice(0, friends.length, ...items);
+    const statuses: FriendStatus[] = ['approved', 'pending', 'rejected'];
+    const results = await Promise.all(
+      statuses.map((s) => friends_api.get_friends({ page: 1, page_size: 1000, status: s }))
+    );
+    const all = results.flatMap((r) =>
+      r.data.map((f) => ({
+        ...f,
+        avatar: f.avatar_url || f.avatar,
+      }))
+    );
+    friends.splice(0, friends.length, ...all);
   } catch (e) {
     load_error.value = e instanceof Error ? e.message : '从后端加载友人数据失败';
   } finally {

@@ -14,6 +14,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const sentinel_ref = ref<HTMLDivElement | null>(null);
+void sentinel_ref;
 </script>
 
 <template>

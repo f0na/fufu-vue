@@ -70,7 +70,7 @@ function format_date(date_string: string): string {
           <!-- 底部时间和标签 -->
           <div class="px-4 pb-3 flex flex-col gap-2">
             <time class="text-xs text-muted-foreground">
-              {{ format_date(post.date) }}
+              {{ format_date(post.date || '') }}
             </time>
 
             <div v-if="post.tags.length > 0" class="flex gap-1 flex-wrap">

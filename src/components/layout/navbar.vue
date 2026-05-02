@@ -15,6 +15,7 @@ import { search_content, type SearchResult } from '@/lib/api/search';
 const THEMES = [
   { name: 'avemujica', label: 'AM', color: '#5a8fa8' },
   { name: 'mygo', label: 'MG', color: '#ff8899' },
+  { name: 'ras', label: 'RAS', color: '#7c5cfc' },
 ];
 
 const saved_name = localStorage.getItem('fufu-theme');
@@ -26,7 +27,9 @@ localStorage.setItem('fufu-theme', init_name);
 const current_theme = ref(THEMES.find((t) => t.name === init_name)!);
 
 function toggle_theme() {
-  const next_name = current_theme.value.name === 'avemujica' ? 'mygo' : 'avemujica';
+  const theme_order = ['avemujica', 'mygo', 'ras'];
+  const current_index = theme_order.indexOf(current_theme.value.name);
+  const next_name = theme_order[(current_index + 1) % theme_order.length];
   document.documentElement.setAttribute('data-theme', next_name);
   localStorage.setItem('fufu-theme', next_name);
   current_theme.value = THEMES.find((t) => t.name === next_name)!;
