@@ -22,6 +22,7 @@
     "giscus": "^1.6.0",
     "gray-matter": "^4.0.3",
     "katex": "^0.16.45",
+    "lucide-vue-next": "^1.0.0",
     "markdown-it": "^14.1.1",
     "markdown-it-emoji": "^3.0.0",
     "markdown-it-footnote": "^4.0.0",
