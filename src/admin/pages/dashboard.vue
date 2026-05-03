@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { get_dashboard } from '@/lib/api/dashboard';
 import type { DashboardStats } from '@/lib/types/dashboard';
+import { Analytics } from '@vercel/analytics/vue';
+import { SpeedInsights } from '@vercel/speed-insights/vue';
 
 const data = ref<DashboardStats | null>(null);
 const loading = ref(true);
@@ -31,6 +33,8 @@ const quick_actions = [
 
 <template>
   <div>
+    <Analytics />
+    <SpeedInsights />
     <div class="mb-8">
       <h1 class="text-2xl font-semibold text-foreground">仪表盘</h1>
       <p class="text-sm text-muted-foreground mt-1">全站运营数据概览</p>
@@ -161,6 +165,60 @@ const quick_actions = [
         </CardContent>
       </Card>
     </template>
+
+    <!-- 速度分析 -->
+    <Card size="sm" class="mb-6">
+      <CardHeader>
+        <CardTitle class="flex items-center gap-2 text-sm">
+          <Icon icon="lucide:gauge" class="size-4 text-muted-foreground" />
+          速度分析
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div class="flex items-center gap-2 mb-4">
+          <span class="size-2 rounded-full bg-green-500 shrink-0" />
+          <span class="text-xs text-muted-foreground">
+            Vercel Speed Insights 已启用，正在采集 Web Vitals 指标 —
+            <a
+              href="https://vercel.com/dashboard"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="underline underline-offset-2 hover:text-foreground transition-colors"
+            >查看详细报告</a>
+          </span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div>
+            <p class="text-xs text-muted-foreground flex items-center gap-1">
+              <Icon icon="lucide:clock" class="size-3" />
+              LCP
+            </p>
+            <p class="text-xs text-muted-foreground/70 mt-0.5">最大内容绘制</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground flex items-center gap-1">
+              <Icon icon="lucide:move" class="size-3" />
+              CLS
+            </p>
+            <p class="text-xs text-muted-foreground/70 mt-0.5">累积布局偏移</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground flex items-center gap-1">
+              <Icon icon="lucide:zap" class="size-3" />
+              INP
+            </p>
+            <p class="text-xs text-muted-foreground/70 mt-0.5">交互响应时间</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground flex items-center gap-1">
+              <Icon icon="lucide:file-text" class="size-3" />
+              FCP
+            </p>
+            <p class="text-xs text-muted-foreground/70 mt-0.5">首次内容绘制</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
 
     <!-- 快捷操作 -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
