@@ -16,10 +16,6 @@ export function login_2fa(temp_token: string, code: string) {
   return api.post<TokenPair>('/api/auth/login/2fa', { temp_token, code });
 }
 
-export function login_verify(temp_token: string, code: string) {
-  return api.post<TokenPair>('/api/auth/login/verify', { temp_token, code });
-}
-
 export function register(username: string, email: string, password: string) {
   return api.post<AuthUser>('/api/auth/register', { username, email, password });
 }

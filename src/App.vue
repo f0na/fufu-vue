@@ -4,6 +4,7 @@ import { provide, ref, onMounted, onUnmounted, defineAsyncComponent } from 'vue'
 import { Icon } from '@iconify/vue';
 import Sonner from '@/components/ui/sonner/Sonner.vue';
 import { RightSidebarPortalKey } from '@/context/right-sidebar-portal';
+import { use_umami } from '@/lib/composables/use-umami';
 
 const GlobalLive2D = defineAsyncComponent(() => import('@/components/mascot/global-live2d.vue'));
 
@@ -27,6 +28,7 @@ function scroll_to_top() {
 
 onMounted(() => {
   window.addEventListener('scroll', on_scroll, { passive: true });
+  use_umami();
 });
 
 onUnmounted(() => {

@@ -6,7 +6,6 @@ export interface LoginRequest {
 export interface LoginStep1Response {
   temp_token: string;
   require_2fa: boolean;
-  require_email_verify: boolean;
 }
 
 export interface LoginStep2Request {

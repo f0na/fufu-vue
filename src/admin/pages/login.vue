@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/input-otp';
 import { useAuthStore } from '@/stores/auth';
 import type { TokenPair } from '@/lib/types/auth';
-import { login, login_2fa, login_verify, register, get_me } from '@/lib/api/auth';
+import { login, login_2fa, register, get_me } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api-client';
 
 type LoginStep = 'credentials' | 'verify';
@@ -120,12 +120,7 @@ async function submit_code() {
   if (!code.value || code.value.length < 6) return;
   loading.value = true;
   try {
-    let tokens;
-    if (require_2fa.value) {
-      tokens = await login_2fa(temp_token.value, code.value);
-    } else {
-      tokens = await login_verify(temp_token.value, code.value);
-    }
+    const tokens = await login_2fa(temp_token.value, code.value);
     auth.set_tokens(tokens.access_token, tokens.refresh_token);
 
     try {

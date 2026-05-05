@@ -4,7 +4,7 @@ import { CACHE_TTL } from '@/lib/request-cache';
 export interface HealthCheck {
   status: string;
   uptime: number;
-  checks: Record<string, { status: string; latency_ms: number }>;
+  checks: Record<string, { status: string; latency_ms?: number }>;
 }
 
 export function get_health() {

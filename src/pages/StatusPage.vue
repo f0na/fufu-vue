@@ -2,13 +2,10 @@
 import PageWrapper from '@/components/layout/page-wrapper.vue';
 import HomeLayout from '@/components/home/home-layout.vue';
 import StatusContent from '@/components/status/status-content.vue';
-import VercelAnalyticsCard from '@/components/status/vercel-analytics-card.vue';
-import { Analytics } from '@vercel/analytics/vue';
 </script>
 
 <template>
   <PageWrapper>
-    <Analytics />
     <HomeLayout
       :profile_props="{
         name: 'Fufu',
@@ -28,7 +25,6 @@ import { Analytics } from '@vercel/analytics/vue';
       }"
     >
       <StatusContent />
-      <VercelAnalyticsCard class="mt-6" />
     </HomeLayout>
   </PageWrapper>
 </template>

@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<Props>(), {
 </script>
 
 <template>
-  <Card size="sm" :class="cn('flex flex-col items-center max-w-[9.888vw]', props.class)">
+  <Card size="sm" :class="cn('flex flex-col items-center lg:max-w-[9.888vw]', props.class)">
     <CardContent class="flex flex-col items-center gap-1 w-full">
       <div class="w-full aspect-square rounded-lg overflow-hidden">
         <img :src="avatar_url" alt="头像" class="object-cover w-full h-full" />
