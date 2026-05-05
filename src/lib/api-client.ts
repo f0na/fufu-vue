@@ -1,4 +1,5 @@
 import type { ApiMessageResponse } from '@/lib/types/api';
+import { get_cache, set_cache } from '@/lib/request-cache';
 
 const ACCESS_KEY = 'fufu-access-token';
 const REFRESH_KEY = 'fufu-refresh-token';
@@ -150,7 +151,7 @@ export async function api_request<T>(
 }
 
 export const api = {
-  get: <T>(path: string, params?: Record<string, string>) => {
+  get: <T>(path: string, params?: Record<string, string>, ttl?: number) => {
     let query = '';
     if (params) {
       const sp = new URLSearchParams();
@@ -160,7 +161,19 @@ export const api = {
       const qs = sp.toString();
       if (qs) query = '?' + qs;
     }
-    return api_request<T>(`${path}${query}`);
+    const full_path = `${path}${query}`;
+
+    // 如果有 TTL，优先读缓存
+    if (ttl) {
+      const cached = get_cache<T>(full_path);
+      if (cached !== null) return Promise.resolve(cached);
+      return api_request<T>(full_path).then((data) => {
+        set_cache(full_path, data, ttl);
+        return data;
+      });
+    }
+
+    return api_request<T>(full_path);
   },
 
   post: <T>(path: string, body?: unknown) =>

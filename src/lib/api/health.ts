@@ -1,4 +1,5 @@
 import { api } from '@/lib/api-client';
+import { CACHE_TTL } from '@/lib/request-cache';
 
 export interface HealthCheck {
   status: string;
@@ -7,5 +8,5 @@ export interface HealthCheck {
 }
 
 export function get_health() {
-  return api.get<HealthCheck>('/api/health');
+  return api.get<HealthCheck>('/api/health', undefined, CACHE_TTL);
 }

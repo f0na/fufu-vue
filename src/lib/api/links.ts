@@ -1,6 +1,7 @@
 import { api } from '@/lib/api-client';
 import type { PaginatedResponse } from '@/lib/types/api';
 import type { LinkItem, LinkCreate, LinkUpdate, LinksMeta } from '@/lib/types/link';
+import { CACHE_TTL } from '@/lib/request-cache';
 
 export function get_links(params?: {
   page?: number;
@@ -10,16 +11,17 @@ export function get_links(params?: {
 }) {
   return api.get<PaginatedResponse<LinkItem>>(
     '/api/links',
-    params as Record<string, string>
+    params as Record<string, string>,
+    CACHE_TTL,
   );
 }
 
 export function get_links_meta() {
-  return api.get<LinksMeta>('/api/links/meta');
+  return api.get<LinksMeta>('/api/links/meta', undefined, CACHE_TTL);
 }
 
 export function get_link_by_id(id: string) {
-  return api.get<LinkItem>(`/api/links/${id}`);
+  return api.get<LinkItem>(`/api/links/${id}`, undefined, CACHE_TTL);
 }
 
 export function create_link(data: LinkCreate) {

@@ -11,9 +11,10 @@ import type {
   Announcement,
   AnnouncementCreate,
 } from '@/lib/types/settings';
+import { CACHE_TTL } from '@/lib/request-cache';
 
 export function get_profile() {
-  return api.get<{ data: SiteProfile }>('/api/settings/profile');
+  return api.get<{ data: SiteProfile }>('/api/settings/profile', undefined, CACHE_TTL);
 }
 
 export function update_profile(data: SiteProfileUpdate) {
@@ -21,7 +22,7 @@ export function update_profile(data: SiteProfileUpdate) {
 }
 
 export function get_footer() {
-  return api.get<{ data: Footer }>('/api/settings/footer');
+  return api.get<{ data: Footer }>('/api/settings/footer', undefined, CACHE_TTL);
 }
 
 export function update_footer(data: FooterUpdate) {
@@ -29,7 +30,7 @@ export function update_footer(data: FooterUpdate) {
 }
 
 export function get_footer_links() {
-  return api.get<FooterLink[]>('/api/settings/footer-links');
+  return api.get<FooterLink[]>('/api/settings/footer-links', undefined, CACHE_TTL);
 }
 
 export function create_footer_link(data: FooterLinkCreate) {
@@ -45,7 +46,7 @@ export function delete_footer_link(id: string) {
 }
 
 export function get_social_links() {
-  return api.get<SocialLink[]>('/api/settings/social-links');
+  return api.get<SocialLink[]>('/api/settings/social-links', undefined, CACHE_TTL);
 }
 
 export function create_social_link(data: SocialLinkCreate) {
@@ -61,7 +62,7 @@ export function delete_social_link(id: string) {
 }
 
 export function get_announcements() {
-  return api.get<Announcement[]>('/api/settings/announcements');
+  return api.get<Announcement[]>('/api/settings/announcements', undefined, CACHE_TTL);
 }
 
 export function create_announcement(data: AnnouncementCreate) {

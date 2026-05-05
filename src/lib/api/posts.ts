@@ -1,6 +1,7 @@
 import { api } from '@/lib/api-client';
 import type { PaginatedResponse } from '@/lib/types/api';
 import type { Post, PostCreate, PostUpdate } from '@/lib/types/post';
+import { CACHE_TTL } from '@/lib/request-cache';
 
 export function get_posts(params?: {
   page?: number;
@@ -9,11 +10,15 @@ export function get_posts(params?: {
   year?: string;
   status?: string;
 }) {
-  return api.get<PaginatedResponse<Post>>('/api/posts', params as Record<string, string>);
+  return api.get<PaginatedResponse<Post>>(
+    '/api/posts',
+    params as Record<string, string>,
+    params?.status ? undefined : CACHE_TTL,
+  );
 }
 
 export function get_post_by_slug(slug: string) {
-  return api.get<Post>(`/api/posts/${slug}`);
+  return api.get<Post>(`/api/posts/${slug}`, undefined, CACHE_TTL);
 }
 
 export function create_post(data: PostCreate) {
@@ -33,5 +38,5 @@ export function increment_views(slug: string) {
 }
 
 export function get_comments_count(slug: string) {
-  return api.get<{ count: number }>(`/api/posts/${slug}/comments-count`);
+  return api.get<{ count: number }>(`/api/posts/${slug}/comments-count`, undefined, CACHE_TTL);
 }

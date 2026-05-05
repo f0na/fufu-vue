@@ -1,5 +1,6 @@
 import { api } from '@/lib/api-client';
 import type { BangumiSubjectInfo } from '@/lib/types/bangumi';
+import { CACHE_TTL } from '@/lib/request-cache';
 
 // 条目类型枚举
 export const SUBJECT_TYPES = {
@@ -76,7 +77,7 @@ export async function search_bangumi_subjects(
 // 获取番剧详情（通过后端代理）
 export async function fetch_bangumi_subject(id: number): Promise<BangumiSubjectInfo | null> {
   try {
-    return await api.get<BangumiSubjectInfo>(`/api/bangumi/subjects/${id}`);
+    return await api.get<BangumiSubjectInfo>(`/api/bangumi/subjects/${id}`, undefined, CACHE_TTL);
   } catch (error) {
     console.error(`Failed to fetch bangumi subject ${id}:`, error);
     return null;
@@ -89,7 +90,9 @@ export async function fetch_calendar(): Promise<
 > {
   try {
     const data = await api.get<Array<{ weekday?: { id: number }; items?: unknown[] }>>(
-      '/api/bangumi/calendar'
+      '/api/bangumi/calendar',
+      undefined,
+      CACHE_TTL,
     );
     if (!Array.isArray(data)) {
       console.warn('Calendar API returned non-array:', data);
@@ -141,7 +144,8 @@ export async function browse_subjects(
 
     return await api.get<{ data: BangumiSubjectInfo[]; total: number }>(
       '/api/bangumi/browse',
-      query_params
+      query_params,
+      CACHE_TTL,
     );
   } catch (error) {
     console.error('Failed to browse subjects:', error);

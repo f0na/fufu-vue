@@ -1,4 +1,5 @@
 import { api } from '@/lib/api-client';
+import { CACHE_TTL } from '@/lib/request-cache';
 
 export interface SiteStatus {
   api: {
@@ -24,5 +25,5 @@ export interface SiteStatus {
 }
 
 export function get_status() {
-  return api.get<SiteStatus>('/api/status');
+  return api.get<SiteStatus>('/api/status', undefined, CACHE_TTL);
 }

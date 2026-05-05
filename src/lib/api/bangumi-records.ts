@@ -1,6 +1,7 @@
 import { api } from '@/lib/api-client';
 import type { PaginatedResponse } from '@/lib/types/api';
 import type { BangumiRecord, BangumiStatus } from '@/lib/types/bangumi';
+import { CACHE_TTL } from '@/lib/request-cache';
 
 export function get_records(params?: {
   page?: number;
@@ -10,7 +11,8 @@ export function get_records(params?: {
 }) {
   return api.get<PaginatedResponse<BangumiRecord>>(
     '/api/bangumi/records',
-    params as Record<string, string>
+    params as Record<string, string>,
+    CACHE_TTL,
   );
 }
 

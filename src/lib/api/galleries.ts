@@ -7,6 +7,7 @@ import type {
   GalleryPhoto,
   PhotosCreate,
 } from '@/lib/types/gallery';
+import { CACHE_TTL } from '@/lib/request-cache';
 
 export function get_galleries(params?: {
   page?: number;
@@ -15,12 +16,13 @@ export function get_galleries(params?: {
 }) {
   return api.get<PaginatedResponse<Gallery>>(
     '/api/galleries',
-    params as Record<string, string>
+    params as Record<string, string>,
+    CACHE_TTL,
   );
 }
 
 export function get_gallery_by_id(id: string) {
-  return api.get<Gallery>(`/api/galleries/${id}`);
+  return api.get<Gallery>(`/api/galleries/${id}`, undefined, CACHE_TTL);
 }
 
 export function create_gallery(data: GalleryCreate) {

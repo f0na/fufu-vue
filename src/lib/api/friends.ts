@@ -6,6 +6,7 @@ import type {
   FriendUpdate,
   FriendStatusUpdate,
 } from '@/lib/types/friend';
+import { CACHE_TTL } from '@/lib/request-cache';
 
 export function get_friends(params?: {
   page?: number;
@@ -14,12 +15,13 @@ export function get_friends(params?: {
 }) {
   return api.get<PaginatedResponse<FriendItem>>(
     '/api/friends',
-    params as Record<string, string>
+    params as Record<string, string>,
+    params?.status ? undefined : CACHE_TTL,
   );
 }
 
 export function get_friend_by_id(id: string) {
-  return api.get<FriendItem>(`/api/friends/${id}`);
+  return api.get<FriendItem>(`/api/friends/${id}`, undefined, CACHE_TTL);
 }
 
 export function create_friend(data: FriendCreate) {
