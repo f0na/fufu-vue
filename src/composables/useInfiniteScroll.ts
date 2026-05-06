@@ -1,12 +1,12 @@
 import { ref, onUnmounted, watch, type Ref } from 'vue';
 
 interface UseInfiniteScrollOptions {
-  has_more?: boolean;
+  has_more: Ref<boolean>;
   onLoadMore: () => Promise<void> | void;
   initial_loading?: boolean;
   root_margin?: string;
   root?: Ref<HTMLElement | null> | null;
-  disabled?: boolean;
+  disabled: Ref<boolean>;
 }
 
 interface UseInfiniteScrollReturn {
@@ -17,15 +17,15 @@ interface UseInfiniteScrollReturn {
 }
 
 export function useInfiniteScroll({
-  has_more = true,
+  has_more,
   onLoadMore,
   initial_loading = false,
   root = null,
   root_margin = undefined,
-  disabled = false,
+  disabled,
 }: UseInfiniteScrollOptions): UseInfiniteScrollReturn {
   const isLoading = ref(initial_loading);
-  const hasMore = ref(has_more);
+  const hasMore = ref(has_more.value);
   const sentinelRef = ref<HTMLDivElement | null>(null);
   let observer: IntersectionObserver | null = null;
   let is_loading_ref = false;
@@ -46,36 +46,30 @@ export function useInfiniteScroll({
   };
 
   // 标记初始加载完成
-  watch(
-    () => disabled,
-    (newVal) => {
-      if (!newVal) {
-        const raf_id = requestAnimationFrame(() => {
-          initial_load_done = true;
-          const sentinel = sentinelRef.value;
-          if (sentinel && hasMore.value && !is_loading_ref) {
-            const rect = sentinel.getBoundingClientRect();
-            if (rect.top < window.innerHeight && rect.bottom > 0) {
-              doLoadMore();
-            }
+  watch(disabled, (newVal) => {
+    if (!newVal) {
+      const raf_id = requestAnimationFrame(() => {
+        initial_load_done = true;
+        const sentinel = sentinelRef.value;
+        if (sentinel && hasMore.value && !is_loading_ref) {
+          const rect = sentinel.getBoundingClientRect();
+          if (rect.top < window.innerHeight && rect.bottom > 0) {
+            doLoadMore();
           }
-        });
-        onUnmounted(() => cancelAnimationFrame(raf_id));
-      }
+        }
+      });
+      onUnmounted(() => cancelAnimationFrame(raf_id));
     }
-  );
+  });
 
   // 更新 hasMore
-  watch(
-    () => has_more,
-    (val) => {
-      hasMore.value = val;
-    }
-  );
+  watch(has_more, (val) => {
+    hasMore.value = val;
+  });
 
   // 设置 Intersection Observer
   watch(sentinelRef, (sentinel) => {
-    if (!sentinel || disabled) return;
+    if (!sentinel || disabled.value) return;
 
     if (observer) observer.disconnect();
 

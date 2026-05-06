@@ -11,6 +11,7 @@ import { Label } from '@/admin/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import * as settings_api from '@/lib/api/settings';
 import { upload_to_github } from '@/lib/api/upload';
+import { clear_cache } from '@/lib/request-cache';
 
 const router = useRouter();
 const upload_loading = ref(false);
@@ -116,9 +117,15 @@ onMounted(async () => {
     if (profile?.data) {
       merged.site.name = profile.data.site_name || merged.site.name;
       merged.site.avatar_url = profile.data.logo_url || merged.site.avatar_url;
+      merged.site.greeting = profile.data.greeting || merged.site.greeting;
       merged.site.description = profile.data.description || merged.site.description;
       merged.site.keywords = profile.data.keywords || merged.site.keywords;
       merged.footer.icp_beian = profile.data.icp_beian || merged.footer.icp_beian;
+      merged.hero.image_url = profile.data.hero_image_url || merged.hero.image_url;
+      merged.footer.license_label = profile.data.license_label || merged.footer.license_label;
+      merged.footer.license_url = profile.data.license_url || merged.footer.license_url;
+      merged.footer.privacy_label = profile.data.privacy_label || merged.footer.privacy_label;
+      merged.footer.privacy_url = profile.data.privacy_url || merged.footer.privacy_url;
     }
 
     if (footer?.data) {
@@ -197,9 +204,15 @@ async function save_settings() {
     const profile_changes: Record<string, string | undefined> = {};
     if (form.site.name !== prev.site.name) profile_changes.site_name = form.site.name;
     if (form.site.avatar_url !== prev.site.avatar_url) profile_changes.logo_url = form.site.avatar_url;
+    if (form.site.greeting !== prev.site.greeting) profile_changes.greeting = form.site.greeting;
     if (form.site.description !== prev.site.description) profile_changes.description = form.site.description;
     if (form.site.keywords !== prev.site.keywords) profile_changes.keywords = form.site.keywords;
     if (form.footer.icp_beian !== prev.footer.icp_beian) profile_changes.icp_beian = form.footer.icp_beian;
+    if (form.hero.image_url !== prev.hero.image_url) profile_changes.hero_image_url = form.hero.image_url;
+    if (form.footer.license_label !== prev.footer.license_label) profile_changes.license_label = form.footer.license_label;
+    if (form.footer.license_url !== prev.footer.license_url) profile_changes.license_url = form.footer.license_url;
+    if (form.footer.privacy_label !== prev.footer.privacy_label) profile_changes.privacy_label = form.footer.privacy_label;
+    if (form.footer.privacy_url !== prev.footer.privacy_url) profile_changes.privacy_url = form.footer.privacy_url;
 
     if (Object.keys(profile_changes).length > 0) {
       await settings_api.update_profile(profile_changes);
@@ -246,6 +259,9 @@ async function save_settings() {
 
     // 保存成功后更新快照
     initial.value = JSON.stringify(form);
+
+    // 清除 API 缓存，确保刷新后看到最新数据
+    clear_cache('/api/settings/');
 
     toast.success('设置已保存');
   } catch (e) {

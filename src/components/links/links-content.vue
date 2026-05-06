@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick } from 'vue';
+import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import LinksList from '@/components/links/links-list.vue';
 import LinksSidebar from '@/components/links/links-sidebar.vue';
 import ProfileCard from '@/components/entrance/profile-card.vue';
@@ -75,14 +75,14 @@ const handle_starred_change = (new_starred: boolean) => {
 };
 
 const infinite_scroll = useInfiniteScroll({
-  has_more: has_more.value,
+  has_more,
   onLoadMore: async () => {
     if (!is_loading.value && has_more.value) {
       await load_links();
     }
   },
   root_margin: '100px',
-  disabled: is_loading.value || links.value.length === 0,
+  disabled: computed(() => is_loading.value || links.value.length === 0),
 });
 
 watch(

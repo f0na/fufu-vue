@@ -3,9 +3,15 @@ export interface SiteProfile {
   site_name: string;
   subtitle: string;
   logo_url: string;
+  greeting?: string;
   description: string;
   keywords: string;
   icp_beian: string;
+  hero_image_url?: string;
+  license_label?: string;
+  license_url?: string;
+  privacy_label?: string;
+  privacy_url?: string;
   created_at: string;
   updated_at: string;
 }
@@ -14,9 +20,15 @@ export interface SiteProfileUpdate {
   site_name?: string;
   subtitle?: string;
   logo_url?: string;
+  greeting?: string;
   description?: string;
   keywords?: string;
   icp_beian?: string;
+  hero_image_url?: string;
+  license_label?: string;
+  license_url?: string;
+  privacy_label?: string;
+  privacy_url?: string;
 }
 
 export interface Footer {

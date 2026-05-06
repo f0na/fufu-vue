@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue';
+import { ref, computed, onMounted, nextTick } from 'vue';
 import FriendsList from '@/components/friends/friends-list.vue';
 import FriendsSidebar from '@/components/friends/friends-sidebar.vue';
 import ProfileCard from '@/components/entrance/profile-card.vue';
@@ -62,14 +62,14 @@ const load_friends = async (reset = false) => {
 };
 
 const infinite_scroll = useInfiniteScroll({
-  has_more: has_more.value,
+  has_more,
   onLoadMore: async () => {
     if (!is_loading.value && has_more.value) {
       await load_friends();
     }
   },
   root_margin: '100px',
-  disabled: is_loading.value || friends.value.length === 0,
+  disabled: computed(() => is_loading.value || friends.value.length === 0),
 });
 
 onMounted(async () => {

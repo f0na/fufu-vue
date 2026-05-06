@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, toRef } from 'vue';
 import { RouterLink } from 'vue-router';
 import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
@@ -20,10 +20,10 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const { sentinelRef } = useInfiniteScroll({
-  has_more: props.has_more,
+  has_more: toRef(props, 'has_more'),
   onLoadMore: () => {},
   root_margin: '100px',
-  disabled: props.is_loading || props.posts.length === 0,
+  disabled: computed(() => props.is_loading || props.posts.length === 0),
 });
 void sentinelRef;
 

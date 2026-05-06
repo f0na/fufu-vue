@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed, toRef } from 'vue';
 import { Spinner } from '@/components/ui/spinner';
 import LinkCard from './link-card.vue';
 import { useInfiniteScroll } from '@/composables/useInfiniteScroll';
@@ -13,10 +14,10 @@ interface Props {
 const props = defineProps<Props>();
 
 const { sentinelRef } = useInfiniteScroll({
-  has_more: props.has_more,
+  has_more: toRef(props, 'has_more'),
   onLoadMore: () => {},
   root_margin: '100px',
-  disabled: props.is_loading || props.links.length === 0,
+  disabled: computed(() => props.is_loading || props.links.length === 0),
 });
 void sentinelRef;
 </script>

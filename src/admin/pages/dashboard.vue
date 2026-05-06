@@ -52,9 +52,11 @@ const quick_actions = [
   { label: '系统设置', icon: 'lucide:settings', to: '/admin/settings' },
 ];
 
-function max_pageviews(items: Array<{ pageviews: number }>): number {
+const max_pageviews_val = computed(() => {
+  const items = data.value?.analytics.pageviews_timeline;
+  if (!items?.length) return 1;
   return Math.max(...items.map(i => i.pageviews), 1);
-}
+});
 </script>
 
 <template>
@@ -184,7 +186,7 @@ function max_pageviews(items: Array<{ pageviews: number }>): number {
               <div
                 class="w-full rounded-t bg-primary/40 hover:bg-primary/60 transition-colors cursor-pointer"
                 :style="{
-                  height: `${Math.max(4, (point.pageviews / max_pageviews(data.analytics.pageviews_timeline)) * 100)}px`,
+                  height: `${Math.max(4, (point.pageviews / max_pageviews_val) * 100)}px`,
                 }"
               />
               <div class="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block z-10">

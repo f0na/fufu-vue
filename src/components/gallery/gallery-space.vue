@@ -165,18 +165,26 @@ watch(
   }
 );
 
-// 保存状态
+// 保存状态（防抖，避免拖拽时频繁写入）
+let save_timer: ReturnType<typeof setTimeout> | null = null;
 watch([photo_states, canvas_scale, canvas_offset_x, canvas_offset_y], () => {
-  if (photo_states.value.length > 0) {
-    const storage_key = get_storage_key(props.gallery_id);
-    const state: SavedState = {
-      photo_states: photo_states.value,
-      canvas_scale: canvas_scale.value,
-      canvas_offset_x: canvas_offset_x.value,
-      canvas_offset_y: canvas_offset_y.value,
-    };
-    localStorage.setItem(storage_key, JSON.stringify(state));
-  }
+  if (save_timer) clearTimeout(save_timer);
+  save_timer = setTimeout(() => {
+    if (photo_states.value.length > 0) {
+      const storage_key = get_storage_key(props.gallery_id);
+      const state: SavedState = {
+        photo_states: photo_states.value,
+        canvas_scale: canvas_scale.value,
+        canvas_offset_x: canvas_offset_x.value,
+        canvas_offset_y: canvas_offset_y.value,
+      };
+      localStorage.setItem(storage_key, JSON.stringify(state));
+    }
+  }, 300);
+});
+
+onUnmounted(() => {
+  if (save_timer) clearTimeout(save_timer);
 });
 
 // 滚轮缩放
