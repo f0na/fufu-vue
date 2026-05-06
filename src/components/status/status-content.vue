@@ -9,17 +9,19 @@ import RunningDaysCounter from '@/components/status/running-days-counter.vue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Icon } from '@iconify/vue';
 import { get_stats } from '@/lib/api/stats';
+import { get_health } from '@/lib/api/health';
 import type { StatsData } from '@/lib/types/stats';
+import type { HealthData } from '@/lib/api/health';
 
 use([CanvasRenderer, LineChart, GridComponent, TooltipComponent]);
 
 const stats_data = ref<StatsData | null>(null);
+const health_data = ref<HealthData | null>(null);
 const load_error = ref('');
 const loading = ref(true);
 
-// 实时 uptime：由 deployed_at_epoch 驱动，无需累加
+// 实时 uptime：均由 epoch 时间戳驱动
 const now = ref(Date.now());
-let fetch_time = 0;
 let interval_id: ReturnType<typeof setInterval> | null = null;
 
 const live_uptime_seconds = computed(() => {
@@ -28,8 +30,8 @@ const live_uptime_seconds = computed(() => {
 });
 
 const live_health_uptime = computed(() => {
-  if (!stats_data.value?.health) return 0;
-  return stats_data.value.health.uptime + Math.floor((now.value - fetch_time) / 1000);
+  if (!health_data.value) return 0;
+  return Math.floor(now.value / 1000) - health_data.value.instance_started_at_epoch;
 });
 
 const chart_option = computed(() => {
@@ -63,8 +65,12 @@ const chart_option = computed(() => {
 
 onMounted(async () => {
   try {
-    stats_data.value = await get_stats();
-    fetch_time = Date.now();
+    const [stats, health] = await Promise.all([
+      get_stats(),
+      get_health(),
+    ]);
+    stats_data.value = stats;
+    health_data.value = health;
     interval_id = setInterval(() => {
       now.value = Date.now();
     }, 1000);
@@ -204,7 +210,7 @@ onUnmounted(() => {
     </template>
 
     <!-- API 状态 -->
-    <Card v-if="stats_data?.health" size="sm">
+    <Card v-if="health_data" size="sm">
       <CardHeader>
         <CardTitle class="flex items-center gap-2 text-base">
           <Icon icon="lucide:server" class="size-4 text-muted-foreground" />
@@ -218,9 +224,9 @@ onUnmounted(() => {
             <p class="text-sm font-medium text-foreground flex items-center gap-1.5 mt-0.5">
               <span
                 class="size-2 rounded-full"
-                :class="stats_data.health.status === 'ok' ? 'bg-green-500' : 'bg-red-500'"
+                :class="health_data.status === 'ok' ? 'bg-green-500' : 'bg-red-500'"
               />
-              {{ stats_data.health.status === 'ok' ? '正常' : '异常' }}
+              {{ health_data.status === 'ok' ? '正常' : '异常' }}
             </p>
           </div>
           <div>
@@ -229,16 +235,16 @@ onUnmounted(() => {
               {{ live_health_uptime > 86400 ? Math.floor(live_health_uptime / 86400) + '天' : Math.floor(live_health_uptime / 3600) + '小时' }}
             </p>
           </div>
-          <div v-if="stats_data.health.checks?.d1">
+          <div v-if="health_data.checks?.d1">
             <p class="text-xs text-muted-foreground">D1 延迟</p>
             <p class="text-sm font-medium text-foreground mt-0.5">
-              {{ stats_data.health.checks.d1.status === 'ok' ? stats_data.health.checks.d1.latency_ms + 'ms' : '异常' }}
+              {{ health_data.checks.d1.status === 'ok' ? health_data.checks.d1.latency_ms + 'ms' : '异常' }}
             </p>
           </div>
-          <div v-if="stats_data.health.checks?.kv">
+          <div v-if="health_data.checks?.kv">
             <p class="text-xs text-muted-foreground">KV 延迟</p>
             <p class="text-sm font-medium text-foreground mt-0.5">
-              {{ stats_data.health.checks.kv.status === 'ok' ? stats_data.health.checks.kv.latency_ms + 'ms' : '异常' }}
+              {{ health_data.checks.kv.status === 'ok' ? health_data.checks.kv.latency_ms + 'ms' : '异常' }}
             </p>
           </div>
         </div>
