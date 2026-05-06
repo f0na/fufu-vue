@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Icon } from '@iconify/vue';
 import { RouterLink } from 'vue-router';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,14 +11,38 @@ const data = ref<DashboardStats | null>(null);
 const loading = ref(true);
 const error = ref('');
 
+// 实时 uptime
+const now = ref(Date.now());
+let interval_id: ReturnType<typeof setInterval> | null = null;
+
+const instance_uptime = computed(() => {
+  if (!data.value) return 0;
+  return Math.floor(now.value / 1000) - data.value.health.instance_started_at_epoch;
+});
+
+const site_uptime = computed(() => {
+  if (!data.value) return 0;
+  return Math.floor(now.value / 1000) - data.value.deploy_info.deployed_at_epoch;
+});
+
+const deployed_at_str = computed(() => {
+  if (!data.value) return '';
+  return new Date(data.value.deploy_info.deployed_at_epoch * 1000).toLocaleString();
+});
+
 onMounted(async () => {
   try {
     data.value = await get_dashboard();
+    interval_id = setInterval(() => { now.value = Date.now(); }, 1000);
   } catch (e) {
     error.value = '无法连接后端 API，请检查服务是否启动';
   } finally {
     loading.value = false;
   }
+});
+
+onUnmounted(() => {
+  if (interval_id) clearInterval(interval_id);
 });
 
 const quick_actions = [
@@ -290,7 +314,7 @@ function max_pageviews(items: Array<{ pageviews: number }>): number {
             </div>
             <div class="flex items-center justify-between">
               <span class="text-sm text-muted-foreground">运行时间</span>
-              <span class="text-sm font-medium tabular-nums">{{ data.deploy_info.uptime_human }}</span>
+              <span class="text-sm font-medium tabular-nums">{{ instance_uptime >= 86400 ? Math.floor(instance_uptime / 86400) + '天' : Math.floor(instance_uptime / 3600) + '小时' }}</span>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-sm text-muted-foreground">版本</span>
@@ -408,14 +432,14 @@ function max_pageviews(items: Array<{ pageviews: number }>): number {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <p class="text-xs text-muted-foreground">部署时间</p>
-              <p class="text-sm font-medium text-foreground mt-0.5">{{ data.deploy_info.deployed_at }}</p>
+              <p class="text-sm font-medium text-foreground mt-0.5">{{ deployed_at_str }}</p>
             </div>
             <div>
               <p class="text-xs text-muted-foreground">运行时长</p>
-              <p class="text-sm font-medium text-foreground mt-0.5">{{ data.deploy_info.uptime_human }}</p>
+              <p class="text-sm font-medium text-foreground mt-0.5">{{ site_uptime >= 86400 ? Math.floor(site_uptime / 86400) + '天' : Math.floor(site_uptime / 3600) + '小时' }}</p>
             </div>
           </div>
         </CardContent>
