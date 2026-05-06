@@ -11,10 +11,7 @@ export interface TimelinePoint {
 }
 
 export interface DeployInfo {
-  deployed_at: string;
   deployed_at_epoch: number;
-  uptime_seconds: number;
-  uptime_human: string;
 }
 
 export interface HealthCheck {

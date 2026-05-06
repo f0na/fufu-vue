@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import { LineChart } from 'echarts/charts';
@@ -16,6 +16,21 @@ use([CanvasRenderer, LineChart, GridComponent, TooltipComponent]);
 const stats_data = ref<StatsData | null>(null);
 const load_error = ref('');
 const loading = ref(true);
+
+// 实时 uptime：由 deployed_at_epoch 驱动，无需累加
+const now = ref(Date.now());
+let fetch_time = 0;
+let interval_id: ReturnType<typeof setInterval> | null = null;
+
+const live_uptime_seconds = computed(() => {
+  if (!stats_data.value) return 0;
+  return Math.floor(now.value / 1000) - stats_data.value.deploy_info.deployed_at_epoch;
+});
+
+const live_health_uptime = computed(() => {
+  if (!stats_data.value?.health) return 0;
+  return stats_data.value.health.uptime + Math.floor((now.value - fetch_time) / 1000);
+});
 
 const chart_option = computed(() => {
   const data = stats_data.value?.pageviews_timeline;
@@ -49,11 +64,19 @@ const chart_option = computed(() => {
 onMounted(async () => {
   try {
     stats_data.value = await get_stats();
+    fetch_time = Date.now();
+    interval_id = setInterval(() => {
+      now.value = Date.now();
+    }, 1000);
   } catch (e) {
     load_error.value = e instanceof Error ? e.message : '获取状态失败';
   } finally {
     loading.value = false;
   }
+});
+
+onUnmounted(() => {
+  if (interval_id) clearInterval(interval_id);
 });
 </script>
 
@@ -76,7 +99,7 @@ onMounted(async () => {
     </template>
 
     <template v-if="stats_data">
-      <RunningDaysCounter :uptime_seconds="stats_data.deploy_info.uptime_seconds" class="mb-6" />
+      <RunningDaysCounter :uptime_seconds="live_uptime_seconds" class="mb-6" />
 
       <!-- 实时访客 -->
       <Card size="sm">
@@ -203,7 +226,7 @@ onMounted(async () => {
           <div>
             <p class="text-xs text-muted-foreground">运行时间</p>
             <p class="text-sm font-medium text-foreground mt-0.5">
-              {{ stats_data.health.uptime > 86400 ? Math.floor(stats_data.health.uptime / 86400) + '天' : Math.floor(stats_data.health.uptime / 3600) + '小时' }}
+              {{ live_health_uptime > 86400 ? Math.floor(live_health_uptime / 86400) + '天' : Math.floor(live_health_uptime / 3600) + '小时' }}
             </p>
           </div>
           <div v-if="stats_data.health.checks?.d1">
