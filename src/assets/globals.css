@@ -1,4 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap');
+@font-face {
+  font-family: 'YaHei Consolas Hybrid';
+  src: url('/fonts/YaHeiConsolasHybrid1.12.ttf') format('truetype');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 @import 'tailwindcss';
 @import 'tw-animate-css';
@@ -13,7 +19,7 @@
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: 'Geist Variable', sans-serif;
+  --font-sans: 'YaHei Consolas Hybrid', ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
