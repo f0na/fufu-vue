@@ -1,14 +1,50 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { use } from 'echarts/core';
+import { CanvasRenderer } from 'echarts/renderers';
+import { LineChart } from 'echarts/charts';
+import { GridComponent, TooltipComponent } from 'echarts/components';
+import VChart from 'vue-echarts';
 import RunningDaysCounter from '@/components/status/running-days-counter.vue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Icon } from '@iconify/vue';
 import { get_stats } from '@/lib/api/stats';
 import type { StatsData } from '@/lib/types/stats';
 
+use([CanvasRenderer, LineChart, GridComponent, TooltipComponent]);
+
 const stats_data = ref<StatsData | null>(null);
 const load_error = ref('');
 const loading = ref(true);
+
+const chart_option = computed(() => {
+  const data = stats_data.value?.pageviews_timeline;
+  if (!data?.length) return null;
+  return {
+    grid: { left: 0, right: 0, top: 4, bottom: 0 },
+    xAxis: {
+      type: 'category' as const,
+      data: data.map(p => p.date),
+      show: false,
+    },
+    yAxis: { show: false, min: 0 },
+    series: [
+      {
+        type: 'line' as const,
+        data: data.map(p => p.pageviews),
+        smooth: true,
+        showSymbol: false,
+        lineStyle: { width: 2 },
+        areaStyle: { opacity: 0.15 },
+      },
+    ],
+    tooltip: {
+      trigger: 'axis' as const,
+      formatter: (params: { value: number }[]) =>
+        `${params[0].value} 浏览`,
+    },
+  };
+});
 
 onMounted(async () => {
   try {
@@ -122,7 +158,7 @@ onMounted(async () => {
         </CardContent>
       </Card>
 
-      <!-- 时间线迷你图 -->
+      <!-- 浏览趋势 -->
       <Card v-if="stats_data.pageviews_timeline.length > 0" size="sm">
         <CardHeader>
           <CardTitle class="flex items-center gap-2 text-base">
@@ -131,21 +167,12 @@ onMounted(async () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div class="flex items-end gap-1 h-24">
-            <div
-              v-for="(point, i) in stats_data.pageviews_timeline"
-              :key="i"
-              class="flex-1 flex flex-col items-center gap-1"
-              :title="`${point.date}: ${point.pageviews} 浏览`"
-            >
-              <div
-                class="w-full rounded-t bg-primary/60 hover:bg-primary/80 transition-colors"
-                :style="{
-                  height: `${Math.max(4, (point.pageviews / Math.max(...stats_data.pageviews_timeline.map(p => p.pageviews))) * 100)}px`,
-                }"
-              />
-            </div>
-          </div>
+          <VChart
+            v-if="chart_option"
+            :option="chart_option"
+            autoresize
+            class="h-24 w-full"
+          />
           <p class="text-xs text-muted-foreground mt-2 text-center">
             {{ stats_data.pageviews_timeline[0]?.date }} — {{ stats_data.pageviews_timeline[stats_data.pageviews_timeline.length - 1]?.date }}
           </p>
