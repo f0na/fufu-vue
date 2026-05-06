@@ -3,47 +3,16 @@ import { ref, onMounted } from 'vue';
 import RunningDaysCounter from '@/components/status/running-days-counter.vue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Icon } from '@iconify/vue';
-import { get_health } from '@/lib/api/health';
 import { get_stats } from '@/lib/api/stats';
-import { get_profile } from '@/lib/api/settings';
 import type { StatsData } from '@/lib/types/stats';
 
-interface HealthInfo {
-  status: string;
-  uptime: number;
-  checks: Record<string, { status: string; latency_ms?: number }>;
-}
-
-interface SiteInfo {
-  site_name: string;
-  subtitle: string;
-  description: string;
-}
-
-const health_info = ref<HealthInfo | null>(null);
 const stats_data = ref<StatsData | null>(null);
-const site_info = ref<SiteInfo | null>(null);
 const load_error = ref('');
 const loading = ref(true);
 
 onMounted(async () => {
   try {
-    const [health, stats, profile] = await Promise.all([
-      get_health(),
-      get_stats(),
-      get_profile().catch(() => null),
-    ]);
-
-    health_info.value = health;
-    stats_data.value = stats;
-
-    site_info.value = profile?.data
-      ? {
-          site_name: profile.data.site_name || '',
-          subtitle: profile.data.subtitle || '',
-          description: profile.data.description || '',
-        }
-      : null;
+    stats_data.value = await get_stats();
   } catch (e) {
     load_error.value = e instanceof Error ? e.message : '获取状态失败';
   } finally {
@@ -185,7 +154,7 @@ onMounted(async () => {
     </template>
 
     <!-- API 状态 -->
-    <Card v-if="health_info" size="sm">
+    <Card v-if="stats_data?.health" size="sm">
       <CardHeader>
         <CardTitle class="flex items-center gap-2 text-base">
           <Icon icon="lucide:server" class="size-4 text-muted-foreground" />
@@ -199,59 +168,27 @@ onMounted(async () => {
             <p class="text-sm font-medium text-foreground flex items-center gap-1.5 mt-0.5">
               <span
                 class="size-2 rounded-full"
-                :class="health_info.status === 'ok' ? 'bg-green-500' : 'bg-red-500'"
+                :class="stats_data.health.status === 'ok' ? 'bg-green-500' : 'bg-red-500'"
               />
-              {{ health_info.status === 'ok' ? '正常' : '异常' }}
+              {{ stats_data.health.status === 'ok' ? '正常' : '异常' }}
             </p>
           </div>
           <div>
             <p class="text-xs text-muted-foreground">运行时间</p>
             <p class="text-sm font-medium text-foreground mt-0.5">
-              {{ health_info.uptime > 86400 ? Math.floor(health_info.uptime / 86400) + '天' : Math.floor(health_info.uptime / 3600) + '小时' }}
+              {{ stats_data.health.uptime > 86400 ? Math.floor(stats_data.health.uptime / 86400) + '天' : Math.floor(stats_data.health.uptime / 3600) + '小时' }}
             </p>
           </div>
-          <div v-if="health_info.checks?.d1">
+          <div v-if="stats_data.health.checks?.d1">
             <p class="text-xs text-muted-foreground">D1 延迟</p>
             <p class="text-sm font-medium text-foreground mt-0.5">
-              {{ health_info.checks.d1.status === 'ok' ? health_info.checks.d1.latency_ms + 'ms' : '异常' }}
+              {{ stats_data.health.checks.d1.status === 'ok' ? stats_data.health.checks.d1.latency_ms + 'ms' : '异常' }}
             </p>
           </div>
-          <div v-if="health_info.checks?.kv">
+          <div v-if="stats_data.health.checks?.kv">
             <p class="text-xs text-muted-foreground">KV 延迟</p>
             <p class="text-sm font-medium text-foreground mt-0.5">
-              {{ health_info.checks.kv.status === 'ok' ? health_info.checks.kv.latency_ms + 'ms' : '异常' }}
-            </p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-
-    <!-- 站点信息 -->
-    <Card v-if="site_info" size="sm">
-      <CardHeader>
-        <CardTitle class="flex items-center gap-2 text-base">
-          <Icon icon="lucide:info" class="size-4 text-muted-foreground" />
-          站点信息
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <p class="text-xs text-muted-foreground">站点名称</p>
-            <p class="text-sm font-medium text-foreground mt-0.5">
-              {{ site_info.site_name || '-' }}
-            </p>
-          </div>
-          <div>
-            <p class="text-xs text-muted-foreground">副标题</p>
-            <p class="text-sm font-medium text-foreground mt-0.5">
-              {{ site_info.subtitle || '-' }}
-            </p>
-          </div>
-          <div class="sm:col-span-2">
-            <p class="text-xs text-muted-foreground">描述</p>
-            <p class="text-sm text-muted-foreground mt-0.5 line-clamp-2">
-              {{ site_info.description || '-' }}
+              {{ stats_data.health.checks.kv.status === 'ok' ? stats_data.health.checks.kv.latency_ms + 'ms' : '异常' }}
             </p>
           </div>
         </div>

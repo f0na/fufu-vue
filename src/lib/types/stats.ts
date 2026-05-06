@@ -17,7 +17,14 @@ export interface DeployInfo {
   uptime_human: string;
 }
 
+export interface HealthCheck {
+  status: string;
+  uptime: number;
+  checks: Record<string, { status: string; latency_ms?: number }>;
+}
+
 export interface StatsData {
+  health: HealthCheck;
   active_visitors: number;
   today: StatsTimeRange;
   last_30_days: StatsTimeRange;
